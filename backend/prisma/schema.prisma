@@ -1,33 +1,144 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Collaborator {
-  id            String   @id @default(uuid())
-  name          String
-  email         String   @unique
-  phone         String
-  type          String
-  password      String
-  role          Role     @default(USER)
-  statusAccount Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  type      Role     @default(USER)
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Home      Home[]
 
   @@map("collaborators")
+}
+
+model Home {
+  id             String       @id @default(uuid())
+  cep            String       @db.Char(8)
+  state          String
+  city           String
+  address        String
+  number         String
+  status         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  collaboratorId String
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  animal         Animal[]
+
+  @@map("homes")
+}
+
+model Animal {
+  id           String     @id @default(uuid())
+  name         String
+  description  String
+  sex          String     @db.Char(1)
+  castrated    Boolean
+  race         String
+  linkPhoto    String?
+  dateExit     DateTime?
+  status       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  home         Home       @relation(fields: [homeId], references: [id])
+  homeId       String
+  typeAnimal   TypeAnimal @relation(fields: [typeAnimalId], references: [id])
+  typeAnimalId String
+  Service      Service[]
+
+  @@map("animals")
+}
+
+model TypeAnimal {
+  id        String   @id @default(uuid())
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Animal    Animal[]
+
+  @@map("typesAnimals")
+}
+
+model Service {
+  id                 String               @id @default(uuid())
+  description        String?
+  status             Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  animal             Animal               @relation(fields: [animalId], references: [id])
+  animalId           String
+  DoctorOnService    DoctorOnService[]
+  ProcedureOnService ProcedureOnService[]
+
+  @@map("services")
+}
+
+model Doctor {
+  id              String            @id @default(uuid())
+  name            String
+  crmv            String
+  expertise       String
+  phone           String
+  socialReason    String
+  openHours       String
+  cep             String            @db.Char(8)
+  state           String
+  city            String
+  address         String
+  number          String
+  status          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  DoctorOnService DoctorOnService[]
+
+  @@map("doctors")
+}
+
+model DoctorOnService {
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([serviceId, doctorId])
+  @@map("doctorsOnServices")
+}
+
+model ProcedureOnService {
+  serviceId   String
+  service     Service   @relation(fields: [serviceId], references: [id])
+  procedureId String
+  procedure   Procedure @relation(fields: [procedureId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@id([serviceId, procedureId])
+  @@map("proceduresOnSer")
+}
+
+model Procedure {
+  id                 String               @id @default(uuid())
+  name               String
+  description        String
+  dosage             String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  ProcedureOnService ProcedureOnService[]
+
+  @@map("procedures")
 }
 
 enum Role {
