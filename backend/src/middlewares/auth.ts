@@ -8,9 +8,10 @@ export const authMiddleware = async (
   done: DoneFuncWithErrOrRes
 ) => {
   const token = request.headers.authorization
+  const hasToken = !!token
 
-  if (!!!token)
-    reply.status(statusCode.unAuthorized).send("Token was not provided.")
+  if (!hasToken)
+    reply.status(statusCode.unAuthorized).send("Token was not provided")
 
   try {
     const collaborator = await useVerifyTokenAuth(token!)
