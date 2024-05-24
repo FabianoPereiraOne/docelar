@@ -4,5 +4,6 @@ export const statusCode = {
   badRequest: 400,
   success: 200,
   create: 201,
-  redirect: 308
+  redirect: 308,
+  serverError: 500
 }

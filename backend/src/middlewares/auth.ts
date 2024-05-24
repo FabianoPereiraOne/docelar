@@ -12,10 +12,20 @@ export const authMiddleware = async (
   if (!!!token)
     reply.status(statusCode.unAuthorized).send("Token was not provided.")
 
-  const isAuthorized = await useVerifyTokenAuth(token!)
+  try {
+    const collaborator = await useVerifyTokenAuth(token!)
+    const isValidToken = !!collaborator
 
-  if (!!!isAuthorized)
-    reply.status(statusCode.unAuthorized).send("Token is not valid.")
+    if (!isValidToken)
+      reply.status(statusCode.unAuthorized).send("This token is not valid")
+
+    if (isValidToken && collaborator.type != "ADMIN")
+      reply
+        .status(statusCode.unAuthorized)
+        .send("Collaborator not authorized for this operation")
+  } catch (error) {
+    reply.status(statusCode.serverError).send(error)
+  }
 
   done()
 }
