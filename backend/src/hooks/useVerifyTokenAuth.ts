@@ -1,4 +1,4 @@
-import { fetchCollaboratorByID } from "../services/prisma/collaborator"
+import { fetch } from "../services/prisma/collaborator/fetch"
 import { verify } from "../utils/jwt"
 
 export const useVerifyTokenAuth = async (token: string) => {
@@ -7,7 +7,7 @@ export const useVerifyTokenAuth = async (token: string) => {
   if (typeof decodedToken == "string")
     throw new Error("Unable to validate token")
 
-  const result = await fetchCollaboratorByID(decodedToken.id)
+  const result = await fetch(decodedToken.id)
 
   return result
 }

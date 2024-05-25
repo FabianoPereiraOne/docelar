@@ -1,7 +1,7 @@
-import { FastifyInstance, FastifyRequest } from "fastify"
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { useGenerateHash } from "../hooks/useGenerateHash"
 import { useVerifyCollaboratorBody } from "../hooks/useVerifyCollaboratorBody"
-import { authMiddleware } from "../middlewares/auth"
+import { operationMiddleware } from "../middlewares/operation"
 import { create } from "../services/prisma/collaborator/create"
 import { CollaboratorParams } from "../types/collaborator"
 import { statusCode } from "../utils/statusCode"
@@ -9,8 +9,8 @@ import { statusCode } from "../utils/statusCode"
 export default async function Collaborator(app: FastifyInstance) {
   app.post(
     "/collaborator",
-    { preHandler: authMiddleware },
-    async (request: FastifyRequest, reply) => {
+    { preHandler: operationMiddleware },
+    async (request: FastifyRequest, reply: FastifyReply) => {
       const password = request.headers["password"]
       const data: any = request.body
       const notExistsPass = !!!password
@@ -18,9 +18,11 @@ export default async function Collaborator(app: FastifyInstance) {
       const isNotValidData = useVerifyCollaboratorBody(request)
 
       if (isNotValidData || notExistsPass)
-        return reply
-          .status(statusCode.badRequest)
-          .send("Insufficient data or data not provided")
+        return reply.status(statusCode.badRequest.status).send({
+          statusCode: statusCode.badRequest.status,
+          error: statusCode.badRequest.error,
+          message: "Insufficient data or data not provided"
+        })
 
       try {
         const collaborator: CollaboratorParams = {
@@ -32,14 +34,15 @@ export default async function Collaborator(app: FastifyInstance) {
         }
 
         await create(collaborator).then(result => {
-          return reply
-            .status(statusCode.create)
-            .send("Collaborator created with success")
+          return reply.status(statusCode.create.status).send({
+            statusCode: statusCode.create.status,
+            success: statusCode.create.success,
+            message: "Collaborator created with success",
+            data: result
+          })
         })
       } catch (error: any) {
-        return reply
-          .status(statusCode.serverError)
-          .send("Internal Server Error")
+        return reply.send(error)
       }
     }
   )
