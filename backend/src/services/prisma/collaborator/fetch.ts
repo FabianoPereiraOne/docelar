@@ -1,7 +1,7 @@
 import { prisma } from "../../../database/prisma-client"
 
 export const fetch = async (id: string) => {
-  const result = await prisma.collaborator.findFirst({
+  return await prisma.collaborator.findFirst({
     where: {
       id
     },
@@ -14,6 +14,4 @@ export const fetch = async (id: string) => {
       type: true
     }
   })
-
-  return result
 }

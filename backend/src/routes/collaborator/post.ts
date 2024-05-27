@@ -1,18 +1,18 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
-import { useGenerateHash } from "../hooks/useGenerateHash"
-import { useVerifyCollaboratorBody } from "../hooks/useVerifyCollaboratorBody"
-import { operationMiddleware } from "../middlewares/operation"
-import { create } from "../services/prisma/collaborator/create"
-import { CollaboratorParams } from "../types/collaborator"
-import { statusCode } from "../utils/statusCode"
+import { useGenerateHash } from "../../hooks/useGenerateHash"
+import { useVerifyCollaboratorBody } from "../../hooks/useVerifyCollaboratorBody"
+import { operationMiddleware } from "../../middlewares/operation"
+import { create } from "../../services/prisma/collaborator/create"
+import { CollaboratorParams } from "../../types/collaborator"
+import { statusCode } from "../../utils/statusCode"
 
-export default async function Collaborator(app: FastifyInstance) {
-  app.post(
+export default async function PostCollaborator(server: FastifyInstance) {
+  server.post(
     "/collaborator",
     { preHandler: operationMiddleware },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const password = request.headers["password"]
-      const data: any = request.body
+      const { name, email, phone, type }: any = request.body
       const notExistsPass = !!!password
 
       const isNotValidData = useVerifyCollaboratorBody(request)
@@ -26,10 +26,10 @@ export default async function Collaborator(app: FastifyInstance) {
 
       try {
         const collaborator: CollaboratorParams = {
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          type: data.type,
+          name,
+          email,
+          phone,
+          type,
           password: await useGenerateHash(password as string)
         }
 

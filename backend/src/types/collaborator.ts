@@ -12,9 +12,11 @@ export type Collaborator = {
 }
 
 export type CollaboratorParams = {
+  id?: string
   name: string
   email: string
   phone: string
   password: string
   type?: Role
+  status?: boolean
 }
