@@ -20,3 +20,13 @@ export type CollaboratorParams = {
   type?: Role
   status?: boolean
 }
+
+export type CollaboratorParamsUpdate = {
+  id: string
+  name?: string
+  email?: string
+  phone?: string
+  password?: string
+  type?: Role
+  status?: boolean
+}

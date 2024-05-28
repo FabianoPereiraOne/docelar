@@ -3,7 +3,7 @@ import { useGenerateHash } from "../../hooks/useGenerateHash"
 import { operationMiddleware } from "../../middlewares/operation"
 import { fetch } from "../../services/prisma/collaborator/fetch"
 import { update } from "../../services/prisma/collaborator/update"
-import { CollaboratorParams } from "../../types/collaborator"
+import { CollaboratorParamsUpdate } from "../../types/collaborator"
 import { statusCode } from "../../utils/statusCode"
 
 export default async function PatchCollaborator(server: FastifyInstance) {
@@ -12,7 +12,7 @@ export default async function PatchCollaborator(server: FastifyInstance) {
     { preHandler: operationMiddleware },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.query
-      const { name, email, phone, type, status }: any = request.body
+      const data: any = request.body
       const password = request.headers["password"]
       const hasID = !!id
 
@@ -32,14 +32,17 @@ export default async function PatchCollaborator(server: FastifyInstance) {
         })
 
       try {
-        const collaborator: CollaboratorParams = {
+        const collaborator: CollaboratorParamsUpdate = {
           id,
-          name,
-          email,
-          phone,
-          type,
-          status,
-          password: await useGenerateHash(password as string)
+          name: data?.name,
+          email: data?.email,
+          phone: data?.phone,
+          type: data?.type,
+          status: data?.status,
+          password:
+            password != undefined
+              ? await useGenerateHash(password as string)
+              : undefined
         }
 
         await update(collaborator).then(data => {
