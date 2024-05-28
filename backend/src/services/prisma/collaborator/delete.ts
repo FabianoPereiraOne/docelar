@@ -10,7 +10,7 @@ export const deleteCollaborator = async (id: string) => {
       name: true,
       email: true,
       phone: true,
-      status: true,
+      statusAccount: true,
       type: true,
       createdAt: true
     }

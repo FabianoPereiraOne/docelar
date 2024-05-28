@@ -22,7 +22,7 @@ export const createCollaborator = async ({
       email: true,
       phone: true,
       type: true,
-      status: true,
+      statusAccount: true,
       createdAt: true
     }
   })

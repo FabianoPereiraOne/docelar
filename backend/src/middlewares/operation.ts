@@ -28,7 +28,7 @@ export const operationMiddleware = async (
         message: "This token is not valid"
       })
 
-    if (collaborator!.type != "ADMIN" || collaborator!.status != true)
+    if (collaborator!.type != "ADMIN" || collaborator!.statusAccount != true)
       return reply.status(statusCode.unAuthorized.status).send({
         statusCode: statusCode.unAuthorized.status,
         error: statusCode.unAuthorized.error,

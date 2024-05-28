@@ -38,7 +38,7 @@ export default async function PatchCollaborator(server: FastifyInstance) {
           email: data?.email,
           phone: data?.phone,
           type: data?.type,
-          status: data?.status,
+          statusAccount: data?.status,
           password:
             password != undefined
               ? await useGenerateHash(password as string)

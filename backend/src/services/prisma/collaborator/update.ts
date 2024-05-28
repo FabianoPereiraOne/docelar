@@ -7,7 +7,7 @@ export const updateCollaborator = async ({
   email,
   password,
   phone,
-  status,
+  statusAccount,
   type
 }: CollaboratorParamsUpdate) => {
   return await prisma.collaborator.update({
@@ -19,7 +19,7 @@ export const updateCollaborator = async ({
       email,
       password,
       phone,
-      status,
+      statusAccount,
       type
     },
     select: {
@@ -27,7 +27,7 @@ export const updateCollaborator = async ({
       name: true,
       email: true,
       phone: true,
-      status: true,
+      statusAccount: true,
       type: true,
       updatedAt: true
     }

@@ -6,7 +6,7 @@ export type Collaborator = {
   email: string
   phone: string
   type: string
-  status: Boolean
+  statusAccount: Boolean
   createdAt?: Date
   updatedAt?: Date
 }
@@ -18,7 +18,7 @@ export type CollaboratorParams = {
   phone: string
   password: string
   type?: Role
-  status?: boolean
+  statusAccount?: boolean
 }
 
 export type CollaboratorParamsUpdate = {
@@ -28,5 +28,5 @@ export type CollaboratorParamsUpdate = {
   phone?: string
   password?: string
   type?: Role
-  status?: boolean
+  statusAccount?: boolean
 }
