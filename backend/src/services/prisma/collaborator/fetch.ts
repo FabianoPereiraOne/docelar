@@ -11,7 +11,9 @@ export const fetch = async (id: string) => {
       email: true,
       phone: true,
       status: true,
-      type: true
+      type: true,
+      createdAt: true,
+      Home: true
     }
   })
 }
