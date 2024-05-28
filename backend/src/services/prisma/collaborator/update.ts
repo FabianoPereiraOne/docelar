@@ -1,7 +1,7 @@
 import { prisma } from "../../../database/prisma-client"
 import { CollaboratorParamsUpdate } from "../../../types/collaborator"
 
-export const update = async ({
+export const updateCollaborator = async ({
   id,
   name,
   email,

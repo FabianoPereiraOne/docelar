@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { operationMiddleware } from "../../middlewares/operation"
-import { fetch } from "../../services/prisma/collaborator/fetch"
+import { fetchCollaborator } from "../../services/prisma/collaborator/fetch"
 import { statusCode } from "../../utils/statusCode"
 
 export default async function GetCollaborator(server: FastifyInstance) {
@@ -18,7 +18,7 @@ export default async function GetCollaborator(server: FastifyInstance) {
           message: "Employee ID was not provided"
         })
 
-      const collaborator = await fetch(id)
+      const collaborator = await fetchCollaborator(id)
       const hasCollaborator = !!collaborator
 
       if (!hasCollaborator)

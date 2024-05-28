@@ -1,7 +1,7 @@
 import { prisma } from "../../../database/prisma-client"
 
-export const fetchCollaborator = async (id: string) => {
-  return await prisma.collaborator.findFirst({
+export const deleteCollaborator = async (id: string) => {
+  return await prisma.collaborator.delete({
     where: {
       id
     },
@@ -12,8 +12,7 @@ export const fetchCollaborator = async (id: string) => {
       phone: true,
       status: true,
       type: true,
-      createdAt: true,
-      Home: true
+      createdAt: true
     }
   })
 }

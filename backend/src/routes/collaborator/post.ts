@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { useGenerateHash } from "../../hooks/useGenerateHash"
 import { useVerifyCollaboratorBody } from "../../hooks/useVerifyCollaboratorBody"
 import { operationMiddleware } from "../../middlewares/operation"
-import { create } from "../../services/prisma/collaborator/create"
+import { createCollaborator } from "../../services/prisma/collaborator/create"
 import { CollaboratorParams } from "../../types/collaborator"
 import { statusCode } from "../../utils/statusCode"
 
@@ -33,7 +33,7 @@ export default async function PostCollaborator(server: FastifyInstance) {
           password: await useGenerateHash(password as string)
         }
 
-        await create(collaborator).then(result => {
+        await createCollaborator(collaborator).then(result => {
           return reply.status(statusCode.create.status).send({
             statusCode: statusCode.create.status,
             success: statusCode.create.success,
