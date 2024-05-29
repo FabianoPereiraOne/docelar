@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "vercel-build": "npx prisma migrate deploy",
-    "build": "prisma generate && next build"
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "Time docelar",
