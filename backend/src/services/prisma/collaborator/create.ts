@@ -6,7 +6,7 @@ export const createCollaborator = async ({
   email,
   password,
   phone,
-  type = "ADMIN"
+  type = "USER"
 }: CollaboratorParams) => {
   const result = await prisma.collaborator.create({
     data: {
