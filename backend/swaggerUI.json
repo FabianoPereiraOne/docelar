@@ -1,0 +1,12 @@
+{
+  "theme": {
+    "title": "API Docelar"
+  },
+  "routePrefix": "/docs",
+  "exposeRoute": true,
+  "uiConfig": {
+    "docExpansion": "full",
+    "deepLinking": false
+  },
+  "staticCSP": true
+}

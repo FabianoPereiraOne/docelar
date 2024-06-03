@@ -6,7 +6,9 @@ import { statusCode } from "../../utils/statusCode"
 export default async function GetCollaborator(server: FastifyInstance) {
   server.get(
     "/collaborator",
-    { preHandler: operationMiddleware },
+    {
+      preHandler: operationMiddleware
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.query
       const hasID = !!id
