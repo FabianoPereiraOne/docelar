@@ -11,6 +11,14 @@ export const statusCode = {
     status: 400,
     error: "Bad Request"
   },
+  unprocessableEntity: {
+    status: 422,
+    error: "Unprocessable Entity"
+  },
+  forbidden: {
+    status: 403,
+    error: "Forbidden"
+  },
   success: {
     status: 200,
     success: "OK"

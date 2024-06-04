@@ -2,19 +2,19 @@ import { DoneFuncWithErrOrRes, FastifyReply, FastifyRequest } from "fastify"
 import { useVerifyTokenAuth } from "../hooks/useVerifyTokenAuth"
 import { statusCode } from "../utils/statusCode"
 
-export const operationMiddleware = async (
+export const OperationMiddleware = async (
   request: FastifyRequest,
   reply: FastifyReply,
   done: DoneFuncWithErrOrRes
 ) => {
   const token = request.headers.authorization
   const hasToken = !!token
+  const method = request.method
 
   if (!hasToken)
     return reply.status(statusCode.unAuthorized.status).send({
-      statusCode: statusCode.unAuthorized.status,
       error: statusCode.unAuthorized.error,
-      message: "Token was not provided"
+      description: "Token was not provided"
     })
 
   try {
@@ -22,20 +22,25 @@ export const operationMiddleware = async (
     const isValidToken = !!collaborator
 
     if (!isValidToken)
-      return reply.status(statusCode.unAuthorized.status).send({
-        statusCode: statusCode.unAuthorized.status,
-        error: statusCode.unAuthorized.error,
-        message: "This token is not valid"
+      return reply.status(statusCode.unprocessableEntity.status).send({
+        error: statusCode.unprocessableEntity.error,
+        description: "This token is not valid"
       })
 
-    if (collaborator!.type != "ADMIN" || collaborator!.statusAccount != true)
-      return reply.status(statusCode.unAuthorized.status).send({
-        statusCode: statusCode.unAuthorized.status,
-        error: statusCode.unAuthorized.error,
-        message: "Collaborator not authorized for this operation"
+    if (
+      (method != "GET" && collaborator!.type != "ADMIN") ||
+      collaborator!.statusAccount != true
+    )
+      return reply.status(statusCode.forbidden.status).send({
+        error: statusCode.forbidden.error,
+        description: "Collaborator not authorized for this operation"
       })
   } catch (error: any) {
-    return reply.send(error)
+    return reply.status(statusCode.serverError.status).send({
+      error: statusCode.serverError.error,
+      description:
+        "Something unexpected happened during processing on the server"
+    })
   }
 
   done()
