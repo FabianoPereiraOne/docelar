@@ -9,19 +9,31 @@ import { statusCode } from "../../utils/statusCode"
 export default async function PostCollaborator(server: FastifyInstance) {
   server.post(
     "/collaborator",
-    { preHandler: OperationMiddleware },
+    {
+      preHandler: OperationMiddleware
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const password = request.headers["password"]
-      const { name, email, phone, type }: any = request.body
+      const { collaborator }: any = request.body
       const notExistsPass = !!!password
+      const existsCollaborator = !!collaborator
+
+      if (!existsCollaborator) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Data collaborator not provided"
+        })
+      }
 
       const isNotValidData = useVerifyCollaboratorBody(request)
 
       if (isNotValidData || notExistsPass)
         return reply.status(statusCode.badRequest.status).send({
           error: statusCode.badRequest.error,
-          description: "Insufficient data or data not provided"
+          description: "Insufficient data collaborator"
         })
+
+      const { name, email, phone, type } = collaborator
 
       try {
         const collaborator: CollaboratorParams = {

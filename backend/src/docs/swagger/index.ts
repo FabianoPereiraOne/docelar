@@ -4,6 +4,8 @@ import { SwaggerTypes } from "./types"
 export const SwaggerDocConfig = () => {
   return {
     swagger: {
+      openapi: "3.1.1",
+      exposeRoute: true,
       info: {
         title: "API Docelar",
         version: "1.0.0",

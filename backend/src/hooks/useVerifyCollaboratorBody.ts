@@ -2,10 +2,11 @@ import { FastifyRequest } from "fastify"
 
 export const useVerifyCollaboratorBody = (request: FastifyRequest) => {
   const schema = ["name", "email", "phone"]
-  const data: any = request.body
+  const { collaborator }: any = request.body
 
   const result = schema.map(child => {
-    if (data[child] == undefined || data[child]?.length < 0) return false
+    if (collaborator[child] == undefined || collaborator[child]?.length < 0)
+      return false
 
     return true
   })

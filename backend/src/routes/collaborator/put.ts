@@ -6,21 +6,32 @@ import { updateCollaborator } from "../../services/prisma/collaborator/update"
 import { CollaboratorParamsUpdate } from "../../types/collaborator"
 import { statusCode } from "../../utils/statusCode"
 
-export default async function PatchCollaborator(server: FastifyInstance) {
-  server.patch(
+export default async function PutCollaborator(server: FastifyInstance) {
+  server.put(
     "/collaborator",
     { preHandler: OperationMiddleware },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id }: any = request.query
-      const data: any = request.body
+      const { collaborator }: any = request.body
       const password = request.headers["password"]
       const hasID = !!id
+
+      const existsCollaborator = !!collaborator
 
       if (!hasID)
         return reply.status(statusCode.badRequest.status).send({
           error: statusCode.badRequest.error,
           description: "Employee ID was not provided"
         })
+
+      if (!existsCollaborator) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Data collaborator not provided"
+        })
+      }
+
+      const { name, email, phone, type, statusAccount } = collaborator
 
       const hasCollaborator = !!(await fetchCollaborator(id))
       if (!hasCollaborator)
@@ -32,11 +43,11 @@ export default async function PatchCollaborator(server: FastifyInstance) {
       try {
         const collaborator: CollaboratorParamsUpdate = {
           id,
-          name: data?.name,
-          email: data?.email,
-          phone: data?.phone,
-          type: data?.type,
-          statusAccount: data?.status,
+          name,
+          email,
+          phone,
+          type,
+          statusAccount,
           password:
             password != undefined
               ? await useGenerateHash(password as string)
