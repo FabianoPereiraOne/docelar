@@ -6,8 +6,8 @@ import { updateCollaborator } from "../../services/prisma/collaborator/update"
 import { CollaboratorParamsUpdate } from "../../types/collaborator"
 import { statusCode } from "../../utils/statusCode"
 
-export default async function PutCollaborator(server: FastifyInstance) {
-  server.put(
+export default async function PatchCollaborator(server: FastifyInstance) {
+  server.patch(
     "/collaborator",
     { preHandler: OperationMiddleware },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -21,7 +21,7 @@ export default async function PutCollaborator(server: FastifyInstance) {
       if (!hasID)
         return reply.status(statusCode.badRequest.status).send({
           error: statusCode.badRequest.error,
-          description: "Employee ID was not provided"
+          description: "Collaborator ID was not provided"
         })
 
       if (!existsCollaborator) {
@@ -31,20 +31,19 @@ export default async function PutCollaborator(server: FastifyInstance) {
         })
       }
 
-      const { name, email, phone, type, statusAccount } = collaborator
+      const { name, phone, type, statusAccount } = collaborator
 
       const hasCollaborator = !!(await fetchCollaborator(id))
       if (!hasCollaborator)
         return reply.status(statusCode.notFound.status).send({
           error: statusCode.notFound.error,
-          description: "We were unable to locate the employee"
+          description: "We were unable to locate the collaborator"
         })
 
       try {
         const collaborator: CollaboratorParamsUpdate = {
           id,
           name,
-          email,
           phone,
           type,
           statusAccount,
@@ -59,7 +58,8 @@ export default async function PutCollaborator(server: FastifyInstance) {
             data
           })
         })
-      } catch (error) {
+      } catch (error: any) {
+        console.log(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:

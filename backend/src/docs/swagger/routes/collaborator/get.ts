@@ -1,6 +1,6 @@
 export const GetConfigCollaborator = {
   tags: ["Collaborator"],
-  summary: "Find collaborator by ID",
+  summary: "Find collaborator",
   description: "This route allows you to search for a collaborator by ID",
   produces: ["application/json"],
   operationId: "getCollaboratorByID",
@@ -26,11 +26,11 @@ export const GetConfigCollaborator = {
       }
     },
     "400": {
-      description: "Employee ID was not provided",
+      description: "Collaborator ID was not provided",
       error: "Bad Request"
     },
     "404": {
-      description: "We were unable to locate the employee",
+      description: "We were unable to locate the collaborator",
       error: "Not Found"
     },
     "401": {

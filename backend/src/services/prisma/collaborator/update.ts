@@ -4,7 +4,6 @@ import { CollaboratorParamsUpdate } from "../../../types/collaborator"
 export const updateCollaborator = async ({
   id,
   name,
-  email,
   password,
   phone,
   statusAccount,
@@ -16,7 +15,6 @@ export const updateCollaborator = async ({
     },
     data: {
       name,
-      email,
       password,
       phone,
       statusAccount,

@@ -1,4 +1,4 @@
-export const PutConfigCollaborator = {
+export const PatchConfigCollaborator = {
   tags: ["Collaborator"],
   summary: "Update collaborator",
   description: "This route allows the admin to update a collaborator",
@@ -24,10 +24,6 @@ export const PutConfigCollaborator = {
               name: {
                 type: "string",
                 example: "Lucas Silva"
-              },
-              email: {
-                type: "string",
-                example: "exemplo@gmail.com"
               },
               phone: {
                 type: "string",

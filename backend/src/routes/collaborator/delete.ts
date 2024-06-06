@@ -15,7 +15,7 @@ export default async function DeleteCollaborator(server: FastifyInstance) {
       if (!hasID)
         return reply.status(statusCode.badRequest.status).send({
           error: statusCode.badRequest.error,
-          description: "Employee ID was not provided"
+          description: "Collaborator ID was not provided"
         })
 
       const collaborator = await fetchCollaborator(id)
@@ -24,7 +24,7 @@ export default async function DeleteCollaborator(server: FastifyInstance) {
       if (!hasCollaborator)
         return reply.status(statusCode.notFound.status).send({
           error: statusCode.notFound.error,
-          description: "We were unable to locate the employee"
+          description: "We were unable to locate the collaborator"
         })
 
       // Implements this code future

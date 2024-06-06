@@ -1,6 +1,6 @@
 export const DeleteConfigCollaborator = {
   tags: ["Collaborator"],
-  summary: "Delete collaborator by ID",
+  summary: "Delete collaborator",
   description: "This route allows the admin to delete a collaborator",
   produces: ["application/json"],
   operationId: "deleteCollaboratorByID",
@@ -26,11 +26,11 @@ export const DeleteConfigCollaborator = {
       }
     },
     "400": {
-      description: "Employee ID was not provided",
+      description: "Collaborator ID was not provided",
       error: "Bad Request"
     },
     "404": {
-      description: "We were unable to locate the employee",
+      description: "We were unable to locate the collaborator",
       error: "Not Found"
     },
     "401": {

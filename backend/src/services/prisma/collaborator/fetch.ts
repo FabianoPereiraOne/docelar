@@ -10,8 +10,8 @@ export const fetchCollaborator = async (id: string) => {
       name: true,
       email: true,
       phone: true,
-      statusAccount: true,
       type: true,
+      statusAccount: true,
       createdAt: true
     }
   })

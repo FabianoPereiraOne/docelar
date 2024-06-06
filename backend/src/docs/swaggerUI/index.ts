@@ -7,7 +7,7 @@ export const SwaggerUIDocConfig = () => {
       title: "API Docelar"
     },
     uiConfig: {
-      docExpansion: "full",
+      docExpansion: "list",
       deepLinking: false
     },
     uiHooks: {

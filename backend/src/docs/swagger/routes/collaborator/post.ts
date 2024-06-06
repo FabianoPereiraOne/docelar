@@ -19,7 +19,25 @@ export const PostConfigCollaborator = {
         type: "object",
         properties: {
           collaborator: {
-            $ref: "#/definitions/Collaborator"
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+                example: "Lucas Silva"
+              },
+              email: {
+                type: "string",
+                example: "exemplo@gmail.com"
+              },
+              phone: {
+                type: "string",
+                example: "55 33 999999999"
+              },
+              type: {
+                type: "string",
+                example: "USER"
+              }
+            }
           }
         }
       }
