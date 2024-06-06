@@ -33,6 +33,10 @@ export const DeleteConfigCollaborator = {
       description: "We were unable to locate the collaborator",
       error: "Not Found"
     },
+    "409": {
+      description: "Unable to delete collaborator with linked homes",
+      error: "Conflict"
+    },
     "401": {
       description: "Token was not provided",
       error: "Unauthorized"

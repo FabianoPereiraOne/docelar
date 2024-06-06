@@ -27,15 +27,14 @@ export default async function DeleteCollaborator(server: FastifyInstance) {
           description: "We were unable to locate the collaborator"
         })
 
-      // Implements this code future
-      // const hasHomeLinked = collaborator.Home.length > 0
+      const hasHomeLinked = collaborator?.homes && collaborator.homes.length > 0
 
-      // if (hasHomeLinked) {
-      //   return reply.status(statusCode.unAuthorized.status).send({
-      //     error: statusCode.unAuthorized.error,
-      //     description: "Unable to delete collaborator with linked homes"
-      //   })
-      // }
+      if (hasHomeLinked) {
+        return reply.status(statusCode.conflict.status).send({
+          error: statusCode.conflict.error,
+          description: "Unable to delete collaborator with linked homes"
+        })
+      }
 
       try {
         await deleteCollaborator(id).then(data => {

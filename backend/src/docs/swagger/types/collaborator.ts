@@ -21,6 +21,15 @@ export const TypeCollaborator = {
     },
     createdAt: {
       type: "string"
+    },
+    updateAt: {
+      type: "string"
+    },
+    homes: {
+      type: "array",
+      items: {
+        type: "object"
+      }
     }
   }
 }

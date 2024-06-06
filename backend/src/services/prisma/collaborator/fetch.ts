@@ -12,7 +12,9 @@ export const fetchCollaborator = async (id: string) => {
       phone: true,
       type: true,
       statusAccount: true,
-      createdAt: true
+      createdAt: true,
+      updatedAt: true,
+      homes: true
     }
   })
 }

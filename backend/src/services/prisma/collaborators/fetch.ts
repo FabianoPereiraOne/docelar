@@ -1,10 +1,7 @@
 import { prisma } from "../../../database/prisma-client"
 
-export const deleteCollaborator = async (id: string) => {
-  return await prisma.collaborator.delete({
-    where: {
-      id
-    },
+export const fetchAllCollaborators = async () => {
+  return await prisma.collaborator.findMany({
     select: {
       id: true,
       name: true,

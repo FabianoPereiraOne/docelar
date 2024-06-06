@@ -1,5 +1,7 @@
 import { PathCollaborator } from "./collaborator"
+import { PathCollaborators } from "./collaborators"
 
 export const SwaggerRoutes = {
-  "/collaborator": PathCollaborator
+  "/collaborator": PathCollaborator,
+  "/collaborators": PathCollaborators
 }

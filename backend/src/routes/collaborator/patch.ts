@@ -59,7 +59,6 @@ export default async function PatchCollaborator(server: FastifyInstance) {
           })
         })
       } catch (error: any) {
-        console.log(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:

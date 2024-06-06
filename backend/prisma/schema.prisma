@@ -17,7 +17,7 @@ model Collaborator {
   statusAccount Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  Home          Home[]
+  homes         Home[]
 
   @@map("collaborators")
 }
