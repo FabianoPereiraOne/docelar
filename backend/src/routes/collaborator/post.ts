@@ -14,7 +14,8 @@ export default async function PostCollaborator(server: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const password = request.headers["password"]
-      const { collaborator }: any = request.body
+      const data: any = request.body
+      const collaborator = data?.collaborator
       const notExistsPass = !!!password
       const existsCollaborator = !!collaborator
 

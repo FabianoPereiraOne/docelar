@@ -1,5 +1,5 @@
 import { DoneFuncWithErrOrRes, FastifyReply, FastifyRequest } from "fastify"
-import { useVerifyTokenAuth } from "../hooks/useVerifyTokenAuth"
+import { useVerifyToken } from "../hooks/useVerifyToken"
 import { statusCode } from "../utils/statusCode"
 
 export const OperationMiddleware = async (
@@ -18,7 +18,7 @@ export const OperationMiddleware = async (
     })
 
   try {
-    const collaborator = await useVerifyTokenAuth(token!)
+    const collaborator = await useVerifyToken(token!)
     const isValidToken = !!collaborator
 
     if (!isValidToken)
