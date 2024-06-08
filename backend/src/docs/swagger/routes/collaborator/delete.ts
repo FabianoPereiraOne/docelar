@@ -38,8 +38,12 @@ export const DeleteConfigCollaborator = {
       error: "Conflict"
     },
     "401": {
-      description: "Token was not provided",
+      description: "Collaborator not authorized for this operation",
       error: "Unauthorized"
+    },
+    "403": {
+      description: "Token was not provided",
+      error: "Forbidden"
     },
     "422": {
       description: "This token is not valid",

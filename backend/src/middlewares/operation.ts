@@ -12,8 +12,8 @@ export const OperationMiddleware = async (
   const method = request.method
 
   if (!hasToken)
-    return reply.status(statusCode.unAuthorized.status).send({
-      error: statusCode.unAuthorized.error,
+    return reply.status(statusCode.forbidden.status).send({
+      error: statusCode.forbidden.error,
       description: "Token was not provided"
     })
 
@@ -31,8 +31,8 @@ export const OperationMiddleware = async (
       (method != "GET" && collaborator!.type != "ADMIN") ||
       collaborator!.statusAccount != true
     )
-      return reply.status(statusCode.forbidden.status).send({
-        error: statusCode.forbidden.error,
+      return reply.status(statusCode.unAuthorized.status).send({
+        error: statusCode.unAuthorized.error,
         description: "Collaborator not authorized for this operation"
       })
   } catch (error: any) {

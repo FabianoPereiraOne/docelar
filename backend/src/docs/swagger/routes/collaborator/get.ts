@@ -33,9 +33,9 @@ export const GetConfigCollaborator = {
       description: "We were unable to locate the collaborator",
       error: "Not Found"
     },
-    "401": {
+    "403": {
       description: "Token was not provided",
-      error: "Unauthorized"
+      error: "Forbidden"
     },
     "422": {
       description: "This token is not valid",

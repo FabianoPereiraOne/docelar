@@ -13,8 +13,8 @@ export default async function Sign(server: FastifyInstance) {
     const existsEmail = !!email
 
     if (!existsEmail || !existsPass || typeof password != "string") {
-      return reply.status(statusCode.badRequest.status).send({
-        error: statusCode.badRequest.error,
+      return reply.status(statusCode.unprocessableEntity.status).send({
+        error: statusCode.unprocessableEntity.error,
         description: "Insufficient collaborator data"
       })
     }

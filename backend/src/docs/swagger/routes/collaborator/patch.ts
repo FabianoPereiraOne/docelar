@@ -84,16 +84,16 @@ export const PatchConfigCollaborator = {
       error: "Bad Request"
     },
     "401": {
-      description: "Token was not provided",
+      description: "Collaborator not authorized for this operation",
       error: "Unauthorized"
+    },
+    "403": {
+      description: "Token was not provided",
+      error: "Forbidden"
     },
     "422": {
       description: "This token is not valid",
       error: "Unprocessable Entity"
-    },
-    "403": {
-      description: "Collaborator not authorized for this operation",
-      error: "Forbidden"
     },
     "500": {
       description:
