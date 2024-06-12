@@ -1,22 +1,37 @@
-export const GetAllConfigCollaborator = {
+export const GetConfigCollaborators = {
   tags: ["Collaborators"],
-  summary: "Find all collaborators",
-  description: "This route allows you to search for all collaborators",
+  summary: "Find collaborator",
+  description: "This route allows you to search for a collaborator by ID",
   produces: ["application/json"],
-  operationId: "getAllCollaborators",
+  operationId: "getCollaboratorByID",
   security: [
     {
       authorization: []
+    }
+  ],
+  parameters: [
+    {
+      name: "id",
+      in: "path",
+      description: "ID Collaborator",
+      required: true,
+      type: "string"
     }
   ],
   responses: {
     "200": {
       description: "OK",
       schema: {
-        items: {
-          $ref: "#/definitions/Collaborator"
-        }
+        $ref: "#/definitions/Collaborator"
       }
+    },
+    "400": {
+      description: "params/id must NOT have fewer than 10 characters",
+      error: "Bad Request"
+    },
+    "404": {
+      description: "We were unable to locate the collaborator",
+      error: "Not Found"
     },
     "403": {
       description: "Token was not provided",

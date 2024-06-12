@@ -1,22 +1,17 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { OperationMiddleware } from "../../middlewares/operation"
+import { Schemas } from "../../schemas"
 import { deleteCollaborator } from "../../services/prisma/collaborator/delete"
 import { fetchCollaborator } from "../../services/prisma/collaborator/fetch"
+import { CustomTypeDelete } from "../../types/request/collaborators"
 import { statusCode } from "../../utils/statusCode"
 
-export default async function DeleteCollaborator(server: FastifyInstance) {
-  server.delete(
-    "/collaborator",
-    { preHandler: OperationMiddleware },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { id }: any = request.query
-      const hasID = !!id
-
-      if (!hasID)
-        return reply.status(statusCode.badRequest.status).send({
-          error: statusCode.badRequest.error,
-          description: "Collaborator ID was not provided"
-        })
+export default async function DeleteCollaborators(server: FastifyInstance) {
+  server.delete<CustomTypeDelete>(
+    "/collaborators",
+    { preHandler: OperationMiddleware, schema: Schemas.collaborators.delete },
+    async (request: FastifyRequest<CustomTypeDelete>, reply: FastifyReply) => {
+      const { id } = request.query
 
       const collaborator = await fetchCollaborator(id)
       const hasCollaborator = !!collaborator
@@ -37,10 +32,9 @@ export default async function DeleteCollaborator(server: FastifyInstance) {
       }
 
       try {
-        await deleteCollaborator(id).then(data => {
-          return reply.status(statusCode.success.status).send({
-            data
-          })
+        const data = await deleteCollaborator(id)
+        return reply.status(statusCode.success.status).send({
+          data
         })
       } catch (error) {
         return reply.status(statusCode.serverError.status).send({

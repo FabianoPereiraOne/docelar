@@ -1,5 +1,5 @@
-export const DeleteConfigCollaborator = {
-  tags: ["Collaborator"],
+export const DeleteConfigCollaborators = {
+  tags: ["Collaborators"],
   summary: "Delete collaborator",
   description: "This route allows the admin to delete a collaborator",
   produces: ["application/json"],
@@ -13,7 +13,7 @@ export const DeleteConfigCollaborator = {
     {
       name: "id",
       in: "query",
-      description: "Collaborator ID",
+      description: "ID Collaborator",
       required: true,
       type: "string"
     }
@@ -26,7 +26,7 @@ export const DeleteConfigCollaborator = {
       }
     },
     "400": {
-      description: "Collaborator ID was not provided",
+      description: "querystring must have required property 'id'",
       error: "Bad Request"
     },
     "404": {

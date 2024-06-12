@@ -1,5 +1,5 @@
-export const PostConfigCollaborator = {
-  tags: ["Collaborator"],
+export const PostConfigCollaborators = {
+  tags: ["Collaborators"],
   summary: "Create collaborator",
   description: "This route allows the admin to create a collaborator",
   produces: ["application/json"],
@@ -18,26 +18,21 @@ export const PostConfigCollaborator = {
       schema: {
         type: "object",
         properties: {
-          collaborator: {
-            type: "object",
-            properties: {
-              name: {
-                type: "string",
-                example: "Lucas Silva"
-              },
-              email: {
-                type: "string",
-                example: "exemplo@gmail.com"
-              },
-              phone: {
-                type: "string",
-                example: "55 33 999999999"
-              },
-              type: {
-                type: "string",
-                example: "USER"
-              }
-            }
+          name: {
+            type: "string",
+            example: "Lucas Silva"
+          },
+          email: {
+            type: "string",
+            example: "exemplo@gmail.com"
+          },
+          phone: {
+            type: "string",
+            example: "55 33 999999999"
+          },
+          type: {
+            type: "string",
+            example: "USER"
           }
         }
       }
@@ -58,7 +53,7 @@ export const PostConfigCollaborator = {
       }
     },
     "400": {
-      description: "Insufficient data or data not provided",
+      description: "headers or body must have required property",
       error: "Bad Request"
     },
     "401": {

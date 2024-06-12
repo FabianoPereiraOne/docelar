@@ -23,7 +23,9 @@ export const createCollaborator = async ({
       phone: true,
       type: true,
       statusAccount: true,
-      createdAt: true
+      createdAt: true,
+      updatedAt: true,
+      homes: true
     }
   })
 

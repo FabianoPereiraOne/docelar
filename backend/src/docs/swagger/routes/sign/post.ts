@@ -13,14 +13,9 @@ export const PostConfigSign = {
       schema: {
         type: "object",
         properties: {
-          collaborator: {
-            type: "object",
-            properties: {
-              email: {
-                type: "string",
-                example: "exemplo@gmail.com"
-              }
-            }
+          email: {
+            type: "string",
+            example: "exemplo@gmail.com"
           }
         }
       }
@@ -53,9 +48,9 @@ export const PostConfigSign = {
       description: "We were unable to locate the collaborator",
       error: "Not found"
     },
-    "422": {
-      description: "Insufficient collaborator data",
-      error: "Unprocessable Entity"
+    "400": {
+      description: "headers or body must have required property",
+      error: "Bad Request"
     },
     "500": {
       description:

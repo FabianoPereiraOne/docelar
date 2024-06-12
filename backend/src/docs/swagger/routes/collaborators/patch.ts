@@ -1,5 +1,5 @@
-export const PatchConfigCollaborator = {
-  tags: ["Collaborator"],
+export const PatchConfigCollaborators = {
+  tags: ["Collaborators"],
   summary: "Update collaborator",
   description: "This route allows the admin to update a collaborator",
   produces: ["application/json"],
@@ -18,25 +18,20 @@ export const PatchConfigCollaborator = {
       schema: {
         type: "object",
         properties: {
-          collaborator: {
-            type: "object",
-            properties: {
-              name: {
-                type: "string",
-                example: "Lucas Silva"
-              },
-              phone: {
-                type: "string",
-                example: "+00 00 00000000"
-              },
-              type: {
-                type: "string",
-                example: "USER"
-              },
-              statusAccount: {
-                type: "boolean"
-              }
-            }
+          name: {
+            type: "string",
+            example: "Lucas Silva"
+          },
+          phone: {
+            type: "string",
+            example: "+00 00 00000000"
+          },
+          type: {
+            type: "string",
+            example: "USER"
+          },
+          statusAccount: {
+            type: "boolean"
           }
         }
       }
@@ -53,34 +48,11 @@ export const PatchConfigCollaborator = {
     "200": {
       description: "OK",
       schema: {
-        type: "object",
-        properties: {
-          id: {
-            type: "string"
-          },
-          name: {
-            type: "string"
-          },
-          email: {
-            type: "string"
-          },
-          phone: {
-            type: "string"
-          },
-          statusAccount: {
-            type: "boolean"
-          },
-          type: {
-            type: "string"
-          },
-          updatedAt: {
-            type: "string"
-          }
-        }
+        $ref: "#/definitions/Collaborator"
       }
     },
     "400": {
-      description: "Insufficient data or data not provided",
+      description: "querystring must have required property 'id'",
       error: "Bad Request"
     },
     "401": {
@@ -90,6 +62,10 @@ export const PatchConfigCollaborator = {
     "403": {
       description: "Token was not provided",
       error: "Forbidden"
+    },
+    "404": {
+      description: "We were unable to locate the collaborator",
+      error: "Not Found"
     },
     "422": {
       description: "This token is not valid",
