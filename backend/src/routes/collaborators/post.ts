@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { useGenerateHash } from "../../hooks/useGenerateHash"
 import { OperationMiddleware } from "../../middlewares/operation"
 import { Schemas } from "../../schemas"
-import { createCollaborator } from "../../services/prisma/collaborator/create"
+import { createCollaborator } from "../../services/prisma/collaborators/create"
 import { CustomTypePost } from "../../types/request/collaborators"
 import { statusCode } from "../../utils/statusCode"
 

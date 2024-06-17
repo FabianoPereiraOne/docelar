@@ -1,4 +1,4 @@
-import { fetchCollaborator } from "../services/prisma/collaborator/fetch"
+import { fetchCollaborator } from "../services/prisma/collaborators/fetch"
 import { verify } from "../utils/jwt"
 
 export const useVerifyToken = async (token: string) => {

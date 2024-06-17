@@ -24,9 +24,10 @@ model Collaborator {
 
 model Home {
   id             String       @id @default(uuid())
-  cep            String       @db.Char(8)
+  cep            String
   state          String
   city           String
+  district       String
   address        String
   number         String
   status         Boolean      @default(true)
@@ -43,7 +44,7 @@ model Animal {
   id           String     @id @default(uuid())
   name         String
   description  String
-  sex          String     @db.Char(1)
+  sex          String
   castrated    Boolean
   race         String
   linkPhoto    String?
@@ -92,7 +93,7 @@ model Doctor {
   phone           String
   socialReason    String
   openHours       String
-  cep             String            @db.Char(8)
+  cep             String
   state           String
   city            String
   address         String

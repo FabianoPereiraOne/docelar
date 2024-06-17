@@ -1,5 +1,7 @@
 import { TypeCollaborator } from "./collaborator"
+import { TypeHome } from "./home"
 
 export const SwaggerTypes = {
-  Collaborator: TypeCollaborator
+  Collaborator: TypeCollaborator,
+  Home: TypeHome
 }

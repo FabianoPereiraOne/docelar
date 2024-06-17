@@ -1,17 +1,5 @@
 import { Role } from "@prisma/client"
 
-export type CustomTypeGet = {
-  Params: {
-    id: string
-  }
-}
-
-export type CustomTypeDelete = {
-  Querystring: {
-    id: string
-  }
-}
-
 export type CustomTypePost = {
   Body: {
     name: string

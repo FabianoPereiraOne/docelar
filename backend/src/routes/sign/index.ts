@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { useCompareHash } from "../../hooks/useCompareHash"
 import { useGenerateToken } from "../../hooks/useGenerateToken"
 import { Schemas } from "../../schemas"
-import { fetchCollaboratorByEmail } from "../../services/prisma/collaborator/fetchByEmail"
+import { fetchCollaboratorByEmail } from "../../services/prisma/collaborators/fetchByEmail"
 import { CustomTypePost } from "../../types/request/sign"
 import { statusCode } from "../../utils/statusCode"
 

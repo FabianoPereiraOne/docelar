@@ -1,17 +1,17 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { OperationMiddleware } from "../../middlewares/operation"
-import { fetchAllCollaborators } from "../../services/prisma/collaborators/fetchAll"
+import { fetchAllHomes } from "../../services/prisma/homes/fetchAll"
 import { statusCode } from "../../utils/statusCode"
 
-export default async function GetAllCollaborators(server: FastifyInstance) {
+export default async function GetAllHomes(server: FastifyInstance) {
   server.get(
-    "/collaborators",
+    "/homes",
     {
       preHandler: OperationMiddleware
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const data = await fetchAllCollaborators()
+        const data = await fetchAllHomes()
         return reply.status(statusCode.success.status).send({
           data
         })

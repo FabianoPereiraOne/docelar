@@ -1,7 +1,10 @@
 import { prisma } from "../../../database/prisma-client"
 
-export const fetchAllCollaborators = async () => {
-  return await prisma.collaborator.findMany({
+export const fetchCollaborator = async (id: string) => {
+  return await prisma.collaborator.findFirst({
+    where: {
+      id
+    },
     select: {
       id: true,
       name: true,
