@@ -37,6 +37,13 @@ export const PatchConfigCollaborators = {
       }
     },
     {
+      name: "password",
+      in: "header",
+      required: false,
+      description: "Enter the password for update",
+      type: "string"
+    },
+    {
       name: "id",
       in: "query",
       required: true,
