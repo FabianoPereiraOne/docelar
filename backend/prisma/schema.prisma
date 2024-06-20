@@ -55,14 +55,14 @@ model Animal {
   home         Home       @relation(fields: [homeId], references: [id])
   homeId       String
   typeAnimal   TypeAnimal @relation(fields: [typeAnimalId], references: [id])
-  typeAnimalId String
+  typeAnimalId Int
   Service      Service[]
 
   @@map("animals")
 }
 
 model TypeAnimal {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   type      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -121,7 +121,7 @@ model DoctorOnService {
 model ProcedureOnService {
   serviceId   String
   service     Service   @relation(fields: [serviceId], references: [id])
-  procedureId String
+  procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -131,7 +131,7 @@ model ProcedureOnService {
 }
 
 model Procedure {
-  id                 String               @id @default(uuid())
+  id                 Int                  @id @default(autoincrement())
   name               String
   description        String
   dosage             String

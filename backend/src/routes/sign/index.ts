@@ -37,6 +37,17 @@ export default async function Sign(server: FastifyInstance) {
 
         const authorization = await useGenerateToken(id, email)
         return reply.status(statusCode.success.status).send({
+          data: {
+            id: collaborator.id,
+            name: collaborator.name,
+            email: collaborator.email,
+            phone: collaborator.phone,
+            type: collaborator.type,
+            statusAccount: collaborator.statusAccount,
+            createdAt: collaborator.createdAt,
+            updatedAt: collaborator.updatedAt,
+            homes: collaborator.homes
+          },
           authorization
         })
       } catch (error: any) {
