@@ -16,25 +16,25 @@ export default async function DeleteAnimals(server: FastifyInstance) {
     async (request: FastifyRequest<CustomTypeDelete>, reply: FastifyReply) => {
       const { id } = request.query
 
-      const animal = await fetchAnimal(id)
-      const hasAnimal = !!animal
-      if (!hasAnimal) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the animal"
-        })
-      }
-
-      const hasServicesLinked = animal.services.length > 0
-
-      if (hasServicesLinked) {
-        return reply.status(statusCode.conflict.status).send({
-          error: statusCode.conflict.error,
-          description: "Unable to delete animal with linked services"
-        })
-      }
-
       try {
+        const animal = await fetchAnimal(id)
+        const hasAnimal = !!animal
+        if (!hasAnimal) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the animal"
+          })
+        }
+
+        const hasServicesLinked = animal.services.length > 0
+
+        if (hasServicesLinked) {
+          return reply.status(statusCode.conflict.status).send({
+            error: statusCode.conflict.error,
+            description: "Unable to delete animal with linked services"
+          })
+        }
+
         const data = await deleteAnimal(id)
         return reply.status(statusCode.success.status).send({
           data

@@ -18,7 +18,7 @@ export const patchProperties = {
         type: "string"
       },
       typeAnimalId: {
-        type: "string"
+        type: "number"
       },
       linkPhoto: {
         type: "string"

@@ -26,7 +26,7 @@ export const postProperties = {
         type: "string"
       },
       typeAnimalId: {
-        type: "string"
+        type: "number"
       },
       linkPhoto: {
         type: "string"
