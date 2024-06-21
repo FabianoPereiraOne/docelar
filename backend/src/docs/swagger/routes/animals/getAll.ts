@@ -70,7 +70,39 @@ export const GetAllConfigAnimals = {
                 services: {
                   type: "array",
                   items: {
-                    type: "object"
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "string"
+                      },
+                      description: {
+                        type: "string"
+                      },
+                      status: {
+                        type: "boolean"
+                      },
+                      createdAt: {
+                        type: "string"
+                      },
+                      updatedAt: {
+                        type: "string"
+                      },
+                      animalId: {
+                        type: "string"
+                      },
+                      procedures: {
+                        type: "array",
+                        items: {
+                          type: "object"
+                        }
+                      },
+                      doctors: {
+                        type: "array",
+                        items: {
+                          type: "object"
+                        }
+                      }
+                    }
                   }
                 }
               }
