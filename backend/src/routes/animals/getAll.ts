@@ -16,6 +16,7 @@ export default async function GetAllAnimals(server: FastifyInstance) {
           data
         })
       } catch (error: any) {
+        console.log(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:
