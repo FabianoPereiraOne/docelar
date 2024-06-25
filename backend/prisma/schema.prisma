@@ -35,7 +35,7 @@ model Home {
   updatedAt      DateTime     @updatedAt
   collaboratorId String
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
-  animal         Animal[]
+  animals        Animal[]
 
   @@map("homes")
 }
@@ -56,7 +56,7 @@ model Animal {
   homeId       String
   typeAnimal   TypeAnimal @relation(fields: [typeAnimalId], references: [id])
   typeAnimalId Int
-  Service      Service[]
+  services     Service[]
 
   @@map("animals")
 }
@@ -66,78 +66,54 @@ model TypeAnimal {
   type      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Animal    Animal[]
+  animals   Animal[]
 
   @@map("typesAnimals")
 }
 
 model Service {
-  id                 String               @id @default(uuid())
-  description        String?
-  status             Boolean              @default(true)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  animal             Animal               @relation(fields: [animalId], references: [id])
-  animalId           String
-  DoctorOnService    DoctorOnService[]
-  ProcedureOnService ProcedureOnService[]
+  id          String      @id @default(uuid())
+  description String?
+  status      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  animal      Animal      @relation(fields: [animalId], references: [id])
+  animalId    String
+  procedures  Procedure[] @relation("proceduresOnServices")
+  doctors     Doctor[]    @relation("doctorsOnServices")
 
   @@map("services")
 }
 
 model Doctor {
-  id              String            @id @default(uuid())
-  name            String
-  crmv            String
-  expertise       String
-  phone           String
-  socialReason    String
-  openHours       String
-  cep             String
-  state           String
-  city            String
-  address         String
-  number          String
-  status          Boolean           @default(true)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  DoctorOnService DoctorOnService[]
+  id           String    @id @default(uuid())
+  name         String
+  crmv         String
+  expertise    String
+  phone        String
+  socialReason String
+  openHours    String
+  cep          String
+  state        String
+  city         String
+  address      String
+  number       String
+  status       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  services     Service[] @relation("doctorsOnServices")
 
   @@map("doctors")
 }
 
-model DoctorOnService {
-  doctorId  String
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  serviceId String
-  service   Service  @relation(fields: [serviceId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@id([serviceId, doctorId])
-  @@map("doctorsOnServices")
-}
-
-model ProcedureOnService {
-  serviceId   String
-  service     Service   @relation(fields: [serviceId], references: [id])
-  procedureId Int
-  procedure   Procedure @relation(fields: [procedureId], references: [id])
+model Procedure {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  dosage      String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
-  @@id([serviceId, procedureId])
-  @@map("proceduresOnSer")
-}
-
-model Procedure {
-  id                 Int                  @id @default(autoincrement())
-  name               String
-  description        String
-  dosage             String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  ProcedureOnService ProcedureOnService[]
+  services    Service[] @relation("proceduresOnServices")
 
   @@map("procedures")
 }

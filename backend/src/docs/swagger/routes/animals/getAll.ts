@@ -1,9 +1,9 @@
-export const GetAllConfigHomes = {
-  tags: ["Homes"],
-  summary: "Find all temporary homes",
-  description: "This route allows you to search for all temporary homes",
+export const GetAllConfigAnimals = {
+  tags: ["Animals"],
+  summary: "Find all animals",
+  description: "This route allows you to search for all animals",
   produces: ["application/json"],
-  operationId: "getAllHomes",
+  operationId: "getAllAnimals",
   security: [
     {
       authorization: []
@@ -23,22 +23,25 @@ export const GetAllConfigHomes = {
                 id: {
                   type: "string"
                 },
-                cep: {
+                name: {
                   type: "string"
                 },
-                state: {
+                description: {
                   type: "string"
                 },
-                city: {
+                sex: {
                   type: "string"
                 },
-                district: {
+                castrated: {
+                  type: "boolean"
+                },
+                race: {
                   type: "string"
                 },
-                address: {
+                linkPhoto: {
                   type: "string"
                 },
-                number: {
+                dateExit: {
                   type: "string"
                 },
                 status: {
@@ -47,13 +50,24 @@ export const GetAllConfigHomes = {
                 createdAt: {
                   type: "string"
                 },
-                updatedAt: {
+                updateAt: {
                   type: "string"
                 },
-                collaboratorId: {
+                homeId: {
                   type: "string"
                 },
-                animals: {
+                typeAnimal: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "number"
+                    },
+                    type: {
+                      type: "string"
+                    }
+                  }
+                },
+                services: {
                   type: "array",
                   items: {
                     type: "object",
@@ -61,25 +75,7 @@ export const GetAllConfigHomes = {
                       id: {
                         type: "string"
                       },
-                      name: {
-                        type: "string"
-                      },
                       description: {
-                        type: "string"
-                      },
-                      sex: {
-                        type: "string"
-                      },
-                      castrated: {
-                        type: "boolean"
-                      },
-                      race: {
-                        type: "string"
-                      },
-                      linkPhoto: {
-                        type: "string"
-                      },
-                      dateExit: {
                         type: "string"
                       },
                       status: {
@@ -88,24 +84,19 @@ export const GetAllConfigHomes = {
                       createdAt: {
                         type: "string"
                       },
-                      updateAt: {
+                      updatedAt: {
                         type: "string"
                       },
-                      homeId: {
+                      animalId: {
                         type: "string"
                       },
-                      typeAnimal: {
-                        type: "object",
-                        properties: {
-                          id: {
-                            type: "number"
-                          },
-                          type: {
-                            type: "string"
-                          }
+                      procedures: {
+                        type: "array",
+                        items: {
+                          type: "object"
                         }
                       },
-                      services: {
+                      doctors: {
                         type: "array",
                         items: {
                           type: "object"

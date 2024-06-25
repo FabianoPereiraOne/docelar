@@ -1,4 +1,4 @@
-export const TypeCollaborator = {
+export const TypeAnimal = {
   type: "object",
   properties: {
     data: {
@@ -10,16 +10,25 @@ export const TypeCollaborator = {
         name: {
           type: "string"
         },
-        email: {
+        description: {
           type: "string"
         },
-        phone: {
+        sex: {
           type: "string"
         },
-        type: {
+        castrated: {
+          type: "boolean"
+        },
+        race: {
           type: "string"
         },
-        statusAccount: {
+        linkPhoto: {
+          type: "string"
+        },
+        dateExit: {
+          type: "string"
+        },
+        status: {
           type: "boolean"
         },
         createdAt: {
@@ -28,7 +37,21 @@ export const TypeCollaborator = {
         updateAt: {
           type: "string"
         },
-        homes: {
+        homeId: {
+          type: "string"
+        },
+        typeAnimal: {
+          type: "object",
+          properties: {
+            id: {
+              type: "number"
+            },
+            type: {
+              type: "string"
+            }
+          }
+        },
+        services: {
           type: "array",
           items: {
             type: "object",
@@ -36,22 +59,7 @@ export const TypeCollaborator = {
               id: {
                 type: "string"
               },
-              cep: {
-                type: "string"
-              },
-              state: {
-                type: "string"
-              },
-              city: {
-                type: "string"
-              },
-              district: {
-                type: "string"
-              },
-              address: {
-                type: "string"
-              },
-              number: {
+              description: {
                 type: "string"
               },
               status: {
@@ -63,10 +71,16 @@ export const TypeCollaborator = {
               updatedAt: {
                 type: "string"
               },
-              collaboratorId: {
+              animalId: {
                 type: "string"
               },
-              animals: {
+              procedures: {
+                type: "array",
+                items: {
+                  type: "object"
+                }
+              },
+              doctors: {
                 type: "array",
                 items: {
                   type: "object"
