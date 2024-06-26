@@ -6,6 +6,6 @@ import { PostConfigHomes } from "./post"
 export const PathHomes = {
   get: GetAllConfigHomes,
   post: PostConfigHomes,
-  patch: PatchConfigHomes,
-  delete: DeleteConfigHomes
+  delete: DeleteConfigHomes,
+  patch: PatchConfigHomes
 }
