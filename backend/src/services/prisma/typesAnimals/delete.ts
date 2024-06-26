@@ -1,9 +1,7 @@
 import { prisma } from "../../../database/prisma-client"
 
-export const fetchTypeAnimal = async (typeAnimalId: number) => {
-  const id = Number(typeAnimalId)
-
-  const result = await prisma.typeAnimal.findFirst({
+export const deleteTypeAnimal = async (id: number) => {
+  const result = await prisma.typeAnimal.delete({
     where: {
       id
     },

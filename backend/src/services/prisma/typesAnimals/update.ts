@@ -1,9 +1,14 @@
 import { prisma } from "../../../database/prisma-client"
+import { updateTypeAnimalParams } from "../../../types/typeAnimal"
 
-export const fetchTypeAnimal = async (typeAnimalId: number) => {
-  const id = Number(typeAnimalId)
-
-  const result = await prisma.typeAnimal.findFirst({
+export const updateTypeAnimal = async ({
+  id,
+  type
+}: updateTypeAnimalParams) => {
+  const result = await prisma.typeAnimal.update({
+    data: {
+      type
+    },
     where: {
       id
     },
