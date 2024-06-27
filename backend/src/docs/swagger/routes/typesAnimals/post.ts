@@ -34,7 +34,8 @@ export const PostConfigTypesAnimals = {
       }
     },
     "400": {
-      description: "body must have required property 'type'",
+      description:
+        "body must have required property 'type' \nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

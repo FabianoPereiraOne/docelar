@@ -79,7 +79,7 @@ export const PostConfigDoctors = {
     },
     "400": {
       description:
-        "body must have required property \n body/property must match pattern '\\S'",
+        "body must have required property \nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

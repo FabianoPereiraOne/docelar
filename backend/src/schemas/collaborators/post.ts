@@ -11,16 +11,20 @@ export const postProperties = {
     required: ["name", "email", "phone"],
     properties: {
       name: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       email: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       phone: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       type: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   }

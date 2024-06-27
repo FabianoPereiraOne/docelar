@@ -3,22 +3,28 @@ export const patchProperties = {
     type: "object",
     properties: {
       cep: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       state: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       city: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       district: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       address: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       number: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       status: {
         type: "boolean"
