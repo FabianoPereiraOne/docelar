@@ -3,7 +3,7 @@ export const getProperties = {
     type: "object",
     required: ["id"],
     properties: {
-      id: { type: "number", minLength: 1 }
+      id: { type: "number" }
     }
   }
 }
