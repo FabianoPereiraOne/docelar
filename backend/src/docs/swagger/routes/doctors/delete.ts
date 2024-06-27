@@ -1,9 +1,9 @@
-export const GetConfigAnimals = {
-  tags: ["Animals"],
-  summary: "Search for animal",
-  description: "This route allows you to search for an animal by ID",
+export const DeleteConfigDoctors = {
+  tags: ["Doctors"],
+  summary: "Delete a doctor",
+  description: "This route allows the admin to delete a doctor",
   produces: ["application/json"],
-  operationId: "getAnimalByID",
+  operationId: "deleteDoctorByID",
   security: [
     {
       authorization: []
@@ -12,8 +12,8 @@ export const GetConfigAnimals = {
   parameters: [
     {
       name: "id",
-      in: "path",
-      description: "ID Animal",
+      in: "query",
+      description: "Enter ID the doctor",
       required: true,
       type: "string"
     }
@@ -22,16 +22,24 @@ export const GetConfigAnimals = {
     "200": {
       description: "OK",
       schema: {
-        $ref: "#/definitions/Animal"
+        $ref: "#/definitions/Doctor"
       }
     },
     "400": {
-      description: "params/id must NOT have fewer than 10 characters",
+      description: "querystring must have required property 'id'",
       error: "Bad Request"
     },
     "404": {
-      description: "We were unable to locate the animal",
+      description: "We were unable to locate the doctor",
       error: "Not Found"
+    },
+    "401": {
+      description: "Collaborator not authorized for this operation",
+      error: "Unauthorized"
+    },
+    "409": {
+      description: "Unable to delete the doctor with linked services",
+      error: "Conflict"
     },
     "403": {
       description: "Token was not provided",

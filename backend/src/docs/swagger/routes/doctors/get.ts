@@ -1,9 +1,9 @@
-export const GetConfigAnimals = {
-  tags: ["Animals"],
-  summary: "Search for animal",
-  description: "This route allows you to search for an animal by ID",
+export const GetConfigDoctors = {
+  tags: ["Doctors"],
+  summary: "Search for a doctor",
+  description: "This route allows you to search for a doctor by ID",
   produces: ["application/json"],
-  operationId: "getAnimalByID",
+  operationId: "getDoctorByID",
   security: [
     {
       authorization: []
@@ -13,7 +13,7 @@ export const GetConfigAnimals = {
     {
       name: "id",
       in: "path",
-      description: "ID Animal",
+      description: "doctor ID",
       required: true,
       type: "string"
     }
@@ -22,7 +22,7 @@ export const GetConfigAnimals = {
     "200": {
       description: "OK",
       schema: {
-        $ref: "#/definitions/Animal"
+        $ref: "#/definitions/Doctor"
       }
     },
     "400": {
@@ -30,7 +30,7 @@ export const GetConfigAnimals = {
       error: "Bad Request"
     },
     "404": {
-      description: "We were unable to locate the animal",
+      description: "We were unable to locate the doctor",
       error: "Not Found"
     },
     "403": {
