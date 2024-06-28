@@ -9,16 +9,19 @@ export const patchProperties = {
     type: "object",
     properties: {
       name: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       phone: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       statusAccount: {
         type: "boolean"
       },
       type: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   },

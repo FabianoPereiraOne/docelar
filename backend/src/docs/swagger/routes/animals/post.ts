@@ -61,7 +61,8 @@ export const PostConfigAnimals = {
       }
     },
     "400": {
-      description: "querystring or body must have required property",
+      description:
+        "querystring or body must have required property \nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

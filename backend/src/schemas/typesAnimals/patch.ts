@@ -3,7 +3,8 @@ export const patchProperties = {
     type: "object",
     properties: {
       type: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   },

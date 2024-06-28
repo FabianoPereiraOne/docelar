@@ -53,7 +53,8 @@ export const PostConfigCollaborators = {
       }
     },
     "400": {
-      description: "headers or body must have required property",
+      description:
+        "headers or body must have required property \nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

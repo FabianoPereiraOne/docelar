@@ -11,7 +11,8 @@ export const postProperties = {
     required: ["email"],
     properties: {
       email: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   }

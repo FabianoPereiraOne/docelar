@@ -4,7 +4,8 @@ export const postProperties = {
     required: ["type"],
     properties: {
       type: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   }

@@ -119,7 +119,8 @@ export const PostConfigSign = {
       error: "Not found"
     },
     "400": {
-      description: "headers or body must have required property",
+      description:
+        "headers or body must have required property \nbody/property must match pattern",
       error: "Bad Request"
     },
     "500": {

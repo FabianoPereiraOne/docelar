@@ -78,7 +78,8 @@ export const PatchConfigAnimals = {
       }
     },
     "400": {
-      description: "querystring must have required property 'id'",
+      description:
+        "querystring must have required property 'id'\nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

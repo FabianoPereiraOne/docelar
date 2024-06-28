@@ -4,19 +4,24 @@ export const postProperties = {
     required: ["cep", "state", "city", "address", "number"],
     properties: {
       cep: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       state: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       city: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       address: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       number: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   },

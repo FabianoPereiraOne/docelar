@@ -86,7 +86,7 @@ export const PatchConfigDoctors = {
     },
     "400": {
       description:
-        "querystring must have required property 'id' \n body/property must match pattern '\\S'",
+        "querystring must have required property 'id' \nbody/property must match pattern",
       error: "Bad Request"
     },
     "401": {

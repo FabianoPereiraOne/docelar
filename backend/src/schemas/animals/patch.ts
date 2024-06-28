@@ -3,34 +3,41 @@ export const patchProperties = {
     type: "object",
     properties: {
       name: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       description: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       sex: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       castrated: {
         type: "boolean"
       },
       race: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       typeAnimalId: {
         type: "number"
       },
       linkPhoto: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       dateExit: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       },
       status: {
         type: "boolean"
       },
       homeId: {
-        type: "string"
+        type: "string",
+        pattern: "\\S"
       }
     }
   },
