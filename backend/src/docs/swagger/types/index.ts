@@ -2,6 +2,7 @@ import { TypeAnimal } from "./animal"
 import { TypeCollaborator } from "./collaborator"
 import { TypeDoctor } from "./doctors"
 import { TypeHome } from "./home"
+import { TypeProcedure } from "./procedures"
 import { TypesAnimal } from "./typesAnimals"
 
 export const SwaggerTypes = {
@@ -9,5 +10,6 @@ export const SwaggerTypes = {
   Home: TypeHome,
   Animal: TypeAnimal,
   TypesAnimal: TypesAnimal,
-  Doctor: TypeDoctor
+  Doctor: TypeDoctor,
+  Procedure: TypeProcedure
 }

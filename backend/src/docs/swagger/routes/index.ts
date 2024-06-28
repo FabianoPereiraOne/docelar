@@ -6,6 +6,8 @@ import { PathDoctors } from "./doctors"
 import { GetConfigDoctors } from "./doctors/get"
 import { PathHomes } from "./homes"
 import { GetConfigHomes } from "./homes/get"
+import { PathProcedure } from "./procedures"
+import { GetConfigProcedures } from "./procedures/get"
 import { PathSign } from "./sign"
 import { PathTypesAnimals } from "./typesAnimals"
 import { GetConfigTypesAnimals } from "./typesAnimals/get"
@@ -17,10 +19,12 @@ export const SwaggerRoutes = {
   "/animals": PathAnimals,
   "/types-animals": PathTypesAnimals,
   "/doctors": PathDoctors,
+  "/procedures": PathProcedure,
 
   "/collaborators/{id}": { get: GetConfigCollaborators },
   "/homes/{id}": { get: GetConfigHomes },
   "/animals/{id}": { get: GetConfigAnimals },
   "/types-animals/{id}": { get: GetConfigTypesAnimals },
-  "/doctors/{id}": { get: GetConfigDoctors }
+  "/doctors/{id}": { get: GetConfigDoctors },
+  "/procedures/{id}": { get: GetConfigProcedures }
 }
