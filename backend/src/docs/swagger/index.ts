@@ -9,7 +9,7 @@ export const SwaggerDocConfig = () => {
       info: {
         title: "API Docelar",
         version: "1.0.0",
-        description: "Essa api tem como objetivo a gestão de animais"
+        description: "This API aims to control animals and procedures"
       },
       servers: [
         {

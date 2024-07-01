@@ -3,6 +3,7 @@ import { schemaCollaborators } from "./collaborators"
 import { schemaTypesDoctors } from "./doctors"
 import { schemaGeneral } from "./general"
 import { schemaHomes } from "./homes"
+import { schemaProcedures } from "./procedures"
 import { schemaSign } from "./sign"
 import { schemaTypesAnimals } from "./typesAnimals"
 
@@ -13,5 +14,6 @@ export const Schemas = {
   general: schemaGeneral,
   animals: schemaAnimals,
   typesAnimals: schemaTypesAnimals,
-  doctors: schemaTypesDoctors
+  doctors: schemaTypesDoctors,
+  procedures: schemaProcedures
 }
