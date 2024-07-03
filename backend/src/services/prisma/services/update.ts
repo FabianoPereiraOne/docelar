@@ -19,13 +19,15 @@ export const updateService = async ({
 
   const doctors = listDoctors
     ? {
-        connect: listDoctors
+        connect: listDoctors,
+        disconnect: []
       }
     : undefined
 
   const procedures = listProcedures
     ? {
-        connect: listProcedures
+        connect: listProcedures,
+        disconnect: []
       }
     : undefined
 
@@ -44,9 +46,9 @@ export const updateService = async ({
       id: true,
       description: true,
       status: true,
-      animal: true,
       createdAt: true,
       updatedAt: true,
+      animal: true,
       doctors: true,
       procedures: true
     }

@@ -26,9 +26,9 @@ export const createService = async ({
       id: true,
       description: true,
       status: true,
-      animal: true,
       createdAt: true,
       updatedAt: true,
+      animal: true,
       doctors: true,
       procedures: true
     }
