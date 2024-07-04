@@ -7,7 +7,9 @@ export const updateService = async ({
   animalId,
   status,
   listDoctors,
-  listProcedures
+  listProcedures,
+  listDoctorsOld,
+  listProceduresOld
 }: ServicePatchParams) => {
   const animal = animalId
     ? {
@@ -17,19 +19,25 @@ export const updateService = async ({
       }
     : undefined
 
-  const doctors = listDoctors
-    ? {
-        connect: listDoctors,
-        disconnect: []
-      }
-    : undefined
+  const doctors =
+    listDoctors.length > 0
+      ? {
+          disconnect: listDoctorsOld.map(doctorID => ({
+            id: doctorID
+          })),
+          connect: listDoctors
+        }
+      : undefined
 
-  const procedures = listProcedures
-    ? {
-        connect: listProcedures,
-        disconnect: []
-      }
-    : undefined
+  const procedures =
+    listProcedures.length > 0
+      ? {
+          disconnect: listProceduresOld.map(procedureID => ({
+            id: procedureID
+          })),
+          connect: listProcedures
+        }
+      : undefined
 
   const result = await prisma.service.update({
     where: {

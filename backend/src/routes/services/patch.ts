@@ -24,7 +24,8 @@ export default async function PatchServices(server: FastifyInstance) {
         request.body
 
       try {
-        const hasService = !!(await fetchService(id))
+        const services = await fetchService(id)
+        const hasService = !!services
         if (!hasService) {
           return reply.status(statusCode.notFound.status).send({
             error: statusCode.notFound.error,
@@ -82,6 +83,8 @@ export default async function PatchServices(server: FastifyInstance) {
           animalId,
           listDoctors: listDoctorsValid,
           listProcedures: listProceduresValid,
+          listDoctorsOld: services.doctors.map(doctor => doctor.id),
+          listProceduresOld: services.procedures.map(procedure => procedure.id),
           status
         }
 

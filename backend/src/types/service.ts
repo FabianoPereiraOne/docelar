@@ -14,10 +14,16 @@ export type ServicePatchParams = {
   description?: string
   status?: boolean
   animalId?: string
-  listDoctors?: {
-    id: string
-  }[]
-  listProcedures?: {
-    id: number
-  }[]
+  listDoctors:
+    | {
+        id: string
+      }[]
+    | []
+  listProcedures:
+    | {
+        id: number
+      }[]
+    | []
+  listDoctorsOld: string[]
+  listProceduresOld: number[]
 }
