@@ -73,7 +73,7 @@ model TypeAnimal {
 
 model Service {
   id          String      @id @default(uuid())
-  description String?
+  description String
   status      Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

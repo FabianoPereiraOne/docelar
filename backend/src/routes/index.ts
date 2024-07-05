@@ -4,6 +4,7 @@ import Collaborators from "./collaborators"
 import Doctors from "./doctors"
 import Homes from "./homes"
 import Procedures from "./procedures"
+import Services from "./services"
 import Sign from "./sign"
 import TypesAnimals from "./typesAnimals"
 
@@ -15,4 +16,5 @@ export default async function RoutesInitController(server: FastifyInstance) {
   TypesAnimals(server)
   Doctors(server)
   Procedures(server)
+  Services(server)
 }
