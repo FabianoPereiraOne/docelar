@@ -16,15 +16,15 @@ export default async function DeleteHomes(server: FastifyInstance) {
     async (request: FastifyRequest<CustomTypeDelete>, reply: FastifyReply) => {
       const { id } = request.query
 
-      const hasHome = !!(await fetchHome(id))
-      if (!hasHome) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the home"
-        })
-      }
-
       try {
+        const hasHome = !!(await fetchHome(id))
+        if (!hasHome) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the home"
+          })
+        }
+
         const data = await deleteHome(id)
         return reply.status(statusCode.success.status).send({
           data

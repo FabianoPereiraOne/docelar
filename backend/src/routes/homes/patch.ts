@@ -18,15 +18,15 @@ export default async function PatchHomes(server: FastifyInstance) {
       const { cep, address, city, number, state, status, district } =
         request.body
 
-      const hasHome = !!(await fetchHome(id))
-      if (!hasHome) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the home"
-        })
-      }
-
       try {
+        const hasHome = !!(await fetchHome(id))
+        if (!hasHome) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the home"
+          })
+        }
+
         const home = {
           id,
           cep,

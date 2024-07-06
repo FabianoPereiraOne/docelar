@@ -37,10 +37,6 @@ export const DeleteConfigTypesAnimals = {
       description: "Collaborator not authorized for this operation",
       error: "Unauthorized"
     },
-    "409": {
-      description: "Unable to delete type of animal with linked animals",
-      error: "Conflict"
-    },
     "403": {
       description: "Token was not provided",
       error: "Forbidden"

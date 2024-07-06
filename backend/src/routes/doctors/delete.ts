@@ -26,15 +26,6 @@ export default async function DeleteDoctors(server: FastifyInstance) {
           })
         }
 
-        const hasServicesLinked = doctor.services.length > 0
-
-        if (hasServicesLinked) {
-          return reply.status(statusCode.conflict.status).send({
-            error: statusCode.conflict.error,
-            description: "Unable to delete the doctor with linked services"
-          })
-        }
-
         const data = await deleteDoctor(id)
         return reply.status(statusCode.success.status).send({
           data

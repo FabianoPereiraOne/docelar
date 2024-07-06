@@ -30,34 +30,34 @@ export default async function PatchAnimals(server: FastifyInstance) {
         typeAnimalId
       } = request.body
 
-      const hasHome = homeId != undefined ? !!(await fetchHome(homeId)) : true
-      if (!hasHome) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the home"
-        })
-      }
-
-      const hasTypeAnimal =
-        typeAnimalId != undefined
-          ? !!(await fetchTypeAnimal(typeAnimalId))
-          : true
-      if (!hasTypeAnimal) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the type of animal"
-        })
-      }
-
-      const hasAnimal = await fetchAnimal(id)
-      if (!hasAnimal) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the animal"
-        })
-      }
-
       try {
+        const hasHome = homeId != undefined ? !!(await fetchHome(homeId)) : true
+        if (!hasHome) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the home"
+          })
+        }
+
+        const hasTypeAnimal =
+          typeAnimalId != undefined
+            ? !!(await fetchTypeAnimal(typeAnimalId))
+            : true
+        if (!hasTypeAnimal) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the type of animal"
+          })
+        }
+
+        const hasAnimal = await fetchAnimal(id)
+        if (!hasAnimal) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the animal"
+          })
+        }
+
         const animal = {
           id,
           homeId,
