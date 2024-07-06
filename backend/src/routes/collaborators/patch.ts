@@ -16,15 +16,16 @@ export default async function PatchCollaborators(server: FastifyInstance) {
       const { name, phone, statusAccount, type } = request.body
       const { password } = request.headers
 
-      const hasCollaborator = !!(await fetchCollaborator(id))
-
-      if (!hasCollaborator)
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the collaborator"
-        })
-
       try {
+        const hasCollaborator = !!(await fetchCollaborator(id))
+
+        if (!hasCollaborator) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the collaborator"
+          })
+        }
+
         const pass =
           password != undefined ? await useGenerateHash(password) : undefined
         const collaborator = {

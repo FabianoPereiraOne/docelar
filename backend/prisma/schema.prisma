@@ -23,25 +23,25 @@ model Collaborator {
 }
 
 model Home {
-  id             String       @id @default(uuid())
+  id             String        @id @default(uuid())
   cep            String
   state          String
   city           String
   district       String
   address        String
   number         String
-  status         Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  collaboratorId String
-  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  status         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  collaboratorId String?
+  collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id], onDelete: SetNull)
   animals        Animal[]
 
   @@map("homes")
 }
 
 model Animal {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   name         String
   description  String
   sex          String
@@ -49,13 +49,13 @@ model Animal {
   race         String
   linkPhoto    String?
   dateExit     DateTime?
-  status       Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  home         Home       @relation(fields: [homeId], references: [id])
-  homeId       String
-  typeAnimal   TypeAnimal @relation(fields: [typeAnimalId], references: [id])
-  typeAnimalId Int
+  status       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  home         Home?       @relation(fields: [homeId], references: [id], onDelete: SetNull)
+  homeId       String?
+  typeAnimal   TypeAnimal? @relation(fields: [typeAnimalId], references: [id], onDelete: SetNull)
+  typeAnimalId Int?
   services     Service[]
 
   @@map("animals")
@@ -77,8 +77,8 @@ model Service {
   status      Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  animal      Animal      @relation(fields: [animalId], references: [id])
-  animalId    String
+  animal      Animal?     @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  animalId    String?
   procedures  Procedure[] @relation("proceduresOnServices")
   doctors     Doctor[]    @relation("doctorsOnServices")
 

@@ -17,15 +17,15 @@ export default async function PostHomes(server: FastifyInstance) {
       const { collaboratorId } = request.query
       const { cep, address, city, number, state, district } = request.body
 
-      const hasCollaboratorId = !!(await fetchCollaborator(collaboratorId))
-      if (!hasCollaboratorId) {
-        return reply.status(statusCode.notFound.status).send({
-          error: statusCode.notFound.error,
-          description: "We were unable to locate the collaborator"
-        })
-      }
-
       try {
+        const hasCollaboratorId = !!(await fetchCollaborator(collaboratorId))
+        if (!hasCollaboratorId) {
+          return reply.status(statusCode.notFound.status).send({
+            error: statusCode.notFound.error,
+            description: "We were unable to locate the collaborator"
+          })
+        }
+
         const home = {
           collaboratorId,
           cep,

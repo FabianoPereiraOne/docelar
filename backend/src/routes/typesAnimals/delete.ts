@@ -27,15 +27,6 @@ export default async function DeleteTypesAnimals(server: FastifyInstance) {
           })
         }
 
-        const hasAnimalsLinked = typeAnimal.animals.length > 0
-
-        if (hasAnimalsLinked) {
-          return reply.status(statusCode.conflict.status).send({
-            error: statusCode.conflict.error,
-            description: "Unable to delete type of animal with linked animals"
-          })
-        }
-
         const data = await deleteTypeAnimal(id)
         return reply.status(statusCode.success.status).send({
           data

@@ -26,20 +26,12 @@ export default async function DeleteAnimals(server: FastifyInstance) {
           })
         }
 
-        const hasServicesLinked = animal.services.length > 0
-
-        if (hasServicesLinked) {
-          return reply.status(statusCode.conflict.status).send({
-            error: statusCode.conflict.error,
-            description: "Unable to delete animal with linked services"
-          })
-        }
-
         const data = await deleteAnimal(id)
         return reply.status(statusCode.success.status).send({
           data
         })
       } catch (error) {
+        console.log(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:
