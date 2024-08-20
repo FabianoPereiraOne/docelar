@@ -1,51 +1,51 @@
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/repositories/colaborador_repository.dart';
+import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doce_lar/model/models/user_model.dart';
+import 'package:doce_lar/model/models/animal_model.dart';
 
-class ColaboradorListScreen extends StatefulWidget {
+class AnimalListScreen extends StatefulWidget {
   @override
-  _ColaboradorListScreenState createState() => _ColaboradorListScreenState();
+  _AnimalListScreenState createState() => _AnimalListScreenState();
 }
 
-class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
-  List<Usuario> _colaboradores = [];
-  List<Usuario> _filteredColaboradores = [];
+class _AnimalListScreenState extends State<AnimalListScreen> {
+  List<Animal> _animais = [];
+  List<Animal> _filteredAnimais = [];
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchColaboradores();
+    _fetchAnimais();
   }
 
-  void _fetchColaboradores() async {
+  void _fetchAnimais() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final colaboradorRepository = ColaboradoRepository();
+    final animalRepository = AnimalRepository();
 
     try {
-      final colaboradores = await colaboradorRepository.fetchColaboradores(loginProvider.token);
+      final animais = await animalRepository.fetchAnimais(loginProvider.token);
       setState(() {
-        _colaboradores = colaboradores;
-        _filteredColaboradores = colaboradores;
+        _animais = animais;
+        _filteredAnimais = animais;
       });
     } catch (e) {
       // Trate o erro adequadamente
     }
   }
 
-  void _filterColaboradores(String query) {
-    final filteredColaboradores = _colaboradores.where((colaborador) {
-      final colaboradorLower = colaborador.name!.toLowerCase();
+  void _filterAnimais(String query) {
+    final filteredAnimais = _animais.where((animal) {
+      final animalLower = animal.name!.toLowerCase();
       final queryLower = query.toLowerCase();
-      return colaboradorLower.contains(queryLower);
+      return animalLower.contains(queryLower);
     }).toList();
 
     setState(() {
       _searchQuery = query;
-      _filteredColaboradores = filteredColaboradores;
+      _filteredAnimais = filteredAnimais;
     });
   }
 
@@ -53,7 +53,7 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Colaboradores'),
+        title: Text('Animais'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -67,7 +67,7 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Pesquisar colaborador...',
+                hintText: 'Pesquisar animal...',
                 prefixIcon: Icon(Icons.search, color: Colors.green),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -75,22 +75,22 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              onChanged: _filterColaboradores,
+              onChanged: _filterAnimais,
             ),
           ),
           Expanded(
-            child: _filteredColaboradores.isEmpty
-                ? Center(child: Text('Nenhum colaborador encontrado'))
+            child: _filteredAnimais.isEmpty
+                ? Center(child: Text('Nenhum animal encontrado'))
                 : ListView.builder(
-                    itemCount: _filteredColaboradores.length,
+                    itemCount: _filteredAnimais.length,
                     itemBuilder: (context, index) {
-                      final colaborador = _filteredColaboradores[index];
+                      final animal = _filteredAnimais[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: CustomCard(
-                          name: colaborador.name.toString(),
-                          email: colaborador.email.toString(),
-                          phone: colaborador.phone.toString(),
+                          name: animal.name.toString(),
+                          email: animal.race.toString(),
+                          phone: animal.description.toString(),
                           onTap: () {},
                         ),
                       );

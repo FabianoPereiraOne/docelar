@@ -1,16 +1,16 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
-import 'package:doce_lar/model/models/user_model.dart';
+import 'package:doce_lar/model/models/animal_model.dart';
 
-class ColaboradoRepository {
+class AnimalRepository {
   final String url = 'https://docelar-pearl.vercel.app';
 
   final dio = Dio();
 
-  // Novo método para buscar colaboradores
-  Future<List<Usuario>> fetchColaboradores(String token) async {
+  // Novo método para buscar animais
+  Future<List<Animal>> fetchAnimais(String token) async {
     try {
-      String endpoint = '$url/collaborators';
+      String endpoint = '$url/animals';
       Response response = await dio.get(endpoint,
           options: Options(headers: {
             "Accept": "application/json",
@@ -26,9 +26,9 @@ class ColaboradoRepository {
           log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
-            // Mapeia os dados para uma lista de usuários
+            // Mapeia os dados para uma lista de animais
             return (data['data'] as List)
-                .map<Usuario>((e) => Usuario.fromMap(e as Map<String, dynamic>))
+                .map<Animal>((e) => Animal.fromMap(e as Map<String, dynamic>))
                 .toList();
           } else {
             throw Exception('Formato de resposta inesperado');
@@ -37,7 +37,7 @@ class ColaboradoRepository {
           throw Exception('Formato de resposta inesperado');
         }
       } else {
-        throw Exception('Falha ao buscar colaboradores: ${response.statusCode}');
+        throw Exception('Falha ao buscar animais: ${response.statusCode}');
       }
     } on DioException catch (e) {
       if (e.response != null) {

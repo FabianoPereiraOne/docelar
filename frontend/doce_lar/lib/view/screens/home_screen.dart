@@ -48,7 +48,9 @@ class HomeScreen extends StatelessWidget {
                   Navigator.of(context).pushReplacementNamed('/colaboradores');
                 }, text: "COLABORADORES"),
                 CustomButtom(onPressed: (){}, text: "LARES"),
-                CustomButtom(onPressed: (){}, text: "text"),
+                CustomButtom(onPressed: (){
+                  Navigator.of(context).pushReplacementNamed('/animais');
+                }, text: "ANIMAIS"),
                 CustomButtom(onPressed: (){}, text: "text"),
               ],
             ),
