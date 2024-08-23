@@ -1,40 +1,40 @@
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/repositories/animals_repository.dart';
+import 'package:doce_lar/model/models/homes_model.dart';
+import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doce_lar/model/models/animal_model.dart';
 
-class AnimalListScreen extends StatefulWidget {
+class HomeListScreen extends StatefulWidget {
   @override
-  _AnimalListScreenState createState() => _AnimalListScreenState();
+  _HomeListScreenState createState() => _HomeListScreenState();
 }
 
-class _AnimalListScreenState extends State<AnimalListScreen> {
-  List<Animal> _animais = [];
-  List<Animal> _filteredAnimais = [];
+class _HomeListScreenState extends State<HomeListScreen> {
+  List<Home> _homes = [];
+  List<Home> _filteredHomes = [];
   String _searchQuery = '';
   bool _isLoading = false; // Variável para rastrear o estado de carregamento
 
   @override
   void initState() {
     super.initState();
-    _fetchAnimais();
+    _fetchHomes();
   }
 
-  void _fetchAnimais() async {
+  void _fetchHomes() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalRepository = AnimalRepository();
+    final homeRepository = HomeRepository();
 
     setState(() {
       _isLoading = true; // Inicia o carregamento
     });
 
     try {
-      final animais = await animalRepository.fetchAnimais(loginProvider.token);
+      final homes = await homeRepository.fetchHomes(loginProvider.token);
       setState(() {
-        _animais = animais;
-        _filteredAnimais = animais;
+        _homes = homes;
+        _filteredHomes = homes;
         _isLoading = false; // Finaliza o carregamento
       });
     } catch (e) {
@@ -45,16 +45,16 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
     }
   }
 
-  void _filterAnimais(String query) {
-    final filteredAnimais = _animais.where((animal) {
-      final animalLower = animal.name!.toLowerCase();
+  void _filterHomes(String query) {
+    final filteredHomes = _homes.where((home) {
+      final homeLower = home.address!.toLowerCase();
       final queryLower = query.toLowerCase();
-      return animalLower.contains(queryLower);
+      return homeLower.contains(queryLower);
     }).toList();
 
     setState(() {
       _searchQuery = query;
-      _filteredAnimais = filteredAnimais;
+      _filteredHomes = filteredHomes;
     });
   }
 
@@ -62,7 +62,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Animais'),
+        title: Text('Casas'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -76,7 +76,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Pesquisar animal...',
+                hintText: 'Pesquisar casa...',
                 prefixIcon: Icon(Icons.search, color: Colors.green),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -84,25 +84,27 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              onChanged: _filterAnimais,
+              onChanged: _filterHomes,
             ),
           ),
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator()) // Exibe o indicador de progresso enquanto carrega
-                : _filteredAnimais.isEmpty
-                    ? Center(child: Text('Nenhum animal encontrado'))
+                : _filteredHomes.isEmpty
+                    ? Center(child: Text('Nenhuma casa encontrada'))
                     : ListView.builder(
-                        itemCount: _filteredAnimais.length,
+                        itemCount: _filteredHomes.length,
                         itemBuilder: (context, index) {
-                          final animal = _filteredAnimais[index];
+                          final home = _filteredHomes[index];
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CustomCard(
-                              name: animal.name.toString(),
-                              email: animal.race.toString(),
-                              phone: animal.description.toString(),
-                              onTap: () {},
+                              name: home.address.toString(),
+                              email: home.city.toString(),
+                              phone: home.district.toString(),
+                              onTap: () {
+                                // Adicione ações ao tocar no card da casa
+                              },
                             ),
                           );
                         },

@@ -1,40 +1,40 @@
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/repositories/animals_repository.dart';
+import 'package:doce_lar/model/repositories/procedure_repository.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doce_lar/model/models/animal_model.dart';
+import 'package:doce_lar/model/models/procedure_model.dart';
 
-class AnimalListScreen extends StatefulWidget {
+class ProcedureListScreen extends StatefulWidget {
   @override
-  _AnimalListScreenState createState() => _AnimalListScreenState();
+  _ProcedureListScreenState createState() => _ProcedureListScreenState();
 }
 
-class _AnimalListScreenState extends State<AnimalListScreen> {
-  List<Animal> _animais = [];
-  List<Animal> _filteredAnimais = [];
+class _ProcedureListScreenState extends State<ProcedureListScreen> {
+  List<Procedure> _procedures = [];
+  List<Procedure> _filteredProcedures = [];
   String _searchQuery = '';
   bool _isLoading = false; // Variável para rastrear o estado de carregamento
 
   @override
   void initState() {
     super.initState();
-    _fetchAnimais();
+    _fetchProcedures();
   }
 
-  void _fetchAnimais() async {
+  void _fetchProcedures() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalRepository = AnimalRepository();
+    final procedureRepository = ProcedureRepository();
 
     setState(() {
       _isLoading = true; // Inicia o carregamento
     });
 
     try {
-      final animais = await animalRepository.fetchAnimais(loginProvider.token);
+      final procedures = await procedureRepository.fetchProcedures(loginProvider.token);
       setState(() {
-        _animais = animais;
-        _filteredAnimais = animais;
+        _procedures = procedures;
+        _filteredProcedures = procedures;
         _isLoading = false; // Finaliza o carregamento
       });
     } catch (e) {
@@ -45,16 +45,16 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
     }
   }
 
-  void _filterAnimais(String query) {
-    final filteredAnimais = _animais.where((animal) {
-      final animalLower = animal.name!.toLowerCase();
+  void _filterProcedures(String query) {
+    final filteredProcedures = _procedures.where((procedure) {
+      final procedureLower = procedure.name!.toLowerCase();
       final queryLower = query.toLowerCase();
-      return animalLower.contains(queryLower);
+      return procedureLower.contains(queryLower);
     }).toList();
 
     setState(() {
       _searchQuery = query;
-      _filteredAnimais = filteredAnimais;
+      _filteredProcedures = filteredProcedures;
     });
   }
 
@@ -62,7 +62,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Animais'),
+        title: Text('Procedimentos'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -76,7 +76,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Pesquisar animal...',
+                hintText: 'Pesquisar procedimento...',
                 prefixIcon: Icon(Icons.search, color: Colors.green),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -84,25 +84,27 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              onChanged: _filterAnimais,
+              onChanged: _filterProcedures,
             ),
           ),
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator()) // Exibe o indicador de progresso enquanto carrega
-                : _filteredAnimais.isEmpty
-                    ? Center(child: Text('Nenhum animal encontrado'))
+                : _filteredProcedures.isEmpty
+                    ? Center(child: Text('Nenhum procedimento encontrado'))
                     : ListView.builder(
-                        itemCount: _filteredAnimais.length,
+                        itemCount: _filteredProcedures.length,
                         itemBuilder: (context, index) {
-                          final animal = _filteredAnimais[index];
+                          final procedure = _filteredProcedures[index];
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CustomCard(
-                              name: animal.name.toString(),
-                              email: animal.race.toString(),
-                              phone: animal.description.toString(),
-                              onTap: () {},
+                              name: procedure.name.toString(),
+                              email: procedure.description.toString(),
+                              phone: procedure.dosage.toString(),
+                              onTap: () {
+                                // Adicione ações ao tocar no card do procedimento
+                              },
                             ),
                           );
                         },

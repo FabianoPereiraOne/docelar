@@ -4,8 +4,11 @@ import 'package:doce_lar/view/screens/animal_list_screen.dart';
 import 'package:doce_lar/view/screens/base_screen.dart';
 import 'package:doce_lar/view/screens/building_screen.dart';
 import 'package:doce_lar/view/screens/colaborador_list_screen.dart';
+import 'package:doce_lar/view/screens/doctor_list_screen.dart';
 import 'package:doce_lar/view/screens/home_screen.dart';
+import 'package:doce_lar/view/screens/homes_list_screen.dart';
 import 'package:doce_lar/view/screens/login_screen.dart';
+import 'package:doce_lar/view/screens/procedure_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +35,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => LoginScreen(),
         '/base': (context) => const BaseScreen(),
         '/home': (context) => HomeScreen(),
+        '/homes': (context) => HomeListScreen(),
+        '/procedures': (context) => ProcedureListScreen(),
+        '/doctors': (context) => DoctorListScreen(),
         '/building': (context) => EmDesenvolvimentoScreen(),
         '/colaboradores': (context) => ColaboradorListScreen(),
         '/animais': (context) => AnimalListScreen(),

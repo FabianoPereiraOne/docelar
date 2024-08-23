@@ -1,40 +1,40 @@
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/repositories/animals_repository.dart';
+import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:doce_lar/model/models/animal_model.dart';
+import 'package:doce_lar/model/models/doctor_model.dart';
 
-class AnimalListScreen extends StatefulWidget {
+class DoctorListScreen extends StatefulWidget {
   @override
-  _AnimalListScreenState createState() => _AnimalListScreenState();
+  _DoctorListScreenState createState() => _DoctorListScreenState();
 }
 
-class _AnimalListScreenState extends State<AnimalListScreen> {
-  List<Animal> _animais = [];
-  List<Animal> _filteredAnimais = [];
+class _DoctorListScreenState extends State<DoctorListScreen> {
+  List<Doctor> _doctors = [];
+  List<Doctor> _filteredDoctors = [];
   String _searchQuery = '';
   bool _isLoading = false; // Variável para rastrear o estado de carregamento
 
   @override
   void initState() {
     super.initState();
-    _fetchAnimais();
+    _fetchDoctors();
   }
 
-  void _fetchAnimais() async {
+  void _fetchDoctors() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalRepository = AnimalRepository();
+    final doctorRepository = DoctorRepository();
 
     setState(() {
       _isLoading = true; // Inicia o carregamento
     });
 
     try {
-      final animais = await animalRepository.fetchAnimais(loginProvider.token);
+      final doctors = await doctorRepository.fetchDoctors(loginProvider.token);
       setState(() {
-        _animais = animais;
-        _filteredAnimais = animais;
+        _doctors = doctors;
+        _filteredDoctors = doctors;
         _isLoading = false; // Finaliza o carregamento
       });
     } catch (e) {
@@ -45,16 +45,16 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
     }
   }
 
-  void _filterAnimais(String query) {
-    final filteredAnimais = _animais.where((animal) {
-      final animalLower = animal.name!.toLowerCase();
+  void _filterDoctors(String query) {
+    final filteredDoctors = _doctors.where((doctor) {
+      final doctorLower = doctor.name!.toLowerCase();
       final queryLower = query.toLowerCase();
-      return animalLower.contains(queryLower);
+      return doctorLower.contains(queryLower);
     }).toList();
 
     setState(() {
       _searchQuery = query;
-      _filteredAnimais = filteredAnimais;
+      _filteredDoctors = filteredDoctors;
     });
   }
 
@@ -62,7 +62,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Animais'),
+        title: Text('Doutores'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -76,7 +76,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Pesquisar animal...',
+                hintText: 'Pesquisar doutor...',
                 prefixIcon: Icon(Icons.search, color: Colors.green),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -84,25 +84,27 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              onChanged: _filterAnimais,
+              onChanged: _filterDoctors,
             ),
           ),
           Expanded(
             child: _isLoading
                 ? Center(child: CircularProgressIndicator()) // Exibe o indicador de progresso enquanto carrega
-                : _filteredAnimais.isEmpty
-                    ? Center(child: Text('Nenhum animal encontrado'))
+                : _filteredDoctors.isEmpty
+                    ? Center(child: Text('Nenhum doutor encontrado'))
                     : ListView.builder(
-                        itemCount: _filteredAnimais.length,
+                        itemCount: _filteredDoctors.length,
                         itemBuilder: (context, index) {
-                          final animal = _filteredAnimais[index];
+                          final doctor = _filteredDoctors[index];
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CustomCard(
-                              name: animal.name.toString(),
-                              email: animal.race.toString(),
-                              phone: animal.description.toString(),
-                              onTap: () {},
+                              name: doctor.name.toString(),
+                              email: doctor.expertise.toString(),
+                              phone: doctor.phone.toString(),
+                              onTap: () {
+                                // Adicione ações ao tocar no card do doutor
+                              },
                             ),
                           );
                         },
