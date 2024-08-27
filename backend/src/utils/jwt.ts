@@ -10,5 +10,5 @@ export async function verify(authorization: string) {
 }
 
 export async function sign(payload: PayloadType) {
-  return jwt.sign(payload, secret, { algorithm: "HS256" })
+  return jwt.sign(payload, secret, { algorithm: "HS256", expiresIn: "1h" })
 }

@@ -39,7 +39,7 @@ export const OperationMiddleware = async (
     }
   } catch (error: any) {
     return reply.status(statusCode.serverError.status).send({
-      error: statusCode.serverError.error,
+      error: error?.message,
       description:
         "Something unexpected happened during processing on the server"
     })
