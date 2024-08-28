@@ -3,6 +3,7 @@ export const postProperties = {
     type: "object",
     required: ["description", "procedures", "doctors"],
     properties: {
+      animalId: { type: "string", pattern: "\\S" },
       description: {
         type: "string",
         pattern: "\\S"
@@ -34,13 +35,6 @@ export const postProperties = {
         },
         minItems: 1
       }
-    }
-  },
-  querystring: {
-    type: "object",
-    required: ["animalId"],
-    properties: {
-      animalId: { type: "string" }
     }
   }
 }

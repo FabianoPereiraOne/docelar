@@ -3,6 +3,7 @@ export const postProperties = {
     type: "object",
     required: ["cep", "state", "city", "address", "number"],
     properties: {
+      collaboratorId: { type: "string", pattern: "\\S" },
       cep: {
         type: "string",
         pattern: "\\S"
@@ -23,13 +24,6 @@ export const postProperties = {
         type: "string",
         pattern: "\\S"
       }
-    }
-  },
-  querystring: {
-    type: "object",
-    required: ["collaboratorId"],
-    properties: {
-      collaboratorId: { type: "string" }
     }
   }
 }

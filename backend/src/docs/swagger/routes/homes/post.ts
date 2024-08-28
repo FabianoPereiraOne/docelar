@@ -18,6 +18,10 @@ export const PostConfigHomes = {
       schema: {
         type: "object",
         properties: {
+          collaboratorId: {
+            type: "string",
+            example: "Enter the collaborator ID to link"
+          },
           cep: {
             type: "string",
             example: "00000-000"
@@ -44,13 +48,6 @@ export const PostConfigHomes = {
           }
         }
       }
-    },
-    {
-      name: "collaboratorId",
-      in: "query",
-      required: true,
-      description: "Enter the collaborator ID to link",
-      type: "string"
     }
   ],
   responses: {
@@ -62,7 +59,7 @@ export const PostConfigHomes = {
     },
     "400": {
       description:
-        "querystring or body must have required property \nbody/property must match pattern",
+        "Collaborator ID is required.\n Body must have required property. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

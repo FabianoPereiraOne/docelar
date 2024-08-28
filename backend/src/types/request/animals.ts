@@ -1,5 +1,6 @@
 export type CustomTypePost = {
   Body: {
+    homeId: string
     name: string
     description: string
     sex: string
@@ -8,9 +9,6 @@ export type CustomTypePost = {
     linkPhoto?: string
     dateExit?: Date
     typeAnimalId: number
-  }
-  Querystring: {
-    homeId: string
   }
 }
 

@@ -1,5 +1,6 @@
 export type CustomTypePost = {
   Body: {
+    animalId: string
     description: string
     procedures: {
       id: number
@@ -7,9 +8,6 @@ export type CustomTypePost = {
     doctors: {
       id: string
     }[]
-  }
-  Querystring: {
-    animalId: string
   }
 }
 

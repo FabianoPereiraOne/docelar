@@ -10,6 +10,7 @@ export const postProperties = {
       "typeAnimalId"
     ],
     properties: {
+      homeId: { type: "string", pattern: "\\S" },
       name: {
         type: "string",
         pattern: "\\S"
@@ -40,13 +41,6 @@ export const postProperties = {
         type: "string",
         pattern: "\\S"
       }
-    }
-  },
-  querystring: {
-    type: "object",
-    required: ["homeId"],
-    properties: {
-      homeId: { type: "string" }
     }
   }
 }
