@@ -14,9 +14,15 @@ export default async function PatchHomes(server: FastifyInstance) {
       schema: Schemas.homes.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
-      const { cep, address, city, number, state, status, district } =
+      const { cep, address, city, number, state, status, district, id } =
         request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Home ID is required"
+        })
+      }
 
       try {
         const hasHome = !!(await fetchHome(id))

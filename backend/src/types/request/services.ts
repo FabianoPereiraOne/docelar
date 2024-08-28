@@ -1,5 +1,6 @@
 export type CustomTypePost = {
   Body: {
+    animalId: string
     description: string
     procedures: {
       id: number
@@ -8,13 +9,11 @@ export type CustomTypePost = {
       id: string
     }[]
   }
-  Querystring: {
-    animalId: string
-  }
 }
 
 export type CustomTypePatch = {
   Body: {
+    id: string
     description?: string
     status?: boolean
     animalId?: string
@@ -24,8 +23,5 @@ export type CustomTypePatch = {
     doctors?: {
       id: string
     }[]
-  }
-  Querystring: {
-    id: string
   }
 }

@@ -14,7 +14,6 @@ export default async function PatchDoctors(server: FastifyInstance) {
       schema: Schemas.doctors.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
       const {
         address,
         cep,
@@ -28,8 +27,16 @@ export default async function PatchDoctors(server: FastifyInstance) {
         phone,
         socialReason,
         state,
-        status
+        status,
+        id
       } = request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Doctor ID is required"
+        })
+      }
 
       try {
         const hasDoctor = !!(await fetchDoctor(id))

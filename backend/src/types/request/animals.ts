@@ -1,5 +1,6 @@
 export type CustomTypePost = {
   Body: {
+    homeId: string
     name: string
     description: string
     sex: string
@@ -9,13 +10,11 @@ export type CustomTypePost = {
     dateExit?: Date
     typeAnimalId: number
   }
-  Querystring: {
-    homeId: string
-  }
 }
 
 export type CustomTypePatch = {
   Body: {
+    id: string
     name?: string
     description?: string
     sex?: string
@@ -26,8 +25,5 @@ export type CustomTypePatch = {
     typeAnimalId?: number
     status?: boolean
     homeId?: string
-  }
-  Querystring: {
-    id: string
   }
 }

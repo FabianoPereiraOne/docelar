@@ -18,6 +18,10 @@ export const PatchConfigAnimals = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "string",
+            example: "Enter the ID animal"
+          },
           name: {
             type: "string",
             example: "Scooby"
@@ -61,13 +65,6 @@ export const PatchConfigAnimals = {
           }
         }
       }
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter the ID animal",
-      type: "string"
     }
   ],
   responses: {
@@ -78,8 +75,7 @@ export const PatchConfigAnimals = {
       }
     },
     "400": {
-      description:
-        "querystring must have required property 'id'\nbody/property must match pattern",
+      description: "Animal ID is required.\n Body/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

@@ -18,6 +18,10 @@ export const PatchConfigDoctors = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "string",
+            example: "Enter ID the doctor"
+          },
           name: {
             type: "string",
             example: "Dr. Magno"
@@ -68,13 +72,6 @@ export const PatchConfigDoctors = {
           }
         }
       }
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter ID the doctor",
-      type: "string"
     }
   ],
   responses: {
@@ -85,8 +82,7 @@ export const PatchConfigDoctors = {
       }
     },
     "400": {
-      description:
-        "querystring must have required property 'id' \nbody/property must match pattern",
+      description: "Doctor ID is required. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

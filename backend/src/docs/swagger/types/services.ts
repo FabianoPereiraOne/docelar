@@ -5,7 +5,7 @@ export const TypeService = {
       type: "object",
       properties: {
         id: {
-          type: "number"
+          type: "string"
         },
         description: {
           type: "string"

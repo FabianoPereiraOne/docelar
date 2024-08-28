@@ -18,8 +18,14 @@ export default async function PostServices(server: FastifyInstance) {
       schema: Schemas.services.post
     },
     async (request: FastifyRequest<CustomTypePost>, reply: FastifyReply) => {
-      const { animalId } = request.query
-      const { description, doctors, procedures } = request.body
+      const { description, doctors, procedures, animalId } = request.body
+
+      if (!animalId) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Animal ID is required"
+        })
+      }
 
       try {
         const hasAnimal = !!(await fetchAnimal(animalId))

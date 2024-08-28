@@ -2,6 +2,7 @@ export const patchProperties = {
   body: {
     type: "object",
     properties: {
+      id: { type: "string", pattern: "\\S" },
       description: {
         type: "string",
         pattern: "\\S"
@@ -40,13 +41,6 @@ export const patchProperties = {
         },
         minItems: 1
       }
-    }
-  },
-  querystring: {
-    type: "object",
-    required: ["id"],
-    properties: {
-      id: { type: "string" }
     }
   }
 }

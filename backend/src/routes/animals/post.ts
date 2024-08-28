@@ -15,7 +15,6 @@ export default async function PostAnimals(server: FastifyInstance) {
       schema: Schemas.animals.post
     },
     async (request: FastifyRequest<CustomTypePost>, reply: FastifyReply) => {
-      const { homeId } = request.query
       const {
         name,
         description,
@@ -24,8 +23,16 @@ export default async function PostAnimals(server: FastifyInstance) {
         sex,
         typeAnimalId,
         dateExit,
-        linkPhoto
+        linkPhoto,
+        homeId
       } = request.body
+
+      if (!homeId) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Home ID is required"
+        })
+      }
 
       try {
         const hasHome = !!(await fetchHome(homeId))

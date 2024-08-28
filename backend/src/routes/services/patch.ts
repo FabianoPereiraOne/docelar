@@ -19,9 +19,15 @@ export default async function PatchServices(server: FastifyInstance) {
       schema: Schemas.services.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
-      const { description, status, animalId, doctors, procedures } =
+      const { description, status, animalId, doctors, procedures, id } =
         request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Service ID is required"
+        })
+      }
 
       try {
         const services = await fetchService(id)

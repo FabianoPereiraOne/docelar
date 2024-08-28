@@ -1,5 +1,6 @@
 export type CustomTypePost = {
   Body: {
+    collaboratorId: string
     cep: string
     state: string
     city: string
@@ -7,13 +8,11 @@ export type CustomTypePost = {
     address: string
     number: string
   }
-  Querystring: {
-    collaboratorId: string
-  }
 }
 
 export type CustomTypePatch = {
   Body: {
+    id: string
     cep?: string
     state?: string
     city?: string
@@ -21,8 +20,5 @@ export type CustomTypePatch = {
     address?: string
     number?: string
     status?: boolean
-  }
-  Querystring: {
-    id: string
   }
 }

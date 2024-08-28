@@ -18,6 +18,10 @@ export const PostConfigServices = {
       schema: {
         type: "object",
         properties: {
+          animalId: {
+            type: "string",
+            example: "Enter the animal ID to link"
+          },
           description: {
             type: "string",
             example: "Esse serviço foi urgente devido a..."
@@ -48,13 +52,6 @@ export const PostConfigServices = {
           }
         }
       }
-    },
-    {
-      name: "animalId",
-      in: "query",
-      required: true,
-      description: "Enter the animal ID to link",
-      type: "string"
     }
   ],
   responses: {
@@ -66,7 +63,7 @@ export const PostConfigServices = {
     },
     "400": {
       description:
-        "querystring or body must have required property \nbody/property must match pattern \nbody/property must NOT have fewer than 1 items\n body/property/0/id must be number \nbody/property/0 must be object",
+        "Animal ID is required.\n Body must have required property. \nBody/property must match pattern. \nBody/property must NOT have fewer than 1 items.\n Body/property/0/id must be number. \nBody/property/0 must be object.",
       error: "Bad Request"
     },
     "401": {

@@ -6,10 +6,8 @@ export type CustomTypePost = {
 
 export type CustomTypePatch = {
   Body: {
-    type?: string
-  }
-  Querystring: {
     id: number
+    type?: string
   }
 }
 

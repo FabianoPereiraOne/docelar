@@ -18,6 +18,10 @@ export const PostConfigAnimals = {
       schema: {
         type: "object",
         properties: {
+          homeId: {
+            type: "string",
+            example: "Enter the temporary home ID to link"
+          },
           name: {
             type: "string",
             example: "Scooby"
@@ -44,13 +48,6 @@ export const PostConfigAnimals = {
           }
         }
       }
-    },
-    {
-      name: "homeId",
-      in: "query",
-      required: true,
-      description: "Enter the temporary home ID to link",
-      type: "string"
     }
   ],
   responses: {
@@ -62,7 +59,7 @@ export const PostConfigAnimals = {
     },
     "400": {
       description:
-        "querystring or body must have required property \nbody/property must match pattern",
+        "Home ID is required.\n Body must have required property. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

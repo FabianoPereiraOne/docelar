@@ -14,8 +14,15 @@ export default async function PostHomes(server: FastifyInstance) {
       schema: Schemas.homes.post
     },
     async (request: FastifyRequest<CustomTypePost>, reply: FastifyReply) => {
-      const { collaboratorId } = request.query
-      const { cep, address, city, number, state, district } = request.body
+      const { cep, address, city, number, state, district, collaboratorId } =
+        request.body
+
+      if (!collaboratorId) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Collaborator ID is required"
+        })
+      }
 
       try {
         const hasCollaboratorId = !!(await fetchCollaborator(collaboratorId))
