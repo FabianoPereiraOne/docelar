@@ -14,8 +14,14 @@ export default async function PatchTypesAnimals(server: FastifyInstance) {
       schema: Schemas.typesAnimals.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
-      const { type } = request.body
+      const { type, id } = request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Animal Type ID is required"
+        })
+      }
 
       try {
         const hasTypeAnimal = await fetchTypeAnimal(id)

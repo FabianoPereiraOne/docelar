@@ -17,7 +17,7 @@ server.register(
   () => SwaggerUIDocConfig() as FastifySwaggerUiOptions
 )
 
-server.listen({ port: 8080 }, err => {
+server.listen({ port: 7001 }, err => {
   server.swagger()
 
   if (err) {

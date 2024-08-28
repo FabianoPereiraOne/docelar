@@ -14,8 +14,14 @@ export default async function PatchProcedures(server: FastifyInstance) {
       schema: Schemas.procedures.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
-      const { name, description, dosage } = request.body
+      const { name, description, dosage, id } = request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Procedure ID is required"
+        })
+      }
 
       try {
         const procedure = { id, name, description, dosage }

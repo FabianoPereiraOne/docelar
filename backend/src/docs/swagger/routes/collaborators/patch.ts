@@ -18,6 +18,10 @@ export const PatchConfigCollaborators = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "string",
+            example: "Enter the ID collaborator"
+          },
           name: {
             type: "string",
             example: "Lucas Silva"
@@ -42,13 +46,6 @@ export const PatchConfigCollaborators = {
       required: false,
       description: "Enter the password for update",
       type: "string"
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter the ID collaborator",
-      type: "string"
     }
   ],
   responses: {
@@ -60,7 +57,7 @@ export const PatchConfigCollaborators = {
     },
     "400": {
       description:
-        "querystring must have required property 'id' \nbody/property must match pattern",
+        "Collaborator ID is required. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

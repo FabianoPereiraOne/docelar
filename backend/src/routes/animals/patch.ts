@@ -16,7 +16,6 @@ export default async function PatchAnimals(server: FastifyInstance) {
       schema: Schemas.animals.patch
     },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
       const {
         name,
         description,
@@ -27,8 +26,16 @@ export default async function PatchAnimals(server: FastifyInstance) {
         race,
         sex,
         status,
-        typeAnimalId
+        typeAnimalId,
+        id
       } = request.body
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Animal ID is required"
+        })
+      }
 
       try {
         const hasHome = homeId != undefined ? !!(await fetchHome(homeId)) : true

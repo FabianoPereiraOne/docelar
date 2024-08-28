@@ -17,6 +17,7 @@ export type CustomTypePost = {
 
 export type CustomTypePatch = {
   Body: {
+    id: string
     name?: string
     crmv?: string
     expertise?: string
@@ -30,8 +31,5 @@ export type CustomTypePatch = {
     address?: string
     number?: string
     status?: boolean
-  }
-  Querystring: {
-    id: string
   }
 }

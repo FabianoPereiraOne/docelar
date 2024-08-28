@@ -12,9 +12,15 @@ export default async function PatchCollaborators(server: FastifyInstance) {
     "/collaborators",
     { preHandler: OperationMiddleware, schema: Schemas.collaborators.patch },
     async (request: FastifyRequest<CustomTypePatch>, reply: FastifyReply) => {
-      const { id } = request.query
-      const { name, phone, statusAccount, type } = request.body
+      const { name, phone, statusAccount, type, id } = request.body
       const { password } = request.headers
+
+      if (!id) {
+        return reply.status(statusCode.badRequest.status).send({
+          error: statusCode.badRequest.error,
+          description: "Collaborator ID is required"
+        })
+      }
 
       try {
         const hasCollaborator = !!(await fetchCollaborator(id))
@@ -42,6 +48,7 @@ export default async function PatchCollaborators(server: FastifyInstance) {
           data
         })
       } catch (error: any) {
+        console.error(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:

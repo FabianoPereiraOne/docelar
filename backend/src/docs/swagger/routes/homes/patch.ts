@@ -18,6 +18,10 @@ export const PatchConfigHomes = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "string",
+            example: "Enter the ID temporary home"
+          },
           cep: {
             type: "string",
             example: "00000-000"
@@ -47,13 +51,6 @@ export const PatchConfigHomes = {
           }
         }
       }
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter the ID temporary home",
-      type: "string"
     }
   ],
   responses: {
@@ -64,8 +61,7 @@ export const PatchConfigHomes = {
       }
     },
     "400": {
-      description:
-        "querystring must have required property 'id' \nbody/property must match pattern",
+      description: "Home ID is required. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {

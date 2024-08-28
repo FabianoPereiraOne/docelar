@@ -18,6 +18,10 @@ export const PatchConfigServices = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "string",
+            example: "Enter service ID"
+          },
           description: {
             type: "string",
             example: "Esse serviço foi urgente devido a..."
@@ -56,13 +60,6 @@ export const PatchConfigServices = {
           }
         }
       }
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter service ID",
-      type: "string"
     }
   ],
   responses: {
@@ -74,7 +71,7 @@ export const PatchConfigServices = {
     },
     "400": {
       description:
-        "querystring must have required property 'id' \nbody/property must match pattern \nbody/property/0 must be object \nbody/property must NOT have fewer than 1 items\nbody/property/0/id must be number",
+        "Service ID is required. \nBody/property must match pattern. \nBody/property/0 must be object. \nBody/property must NOT have fewer than 1 items. \nBody/property/0/id must be number.",
       error: "Bad Request"
     },
     "401": {

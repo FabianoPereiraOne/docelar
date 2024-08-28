@@ -14,6 +14,7 @@ export type CustomTypePost = {
 
 export type CustomTypePatch = {
   Body: {
+    id: string
     cep?: string
     state?: string
     city?: string
@@ -21,8 +22,5 @@ export type CustomTypePatch = {
     address?: string
     number?: string
     status?: boolean
-  }
-  Querystring: {
-    id: string
   }
 }

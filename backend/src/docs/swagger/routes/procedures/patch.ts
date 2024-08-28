@@ -18,6 +18,10 @@ export const PatchConfigProcedures = {
       schema: {
         type: "object",
         properties: {
+          id: {
+            type: "number",
+            example: 1
+          },
           name: {
             type: "string",
             example: "Vacina Gripe"
@@ -32,13 +36,6 @@ export const PatchConfigProcedures = {
           }
         }
       }
-    },
-    {
-      name: "id",
-      in: "query",
-      required: true,
-      description: "Enter the ID a procedure",
-      type: "number"
     }
   ],
   responses: {
@@ -50,7 +47,7 @@ export const PatchConfigProcedures = {
     },
     "400": {
       description:
-        "querystring or body must have required property \nbody/property must match pattern",
+        "Procedure ID is required. \nBody/property must match pattern.",
       error: "Bad Request"
     },
     "401": {
