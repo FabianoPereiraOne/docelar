@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
     "vercel-build": "npx prisma migrate deploy",
     "postinstall": "prisma generate"
   },
