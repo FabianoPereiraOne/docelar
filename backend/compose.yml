@@ -12,7 +12,10 @@ services:
           memory: 125M
       networks:
         - database_postgres-network
+
 volumes:
-  networks:
+  - dado:/var/lib/postgresql/data
+
+networks:
   database_postgres-network:
     driver: bridge
