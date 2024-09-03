@@ -5,7 +5,7 @@ import { SwaggerDocConfig } from "./docs/swagger"
 import { SwaggerUIDocConfig } from "./docs/swaggerUI"
 import RoutesInitController from "./routes"
 
-const server: FastifyInstance = fastify()
+const server: FastifyInstance = fastify({ logger: true })
 RoutesInitController(server)
 
 server.register(
@@ -25,5 +25,5 @@ server.listen({ port: 7001 }, err => {
     process.exit(1)
   }
 
-  console.log("Server is running...")
+  console.log(`Server is running...`)
 })

@@ -13,8 +13,8 @@ export const SwaggerDocConfig = () => {
       },
       servers: [
         {
-          url: "http://localhost:8080",
-          description: "API de Test"
+          url: "http://patrick.vps-kinghost.net:7001",
+          description: "API Docelar"
         }
       ],
       securityDefinitions: {

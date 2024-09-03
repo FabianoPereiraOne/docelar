@@ -2,20 +2,19 @@ services:
   docelar_api:
     build: .
     container_name: docelar_api
+    environment:
+      - NODE_ENV=production
     ports:
-      - 7001:7001
+      - "7001:7001"
     restart: always
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: 125M
-      networks:
-        - database_postgres-network
-
-volumes:
-  - dado:/var/lib/postgresql/data
+    networks:
+      - docelar_api_net
 
 networks:
-  database_postgres-network:
+  docelar_api_net:
     driver: bridge
