@@ -7,8 +7,6 @@ class Usuario {
   String? phone;
   String? type;
   bool? statusAccount;
-  String? createdAt;
-  String? updatedAt;
   List<dynamic>? homes;
   String? authorization; // novo campo para o token de autorização
 
@@ -19,8 +17,6 @@ class Usuario {
     this.phone,
     this.type,
     this.statusAccount,
-    this.createdAt,
-    this.updatedAt,
     this.homes,
     this.authorization, // inicializando o novo campo
   });
@@ -33,8 +29,6 @@ class Usuario {
       phone: map['phone'],
       type: map['type'],
       statusAccount: map['statusAccount'],
-      createdAt: map['createdAt'],
-      updatedAt: map['updatedAt'],
       homes: map['homes'],
       authorization: map['authorization'], // atribuindo o valor do token de autorização
     );
@@ -53,8 +47,6 @@ class Usuario {
       'phone': phone,
       'type': type,
       'statusAccount': statusAccount,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
       'homes': homes,
       'authorization': authorization, // incluindo o token de autorização no mapa
     };

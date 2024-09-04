@@ -1,6 +1,7 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
+import 'package:doce_lar/view/screens/details/home_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +45,108 @@ class _HomeListScreenState extends State<HomeListScreen> {
       // Trate o erro adequadamente
     }
   }
+
+void _showAddHomeDialog() {
+  // Inicialize as variáveis de estado
+  String cep = '';
+  String state = '';
+  String city = '';
+  String district = '';
+  String address = '';
+  String number = '';
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Adicionar Nova Casa'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: InputDecoration(labelText: 'CEP'),
+                    onChanged: (value) {
+                      cep = value;
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Estado'),
+                    onChanged: (value) {
+                      state = value;
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Cidade'),
+                    onChanged: (value) {
+                      city = value;
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Bairro'),
+                    onChanged: (value) {
+                      district = value;
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Endereço'),
+                    onChanged: (value) {
+                      address = value;
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Número'),
+                    onChanged: (value) {
+                      number = value;
+                    },
+                  ),
+                  
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('Cancelar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                child: Text('Adicionar'),
+                onPressed: () async {
+                  final loginProvider = Provider.of<LoginController>(context, listen: false);
+                  final homeRepository = HomeRepository();
+
+                  try {
+                    final newHome = Home(
+                      cep: cep,
+                      state: state,
+                      city: city,
+                      district: district,
+                      address: address,
+                      number: number,
+                      status: true,
+                    );
+
+                    await homeRepository.addHome(newHome, loginProvider.token);
+
+                    _fetchHomes(); // Atualiza a lista de casas após adicionar
+
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    print('Erro ao adicionar casa: $e');
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
   void _filterHomes(String query) {
     final filteredHomes = _homes.where((home) {
@@ -103,7 +206,9 @@ class _HomeListScreenState extends State<HomeListScreen> {
                               email: home.city.toString(),
                               phone: home.district.toString(),
                               onTap: () {
-                                // Adicione ações ao tocar no card da casa
+                                showHomeDetailDialog(context, home, () {
+                                  _fetchHomes();
+                                });
                               },
                             ),
                           );
@@ -111,6 +216,11 @@ class _HomeListScreenState extends State<HomeListScreen> {
                       ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddHomeDialog,
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
     );
   }

@@ -17,7 +17,7 @@ class CustomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,  // Aumentei a altura para acomodar mais informações
+      height: 110, // Altura aumentada para acomodar mais informações
       width: MediaQuery.of(context).size.width * 0.85,
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 2, 240, 41),
@@ -28,7 +28,7 @@ class CustomCard extends StatelessWidget {
             spreadRadius: 0.5,
             blurRadius: 2.0,
             offset: const Offset(2.0, 4.0),
-          )
+          ),
         ],
       ),
       child: Center(
@@ -53,7 +53,7 @@ class CustomCard extends StatelessWidget {
               ),
             ],
           ),
-          trailing: const Icon(Icons.arrow_forward_ios),
+          trailing: Icon(Icons.arrow_forward, color: Colors.grey),
           onTap: onTap,
         ),
       ),

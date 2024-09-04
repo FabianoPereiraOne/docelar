@@ -1,14 +1,14 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/login_repository.dart';
-import 'package:doce_lar/view/screens/animal_list_screen.dart';
+import 'package:doce_lar/view/screens/list/animal_list_screen.dart';
 import 'package:doce_lar/view/screens/base_screen.dart';
 import 'package:doce_lar/view/screens/building_screen.dart';
-import 'package:doce_lar/view/screens/colaborador_list_screen.dart';
-import 'package:doce_lar/view/screens/doctor_list_screen.dart';
+import 'package:doce_lar/view/screens/list/colaborador_list_screen.dart';
+import 'package:doce_lar/view/screens/list/doctor_list_screen.dart';
 import 'package:doce_lar/view/screens/home_screen.dart';
-import 'package:doce_lar/view/screens/homes_list_screen.dart';
+import 'package:doce_lar/view/screens/list/homes_list_screen.dart';
 import 'package:doce_lar/view/screens/login_screen.dart';
-import 'package:doce_lar/view/screens/procedure_list_screen.dart';
+import 'package:doce_lar/view/screens/list/procedure_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
