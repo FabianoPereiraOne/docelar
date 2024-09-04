@@ -23,7 +23,6 @@ export const SwaggerDocConfig = () => {
         url: "https://swagger.io",
         description: "Descubra mais"
       },
-      schemes: ["http", "https"],
       consumes: ["application/json"],
       produces: ["application/json"],
       paths: SwaggerRoutes,
