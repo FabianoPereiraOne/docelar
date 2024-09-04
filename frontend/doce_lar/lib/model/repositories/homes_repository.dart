@@ -22,7 +22,7 @@ class HomeRepository {
         // Verificar se response.data é um Map
         if (response.data is Map<String, dynamic>) {
           Map<String, dynamic> data = response.data;
-          log(data.toString());
+          // log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
             // Mapeia os dados para uma lista de casas
@@ -180,6 +180,7 @@ class HomeRepository {
 
     // Crie um mapa de dados com todos os campos necessários
     Map<String, dynamic> homeData = {
+      'collaboratorId': home.collaboratorId,
       'cep': home.cep,
       'state': home.state,
       'city': home.city,
@@ -187,7 +188,7 @@ class HomeRepository {
       'address': home.address,
       'number': home.number,
       'status': home.status,
-      'collaboratorId': home.collaboratorId,
+      
     };
 
     // Faça a requisição POST para adicionar o endereço

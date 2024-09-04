@@ -20,7 +20,7 @@ class CustomCard extends StatelessWidget {
       height: 110, // Altura aumentada para acomodar mais informações
       width: MediaQuery.of(context).size.width * 0.85,
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 2, 240, 41),
+        color: Color.fromARGB(255, 137, 155, 73),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -53,7 +53,7 @@ class CustomCard extends StatelessWidget {
               ),
             ],
           ),
-          trailing: Icon(Icons.arrow_forward, color: Colors.grey),
+          trailing: Icon(Icons.search, color: Colors.grey),
           onTap: onTap,
         ),
       ),
