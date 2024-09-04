@@ -5,7 +5,7 @@ services:
     environment:
       - NODE_ENV=production
     ports:
-      - "7001:7001"
+      - 7001:7001
     restart: always
     deploy:
       resources:
