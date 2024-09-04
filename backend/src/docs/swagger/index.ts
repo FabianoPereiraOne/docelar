@@ -11,12 +11,6 @@ export const SwaggerDocConfig = () => {
         version: "1.0.0",
         description: "This API aims to control animals and procedures"
       },
-      servers: [
-        {
-          url: "http://patrick.vps-kinghost.net:7001",
-          description: "API Docelar"
-        }
-      ],
       securityDefinitions: {
         authorization: {
           type: "apiKey",
@@ -25,6 +19,11 @@ export const SwaggerDocConfig = () => {
           description: "Authorization Token"
         }
       },
+      externalDocs: {
+        url: "https://swagger.io",
+        description: "Descubra mais"
+      },
+      schemes: ["http", "https"],
       consumes: ["application/json"],
       produces: ["application/json"],
       paths: SwaggerRoutes,
