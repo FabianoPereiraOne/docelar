@@ -1,7 +1,7 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/model/repositories/animals_types_repository.dart';
-import 'package:doce_lar/view/screens/details/animal_detail_screen.dart';
+import 'package:doce_lar/view/screens/dialog/details/animal_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,17 +13,27 @@ class AnimalListScreen extends StatefulWidget {
   _AnimalListScreenState createState() => _AnimalListScreenState();
 }
 
-class _AnimalListScreenState extends State<AnimalListScreen> {
+class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerProviderStateMixin {
   List<Animal> _animais = [];
-  List<Animal> _filteredAnimais = [];
+  List<Animal> _activeAnimais = [];
+  List<Animal> _inactiveAnimais = [];
   List<AnimalType> _animalTypes = [];
+  List<Animal> _filteredAnimais = [];
   String _searchQuery = '';
   bool _isLoading = false;
   int? _selectedTypeId; // ID do tipo de animal selecionado
+  bool _showActive = true; // Controla a exibição de animais ativos ou inativos
+  TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController?.addListener(() {
+      if (_tabController?.indexIsChanging ?? false) {
+        _toggleAnimalStatus(_tabController?.index == 0);
+      }
+    });
     _fetchAnimais();
     _fetchAnimalTypes();
   }
@@ -40,7 +50,9 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
       final animais = await animalRepository.fetchAnimais(loginProvider.token);
       setState(() {
         _animais = animais;
-        _filteredAnimais = _filterAnimaisByType(animais); // Filtra os animais ao inicializar
+        _activeAnimais = animais.where((animal) => animal.status ?? false).toList();
+        _inactiveAnimais = animais.where((animal) => !(animal.status ?? false)).toList();
+        _updateFilteredAnimais();
         _isLoading = false;
       });
     } catch (e) {
@@ -65,6 +77,12 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
     }
   }
 
+  void _updateFilteredAnimais() {
+    setState(() {
+      _filteredAnimais = _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais);
+    });
+  }
+
   List<Animal> _filterAnimaisByType(List<Animal> animais) {
     if (_selectedTypeId == null) {
       return animais;
@@ -74,7 +92,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   }
 
   void _filterAnimais(String query) {
-    final filteredAnimais = _filterAnimaisByType(_animais).where((animal) {
+    final filteredAnimais = _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais).where((animal) {
       final animalLower = animal.name?.toLowerCase() ?? '';
       final queryLower = query.toLowerCase();
       return animalLower.contains(queryLower);
@@ -89,238 +107,292 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   void _handleTypeSelection(int? typeId) {
     setState(() {
       _selectedTypeId = typeId;
-      _filteredAnimais = _filterAnimaisByType(_animais);
+      _updateFilteredAnimais();
     });
   }
 
-void _showAddAnimalDialog() {
-  // Initialize state variables
-  String name = '';
-  String description = '';
-  String sex = 'M'; // Default to 'M'
-  bool castrated = false;
-  String race = '';
-  String linkPhoto = '';
-  int typeAnimalId = _animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1; // Default to first type ID if available
-  bool status = true;
+  void _toggleAnimalStatus(bool showActive) {
+    setState(() {
+      _showActive = showActive;
+      _updateFilteredAnimais();
+    });
+  }
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Adicionar Novo Animal'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Nome'),
-                    onChanged: (value) {
-                      name = value;
-                    },
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Descrição'),
-                    onChanged: (value) {
-                      description = value;
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: sex,
-                    decoration: InputDecoration(labelText: 'Sexo'),
-                    items: [
-                      DropdownMenuItem(child: Text('Masculino'), value: 'M'),
-                      DropdownMenuItem(child: Text('Feminino'), value: 'F'),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        sex = value!;
-                      });
-                    },
-                  ),
-                  DropdownButtonFormField<int>(
-                    value: typeAnimalId,
-                    decoration: InputDecoration(labelText: 'Tipo de Animal'),
-                    items: _animalTypes.map((type) {
-                      return DropdownMenuItem(
-                        child: Text(type.type ?? ''),
-                        value: type.id,
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        typeAnimalId = value ?? (_animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1);
-                      });
-                    },
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Raça'),
-                    onChanged: (value) {
-                      race = value;
-                    },
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Link da Foto'),
-                    onChanged: (value) {
-                      linkPhoto = value;
-                    },
-                  ),
-                  SwitchListTile(
-                    title: Text('Castrado'),
-                    value: castrated,
-                    onChanged: (value) {
-                      setState(() {
-                        castrated = value;
-                      });
-                    },
-                  ),
-                  SwitchListTile(
-                    title: Text('Status'),
-                    value: status,
-                    onChanged: (value) {
-                      setState(() {
-                        status = value;
-                      });
-                    },
-                  ),
-                ],
+  void _showAddAnimalDialog() {
+    // Initialize state variables
+    String name = '';
+    String description = '';
+    String sex = 'M'; // Default to 'M'
+    bool castrated = false;
+    String race = '';
+    String linkPhoto = '';
+    int typeAnimalId = _animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1; // Default to first type ID if available
+    bool status = true;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Adicionar Novo Animal'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(labelText: 'Nome'),
+                      onChanged: (value) {
+                        name = value;
+                      },
+                    ),
+                    TextField(
+                      decoration: InputDecoration(labelText: 'Descrição'),
+                      onChanged: (value) {
+                        description = value;
+                      },
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: sex,
+                      decoration: InputDecoration(labelText: 'Sexo'),
+                      items: [
+                        DropdownMenuItem(child: Text('Masculino'), value: 'M'),
+                        DropdownMenuItem(child: Text('Feminino'), value: 'F'),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          sex = value!;
+                        });
+                      },
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: typeAnimalId,
+                      decoration: InputDecoration(labelText: 'Tipo de Animal'),
+                      items: _animalTypes.map((type) {
+                        return DropdownMenuItem(
+                          child: Text(type.type ?? ''),
+                          value: type.id,
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          typeAnimalId = value ?? (_animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1);
+                        });
+                      },
+                    ),
+                    TextField(
+                      decoration: InputDecoration(labelText: 'Raça'),
+                      onChanged: (value) {
+                        race = value;
+                      },
+                    ),
+                    TextField(
+                      decoration: InputDecoration(labelText: 'Link da Foto'),
+                      onChanged: (value) {
+                        linkPhoto = value;
+                      },
+                    ),
+                    SwitchListTile(
+                      title: Text('Castrado'),
+                      value: castrated,
+                      onChanged: (value) {
+                        setState(() {
+                          castrated = value;
+                        });
+                      },
+                    ),
+                    SwitchListTile(
+                      title: Text('Status'),
+                      value: status,
+                      onChanged: (value) {
+                        setState(() {
+                          status = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                child: Text('Cancelar'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              ElevatedButton(
-                child: Text('Adicionar'),
-                onPressed: () async {
-                  final loginProvider = Provider.of<LoginController>(context, listen: false);
-                  final animalRepository = AnimalRepository();
-
-                  try {
-                    final newAnimal = Animal(
-                      name: name,
-                      description: description,
-                      sex: sex,
-                      castrated: castrated,
-                      race: race,
-                      linkPhoto: linkPhoto,
-                      typeAnimalId: typeAnimalId,
-                      createdAt: DateTime.now().toString(),
-                      updatedAt: DateTime.now().toString(),
-                      dateExit: "0",
-                      status: status,
-                      homeId: "bafdfb7c-5f37-4755-a920-fd780474915b"
-                    );
-
-                    await animalRepository.addAnimal(newAnimal, loginProvider.token);
-
-                    _fetchAnimais();
-
+              actions: [
+                TextButton(
+                  child: Text('Cancelar'),
+                  onPressed: () {
                     Navigator.of(context).pop();
-                  } catch (e) {
-                    print('Erro ao adicionar animal: $e');
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+                  },
+                ),
+                ElevatedButton(
+                  child: Text('Adicionar'),
+                  onPressed: () async {
+                    final loginProvider = Provider.of<LoginController>(context, listen: false);
+                    final animalRepository = AnimalRepository();
 
+                    try {
+                      final newAnimal = Animal(
+                        name: name,
+                        description: description,
+                        sex: sex,
+                        castrated: castrated,
+                        race: race,
+                        linkPhoto: linkPhoto,
+                        typeAnimalId: typeAnimalId,
+                        createdAt: DateTime.now().toString(),
+                        updatedAt: DateTime.now().toString(),
+                        dateExit: "0",
+                        status: status,
+                        homeId: "bafdfb7c-5f37-4755-a920-fd780474915b"
+                      );
 
+                      await animalRepository.addAnimal(newAnimal, loginProvider.token);
 
+                      _fetchAnimais();
 
-
-
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      print('Erro ao adicionar animal: $e');
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Animais'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/base');
-          },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Animais'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('/base');
+            },
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: 'Ativos'),
+              Tab(text: 'Inativos'),
+            ],
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Pesquisar animal...',
-                prefixIcon: Icon(Icons.search, color: Colors.green),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-              onChanged: _filterAnimais,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Wrap(
-              spacing: 8.0,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _handleTypeSelection(null),
-                  child: Text('Todos'),
-                ),
-                ..._animalTypes.map((type) {
-                  return ElevatedButton(
-                    onPressed: () => _handleTypeSelection(type.id),
-                    child: Text(type.type ?? ''),
-                  );
-                }).toList(),
-              ],
-            ),
-          ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _filteredAnimais.isEmpty
-                    ? Center(child: Text('Nenhum animal encontrado'))
-                    : ListView.builder(
-                        itemCount: _filteredAnimais.length,
-                        itemBuilder: (context, index) {
-                          final animal = _filteredAnimais[index];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomCard(
-                              name: animal.name.toString(),
-                              email: animal.race.toString(),
-                              phone: animal.description.toString(),
-                              onTap: () {
-                                showAnimalDetailDialog(context, animal, () {
-                                 _fetchAnimais();
-                                });
-                              },
-                             
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddAnimalDialog,
-        child: Icon(Icons.add),
-        backgroundColor: Colors.green,
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildAnimalList(true),
+            _buildAnimalList(false),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showAddAnimalDialog,
+          child: Icon(Icons.add),
+          backgroundColor: Colors.green,
+        ),
       ),
     );
   }
+
+ Widget _buildAnimalList(bool isActive) {
+  // Verifica se o tipo de animal está correto e ajusta a lista filtrada
+  List<Animal> animaisParaMostrar = isActive ? _activeAnimais : _inactiveAnimais;
+
+Color _getButtonColor(int? typeId) {
+  return _selectedTypeId == typeId ? Colors.green : Colors.grey;
+}
+
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'Pesquisar animal...',
+            prefixIcon: Icon(Icons.search, color: Colors.green),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          onChanged: (query) {
+            // Atualiza a pesquisa e os animais filtrados
+            setState(() {
+              _searchQuery = query;
+              _filteredAnimais = _filterAnimaisByType(animaisParaMostrar).where((animal) {
+                final animalLower = animal.name?.toLowerCase() ?? '';
+                final queryLower = query.toLowerCase();
+                return animalLower.contains(queryLower);
+              }).toList();
+            });
+          },
+        ),
+      ),
+      Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  child: Wrap(
+    spacing: 8.0,
+    children: [
+      ElevatedButton(
+        onPressed: () {
+          setState(() {
+            _handleTypeSelection(null);
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _getButtonColor(null), // Cor do botão "Todos"
+        ),
+        child: Text('Todos'),
+      ),
+      ..._animalTypes.map((type) {
+        return ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _handleTypeSelection(type.id);
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _getButtonColor(type.id), // Cor do botão do tipo de animal
+          ),
+          child: Text(type.type ?? ''),
+        );
+      }).toList(),
+    ],
+  ),
+),
+      Expanded(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _filteredAnimais.isEmpty
+                ? Center(child: Text('Nenhum animal encontrado'))
+                : ListView.builder(
+                    itemCount: _filteredAnimais.length,
+                    itemBuilder: (context, index) {
+                      if (index >= _filteredAnimais.length) {
+                        return SizedBox.shrink(); // Retorna um widget vazio se o índice for inválido
+                      }
+                      final animal = _filteredAnimais[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomCard(
+                          name: animal.name.toString(),
+                          email: animal.race.toString(),
+                          phone: animal.description.toString(),
+                          onTap: () {
+                            showAnimalDetailDialog(context, animal, () {
+                              _fetchAnimais();
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
+      ),
+    ],
+  );
+}
 }

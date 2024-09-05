@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 
-class ColaboradoRepository {
+class ColaboradorRepository {
   final String url = 'https://docelar-pearl.vercel.app';
 
   final dio = Dio();
@@ -23,7 +23,7 @@ class ColaboradoRepository {
         // Verificar se response.data é um Map
         if (response.data is Map<String, dynamic>) {
           Map<String, dynamic> data = response.data;
-          log(data.toString());
+          // log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
             // Mapeia os dados para uma lista de usuários
@@ -102,52 +102,83 @@ Future<String> addPartner(Usuario partner, String token, String password) async 
     throw e;
   }
 }
-  // Método para editar um parceiro
-  Future<void> editPartner(Usuario partner, String token) async {
-    try {
-      // Defina o endpoint da API
-      String endpoint = '$url/partners/${partner.id}';
+Future<void> updateColaborador(Usuario colaborador, String token) async {
+  try {
+    // Defina o endpoint da API
+    String endpoint = '$url/collaborators';
 
-      // Crie um mapa de dados com todos os campos necessários
-      Map<String, dynamic> partnerData = {
-        'id': partner.id,
-        'name': partner.name,
-        'email': partner.email,
-        'phone': partner.phone,
-        'type': partner.type,
-        'statusAccount': partner.statusAccount,
-        'homes': partner.homes, // se necessário
-      };
+    // Crie um mapa de dados com todos os campos necessários
+    Map<String, dynamic> colaboradorData = {
+      'id': colaborador.id,
+      'name': colaborador.name,
+      'phone': colaborador.phone,
+      'role': colaborador.type,
+      'statusAccount': colaborador.statusAccount,
+    };
 
-      // Faça a requisição PATCH para atualizar o parceiro
-      Response response = await dio.patch(
-        endpoint,
-        data: partnerData, // Envie o mapa de dados como JSON
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+    // Faça a requisição PATCH para atualizar o colaborador
+    Response response = await dio.patch(
+      endpoint,
+      data: colaboradorData, // Envie o mapa de dados como JSON
+      options: Options(headers: {
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Authorization": "$token"
+      }),
+    );
 
-      // Verifique a resposta da API
-      if (response.statusCode == 200) {
-        log('Parceiro atualizado com sucesso!');
-      } else {
-        throw Exception('Falha ao atualizar parceiro: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
-    } catch (e, s) {
-      log(e.toString(), error: e, stackTrace: s);
-      throw e;
+    // Verifique a resposta da API
+    if (response.statusCode == 200) {
+      log('Colaborador atualizado com sucesso!');
+    } else {
+      throw Exception('Falha ao atualizar colaborador: ${response.statusCode}');
     }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      log('Resposta do servidor: ${e.response?.data}');
+    } else {
+      log('Erro na solicitação: ${e.message}');
+    }
+    throw e;
+  } catch (e, s) {
+    log(e.toString(), error: e, stackTrace: s);
+    throw e;
   }
+}
+
+Future<void> deleteColaborador(String colaboradorId, String token) async {
+  try {
+    // Defina o endpoint da API
+    String endpoint = '$url/collaborators?id=$colaboradorId';
+
+    Response response = await dio.delete(
+      endpoint,
+      options: Options(headers: {
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Authorization": "$token"
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      log('Colaborador excluído com sucesso!');
+    } else {
+      throw Exception('Falha ao excluir colaborador: ${response.statusCode}');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      log('Resposta do servidor: ${e.response?.data}');
+    } else {
+      log('Erro na solicitação: ${e.message}');
+    }
+    throw e;
+  } catch (e, s) {
+    log(e.toString(), error: e, stackTrace: s);
+    throw e;
+  }
+}
+
 
 }

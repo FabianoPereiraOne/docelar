@@ -1,12 +1,13 @@
 import 'dart:developer';
 
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
-import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/utils/masks.dart';
+import 'package:doce_lar/view/screens/dialog/details/colaborador_details_screen.dart';
+import 'package:doce_lar/view/screens/dialog/endereco_dialog.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 
@@ -17,9 +18,10 @@ class ColaboradorListScreen extends StatefulWidget {
 
 class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
   List<Usuario> _colaboradores = [];
-  List<Usuario> _filteredColaboradores = [];
+  List<Usuario> _activeColaboradores = [];
+  List<Usuario> _inactiveColaboradores = [];
   String _searchQuery = '';
-  bool _isLoading = false; // Variável para rastrear o estado de carregamento
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -29,10 +31,10 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
 
   void _fetchColaboradores() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final colaboradorRepository = ColaboradoRepository();
+    final colaboradorRepository = ColaboradorRepository();
 
     setState(() {
-      _isLoading = true; // Inicia o carregamento
+      _isLoading = true;
     });
 
     try {
@@ -40,336 +42,217 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
           await colaboradorRepository.fetchColaboradores(loginProvider.token);
       setState(() {
         _colaboradores = colaboradores;
-        _filteredColaboradores = colaboradores;
-        _isLoading = false; // Finaliza o carregamento
+        _activeColaboradores = colaboradores.where((colaborador) => colaborador.statusAccount!).toList();
+        _inactiveColaboradores = colaboradores.where((colaborador) => !colaborador.statusAccount!).toList();
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false; // Finaliza o carregamento em caso de erro
+        _isLoading = false;
       });
       // Trate o erro adequadamente
     }
   }
 
-  void _showColaboradorDialog(BuildContext context) {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController(); // Controlador para confirmar senha
-  String _selectedUserType = 'USER';
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Adicionar Colaborador'),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Nome',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  inputFormatters: [InputMasks.emailMask],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
-                      return 'Email inválido';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Telefone',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  inputFormatters: [InputMasks.phoneMask],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value.length < 15) { // Telefone no formato (XX) XXXXX-XXXX tem 15 caracteres
-                      return 'Número de telefone inválido';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value.length < 6) {
-                      return 'A senha deve ter no mínimo 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar Senha',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'As senhas não coincidem';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _selectedUserType,
-                  decoration: InputDecoration(
-                    labelText: 'Tipo de Usuário',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  items: <String>['USER', 'ADMIN'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    _selectedUserType = newValue ?? 'USER';
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (_formKey.currentState?.validate() ?? false) {
-                Usuario newColaborador = Usuario(
-                  name: _nameController.text,
-                  email: _emailController.text,
-                  phone: _phoneController.text,
-                  type: _selectedUserType,
-                  statusAccount: true,
-                );
-
-                final loginProvider =
-                    Provider.of<LoginController>(context, listen: false);
-                final colaboradorRepository = ColaboradoRepository();
-
-                try {
-                  final String colaboradorId =
-                      await colaboradorRepository.addPartner(
-                    newColaborador,
-                    loginProvider.token,
-                    _passwordController.text,
-                  );
-                  _fetchColaboradores();
-                  Navigator.of(context).pop();
-
-                  _showEnderecoDialog(context, colaboradorId);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro ao adicionar colaborador: $e')),
-                  );
-                }
-              }
-            },
-            child: Text('Próximo'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-  void _showEnderecoDialog(BuildContext context, String colaboradorId) {
-    final TextEditingController _ruaController = TextEditingController();
-    final TextEditingController _cidadeController = TextEditingController();
-    final TextEditingController _estadoController = TextEditingController();
-    final TextEditingController _cepController = TextEditingController();
-    final TextEditingController _districtController = TextEditingController();
-    final TextEditingController _numeroController = TextEditingController();
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    log('Colaborador ID: $colaboradorId');
-
-    Future<void> _addEndereco() async {
-      final cep = _cepController.text;
-      final rua = _ruaController.text;
-      final cidade = _cidadeController.text;
-      final estado = _estadoController.text;
-      final district = _districtController.text;
-      final numero = _numeroController.text;
-
-      if (cep.isNotEmpty &&
-          rua.isNotEmpty &&
-          cidade.isNotEmpty &&
-          estado.isNotEmpty &&
-          district.isNotEmpty &&
-          numero.isNotEmpty) {
-        final newHome = Home(
-          cep: cep,
-          state: estado,
-          city: cidade,
-          district: district,
-          address: rua,
-          number: numero,
-          status: true,
-          collaboratorId: colaboradorId,
-        );
-
-        final homeRepository = HomeRepository();
-        await homeRepository.addHome(newHome, loginProvider.token);
-      } else {
-        log('Campos vazios');
-      }
+  String capitalizeWords(String input) {
+    if (input == null || input.isEmpty) {
+      return '';
     }
+    return input.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  void _showColaboradorDialog(BuildContext context) {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final TextEditingController _nameController = TextEditingController();
+    final TextEditingController _emailController = TextEditingController();
+    final TextEditingController _phoneController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController _confirmPasswordController =
+        TextEditingController(); // Controlador para confirmar senha
+    String _selectedUserType = 'USER';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Adicionar Endereço'),
+          title: Text('Adicionar Colaborador'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _cepController,
-                  decoration: InputDecoration(
-                    labelText: 'CEP',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: _ruaController,
-                  decoration: InputDecoration(
-                    labelText: 'Rua',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    inputFormatters: [InputMasks.emailMask],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      if (!RegExp(
+                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                          .hasMatch(value)) {
+                        return 'Email inválido';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: _cidadeController,
-                  decoration: InputDecoration(
-                    labelText: 'Cidade',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Telefone',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    inputFormatters: [InputMasks.phoneMask],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      if (value.length < 15) {
+                        // Telefone no formato (XX) XXXXX-XXXX tem 15 caracteres
+                        return 'Número de telefone inválido';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: _estadoController,
-                  decoration: InputDecoration(
-                    labelText: 'Estado',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Senha',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      if (value.length < 6) {
+                        return 'A senha deve ter no mínimo 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: _districtController,
-                  decoration: InputDecoration(
-                    labelText: 'Bairro',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Senha',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'As senhas não coincidem';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: _numeroController,
-                  decoration: InputDecoration(
-                    labelText: 'Número',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                  SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: _selectedUserType,
+                    decoration: InputDecoration(
+                      labelText: 'Tipo de Usuário',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
+                    items: <String>['USER', 'ADMIN'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      _selectedUserType = newValue ?? 'USER';
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () async {
-                await _addEndereco();
+              onPressed: () {
                 Navigator.of(context).pop();
-                _showEnderecoDialog(context, colaboradorId);
               },
-              child: Text('Novo endereço'),
+              child: Text('Cancelar'),
             ),
             TextButton(
               onPressed: () async {
-                await _addEndereco();
-                // Limpar os campos após adicionar o endereço e fechar o diálogo
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Colaborador cadastrado com sucesso!')),
-                );
+                String formattedName = capitalizeWords(_nameController.text);
+
+                if (_formKey.currentState?.validate() ?? false) {
+                  Usuario newColaborador = Usuario(
+                    name: formattedName,
+                    email: _emailController.text,
+                    phone: _phoneController.text,
+                    type: _selectedUserType,
+                    statusAccount: true,
+                  );
+
+                  final loginProvider =
+                      Provider.of<LoginController>(context, listen: false);
+                  final colaboradorRepository = ColaboradorRepository();
+
+                  try {
+                    final String colaboradorId =
+                        await colaboradorRepository.addPartner(
+                      newColaborador,
+                      loginProvider.token,
+                      _passwordController.text,
+                    );
+                    _fetchColaboradores();
+                    Navigator.of(context).pop();
+
+                    showEnderecoDialog(context, colaboradorId);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Erro ao adicionar colaborador: $e')),
+                    );
+                  }
+                }
               },
-              child: Text('Concluir'),
+              child: Text('Próximo'),
             ),
           ],
         );
@@ -386,72 +269,95 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
 
     setState(() {
       _searchQuery = query;
-      _filteredColaboradores = filteredColaboradores;
+      _activeColaboradores = filteredColaboradores.where((colaborador) => colaborador.statusAccount!).toList();
+      _inactiveColaboradores = filteredColaboradores.where((colaborador) => !colaborador.statusAccount!).toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Colaboradores'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Colaboradores'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('/base');
+            },
+          ),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Ativos'),
+              Tab(text: 'Inativos'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildColaboradorList(_activeColaboradores),
+            _buildColaboradorList(_inactiveColaboradores),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/base');
+            _showColaboradorDialog(context);
           },
+          child: Icon(Icons.add),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Pesquisar colaborador...',
-                prefixIcon: Icon(Icons.search, color: Colors.green),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                filled: true,
-                fillColor: Colors.white,
+    );
+  }
+
+  Widget _buildColaboradorList(List<Usuario> colaboradores) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Pesquisar colaborador...',
+              prefixIcon: Icon(Icons.search, color: Colors.green),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
               ),
-              onChanged: _filterColaboradores,
+              filled: true,
+              fillColor: Colors.white,
             ),
+            onChanged: _filterColaboradores,
           ),
-          Expanded(
-            child: _isLoading
-                ? Center(
-                    child:
-                        CircularProgressIndicator()) // Exibe o indicador de progresso enquanto carrega
-                : _filteredColaboradores.isEmpty
-                    ? Center(child: Text('Nenhum colaborador encontrado'))
-                    : ListView.builder(
-                        itemCount: _filteredColaboradores.length,
-                        itemBuilder: (context, index) {
-                          final colaborador = _filteredColaboradores[index];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomCard(
-                              name: colaborador.name.toString(),
-                              email: colaborador.email.toString(),
-                              phone: colaborador.phone.toString(),
-                              onTap: () {
-                                // Navegar para a tela de detalhes do colaborador
-                              },
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showColaboradorDialog(context);
-        },
-        child: Icon(Icons.add),
-      ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : colaboradores.isEmpty
+                  ? Center(child: Text('Nenhum colaborador encontrado'))
+                  : ListView.builder(
+                      itemCount: colaboradores.length,
+                      itemBuilder: (context, index) {
+                        final colaborador = colaboradores[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomCard(
+                            name: colaborador.name.toString(),
+                            email: colaborador.email.toString(),
+                            phone: colaborador.phone.toString(),
+                            onTap: () {
+                              showColaboradorDetailDialog(
+                                context,
+                                colaborador,
+                                () {
+                                  _fetchColaboradores();
+                                },
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
     );
   }
 }

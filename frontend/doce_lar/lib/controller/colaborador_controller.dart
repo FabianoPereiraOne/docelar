@@ -4,7 +4,7 @@ import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 
 class ColaboradoresController extends ChangeNotifier {
-  final ColaboradoRepository repository;
+  final ColaboradorRepository repository;
 
   var isLoading = false;
   var hasData = false;

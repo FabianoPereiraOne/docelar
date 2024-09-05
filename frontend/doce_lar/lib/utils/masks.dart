@@ -12,4 +12,10 @@ class InputMasks {
   static final emailMask = MaskTextInputFormatter(
     filter: {"#": RegExp(r'[a-zA-Z0-9@.]')},
   );
+
+  static final cepMask = MaskTextInputFormatter(
+    mask: '#####-###',
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
 }
