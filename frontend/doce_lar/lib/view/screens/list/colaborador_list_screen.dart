@@ -42,8 +42,12 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
           await colaboradorRepository.fetchColaboradores(loginProvider.token);
       setState(() {
         _colaboradores = colaboradores;
-        _activeColaboradores = colaboradores.where((colaborador) => colaborador.statusAccount!).toList();
-        _inactiveColaboradores = colaboradores.where((colaborador) => !colaborador.statusAccount!).toList();
+        _activeColaboradores = colaboradores
+            .where((colaborador) => colaborador.statusAccount!)
+            .toList();
+        _inactiveColaboradores = colaboradores
+            .where((colaborador) => !colaborador.statusAccount!)
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -269,8 +273,12 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
 
     setState(() {
       _searchQuery = query;
-      _activeColaboradores = filteredColaboradores.where((colaborador) => colaborador.statusAccount!).toList();
-      _inactiveColaboradores = filteredColaboradores.where((colaborador) => !colaborador.statusAccount!).toList();
+      _activeColaboradores = filteredColaboradores
+          .where((colaborador) => colaborador.statusAccount!)
+          .toList();
+      _inactiveColaboradores = filteredColaboradores
+          .where((colaborador) => !colaborador.statusAccount!)
+          .toList();
     });
   }
 
@@ -345,12 +353,7 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                             phone: colaborador.phone.toString(),
                             onTap: () {
                               showColaboradorDetailDialog(
-                                context,
-                                colaborador,
-                                () {
-                                  _fetchColaboradores();
-                                },
-                              );
+                                  context, colaborador, _fetchColaboradores);
                             },
                           ),
                         );

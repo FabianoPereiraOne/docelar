@@ -1,16 +1,13 @@
-import 'dart:developer';
 
-import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/view/widgets/custom_buttom.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final loginProvider = Provider.of<LoginController>(context);
     return Scaffold(
       body: SingleChildScrollView(
         //container geral

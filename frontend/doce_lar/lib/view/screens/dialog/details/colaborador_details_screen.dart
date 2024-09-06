@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
@@ -13,7 +12,7 @@ import 'package:provider/provider.dart';
 void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
     Function() onColaboradorUpdated) {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final homeRepository = HomeRepository(); // Instanciar o HomeRepository
+  final homeRepository = HomeRepository();
 
   showDialog(
     context: context,
@@ -39,6 +38,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                   height: 300, // Ajuste a altura conforme necessário
                   child: TabBarView(
                     children: [
+                      // Aba "Detalhes"
                       SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,9 +53,35 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                 colaborador.statusAccount == true
                                     ? 'Ativo'
                                     : 'Inativo'),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Fechar o diálogo
+                                    _showEditColaboradorDialog(
+                                        context, colaborador, onColaboradorUpdated);
+                                  },
+                                  child: Text('Editar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Fechar o diálogo
+                                    _confirmDeleteColaborador(context, colaborador.id!,
+                                        onColaboradorUpdated);
+                                  },
+                                  child: Text('Deletar'),
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
+                      
+                      // Aba "Lares"
                       Column(
                         children: [
                           Expanded(
@@ -93,16 +119,14 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                           context,
                                           home,
                                           () {
-                                            Navigator.of(context)
-                                                .pop(); // Fechar o diálogo de detalhes
-                                            onColaboradorUpdated(); // Atualizar a tela principal
+                                            Navigator.of(context).pop();
+                                            onColaboradorUpdated();
                                           },
                                         );
                                       },
                                       tileColor: home.status!
                                           ? Colors.green[100]
-                                          : Colors.yellow[
-                                              100], // Define a cor de fundo com base no status
+                                          : Colors.yellow[100],
                                     );
                                   },
                                 );
@@ -125,25 +149,15 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                   ),
                 ),
               ),
+              // Botão Fechar fora dos Tabs
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop(); // Fechar o diálogo
-                      _showEditColaboradorDialog(
-                          context, colaborador, onColaboradorUpdated);
                     },
-                    child: Text('Editar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Fechar o diálogo
-                      _confirmDeleteColaborador(
-                          context, colaborador.id!, onColaboradorUpdated);
-                    },
-                    child: Text('Deletar'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: Text('Fechar'),
                   ),
                 ],
               ),
@@ -167,18 +181,17 @@ Future<List<Home>> _fetchAndFilterHomes(
   }
 }
 
-void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
-    Function() onColaboradorUpdated) {
+void _showEditColaboradorDialog(
+    BuildContext context, Usuario colaborador, Function() onColaboradorUpdated) {
   final TextEditingController nameController =
       TextEditingController(text: colaborador.name ?? '');
   final TextEditingController emailController =
       TextEditingController(text: colaborador.email ?? '');
   final TextEditingController phoneController =
       TextEditingController(text: colaborador.phone ?? '');
-  final TextEditingController roleController =
-      TextEditingController(text: colaborador.type ?? '');
 
   bool isActive = colaborador.statusAccount ?? true;
+  String selectedRole = colaborador.type ?? 'USER'; // Cargo atual do usuário
 
   showDialog(
     context: context,
@@ -199,9 +212,20 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     decoration: InputDecoration(labelText: 'Telefone'),
                     controller: phoneController,
                   ),
-                  TextField(
+                  DropdownButtonFormField<String>(
                     decoration: InputDecoration(labelText: 'Cargo'),
-                    controller: roleController,
+                    value: selectedRole,
+                    items: ['USER', 'ADMIN'].map((String role) {
+                      return DropdownMenuItem<String>(
+                        value: role,
+                        child: Text(role),
+                      );
+                    }).toList(),
+                    onChanged: (String? newRole) {
+                      setState(() {
+                        selectedRole = newRole!;
+                      });
+                    },
                   ),
                   SwitchListTile(
                     title: Text('Status'),
@@ -228,24 +252,52 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                   final loginProvider =
                       Provider.of<LoginController>(context, listen: false);
                   final colaboradorRepository = ColaboradorRepository();
+                  final homeRepository = HomeRepository();
 
                   try {
+                    // Atualizando o colaborador
                     final updatedColaborador = Usuario(
                       id: colaborador.id,
                       name: nameController.text,
                       email: emailController.text,
                       phone: phoneController.text,
-                      type: roleController.text,
+                      type: selectedRole, // Cargo selecionado
                       statusAccount: isActive,
                     );
 
                     await colaboradorRepository.updateColaborador(
                         updatedColaborador, loginProvider.token);
 
+                                         // Se o colaborador foi desativado, desativar também os lares associados
+                    if (!isActive) {
+                      print('Colaborador desativado, iniciando desativação dos lares...');
+
+                      final homes = colaborador.homes;
+
+                      if (homes!.isNotEmpty) {
+                        for (var homeData in homes) {
+                          // Convertendo o mapa para uma instância da classe Home
+                          Home home = Home.fromMap(homeData); 
+                          home.status = false; // Desativando lar
+                          
+                          try {
+                            await homeRepository.updateHome(
+                                home, loginProvider.token);
+                            print('Lar ${home.id} desativado com sucesso.');
+                          } catch (e) {
+                            print('Erro ao desativar o lar ${home.id}: $e');
+                          }
+                        }
+                      } else {
+                        print('Nenhum lar associado ao colaborador.');
+                      }
+                    }
+
+
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    print('Erro ao editar colaborador: $e');
+                    print('Erro ao editar colaborador e lares: $e');
                   }
                 },
               ),
@@ -256,6 +308,8 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
     },
   );
 }
+
+
 
 void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
     Function() onColaboradorDeleted) {

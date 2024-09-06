@@ -13,7 +13,8 @@ class AnimalListScreen extends StatefulWidget {
   _AnimalListScreenState createState() => _AnimalListScreenState();
 }
 
-class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerProviderStateMixin {
+class _AnimalListScreenState extends State<AnimalListScreen>
+    with SingleTickerProviderStateMixin {
   List<Animal> _animais = [];
   List<Animal> _activeAnimais = [];
   List<Animal> _inactiveAnimais = [];
@@ -50,8 +51,10 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
       final animais = await animalRepository.fetchAnimais(loginProvider.token);
       setState(() {
         _animais = animais;
-        _activeAnimais = animais.where((animal) => animal.status ?? false).toList();
-        _inactiveAnimais = animais.where((animal) => !(animal.status ?? false)).toList();
+        _activeAnimais =
+            animais.where((animal) => animal.status ?? false).toList();
+        _inactiveAnimais =
+            animais.where((animal) => !(animal.status ?? false)).toList();
         _updateFilteredAnimais();
         _isLoading = false;
       });
@@ -68,7 +71,8 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
     final animalTypeRepository = AnimalTypeRepository();
 
     try {
-      final types = await animalTypeRepository.fetchAnimalTypes(loginProvider.token);
+      final types =
+          await animalTypeRepository.fetchAnimalTypes(loginProvider.token);
       setState(() {
         _animalTypes = types;
       });
@@ -79,7 +83,8 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
 
   void _updateFilteredAnimais() {
     setState(() {
-      _filteredAnimais = _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais);
+      _filteredAnimais =
+          _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais);
     });
   }
 
@@ -88,11 +93,15 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
       return animais;
     }
 
-    return animais.where((animal) => animal.typeAnimalId == _selectedTypeId).toList();
+    return animais
+        .where((animal) => animal.typeAnimalId == _selectedTypeId)
+        .toList();
   }
 
   void _filterAnimais(String query) {
-    final filteredAnimais = _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais).where((animal) {
+    final filteredAnimais =
+        _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais)
+            .where((animal) {
       final animalLower = animal.name?.toLowerCase() ?? '';
       final queryLower = query.toLowerCase();
       return animalLower.contains(queryLower);
@@ -126,7 +135,9 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
     bool castrated = false;
     String race = '';
     String linkPhoto = '';
-    int typeAnimalId = _animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1; // Default to first type ID if available
+    int typeAnimalId = _animalTypes.isNotEmpty
+        ? _animalTypes.first.id ?? 1
+        : 1; // Default to first type ID if available
     bool status = true;
 
     showDialog(
@@ -176,7 +187,10 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          typeAnimalId = value ?? (_animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1);
+                          typeAnimalId = value ??
+                              (_animalTypes.isNotEmpty
+                                  ? _animalTypes.first.id ?? 1
+                                  : 1);
                         });
                       },
                     ),
@@ -223,26 +237,27 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
                 ElevatedButton(
                   child: Text('Adicionar'),
                   onPressed: () async {
-                    final loginProvider = Provider.of<LoginController>(context, listen: false);
+                    final loginProvider =
+                        Provider.of<LoginController>(context, listen: false);
                     final animalRepository = AnimalRepository();
 
                     try {
                       final newAnimal = Animal(
-                        name: name,
-                        description: description,
-                        sex: sex,
-                        castrated: castrated,
-                        race: race,
-                        linkPhoto: linkPhoto,
-                        typeAnimalId: typeAnimalId,
-                        createdAt: DateTime.now().toString(),
-                        updatedAt: DateTime.now().toString(),
-                        dateExit: "0",
-                        status: status,
-                        homeId: "bafdfb7c-5f37-4755-a920-fd780474915b"
-                      );
+                          name: name,
+                          description: description,
+                          sex: sex,
+                          castrated: castrated,
+                          race: race,
+                          linkPhoto: linkPhoto,
+                          typeAnimalId: typeAnimalId,
+                          createdAt: DateTime.now().toString(),
+                          updatedAt: DateTime.now().toString(),
+                          dateExit: "0",
+                          status: status,
+                          homeId: "bafdfb7c-5f37-4755-a920-fd780474915b");
 
-                      await animalRepository.addAnimal(newAnimal, loginProvider.token);
+                      await animalRepository.addAnimal(
+                          newAnimal, loginProvider.token);
 
                       _fetchAnimais();
 
@@ -297,102 +312,106 @@ class _AnimalListScreenState extends State<AnimalListScreen> with SingleTickerPr
     );
   }
 
- Widget _buildAnimalList(bool isActive) {
-  // Verifica se o tipo de animal está correto e ajusta a lista filtrada
-  List<Animal> animaisParaMostrar = isActive ? _activeAnimais : _inactiveAnimais;
+  Widget _buildAnimalList(bool isActive) {
+    // Verifica se o tipo de animal está correto e ajusta a lista filtrada
+    List<Animal> animaisParaMostrar =
+        isActive ? _activeAnimais : _inactiveAnimais;
 
-Color _getButtonColor(int? typeId) {
-  return _selectedTypeId == typeId ? Colors.green : Colors.grey;
-}
+    Color _getButtonColor(int? typeId) {
+      return _selectedTypeId == typeId ? Colors.green : Colors.grey;
+    }
 
-  return Column(
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'Pesquisar animal...',
-            prefixIcon: Icon(Icons.search, color: Colors.green),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Pesquisar animal...',
+              prefixIcon: Icon(Icons.search, color: Colors.green),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              filled: true,
+              fillColor: Colors.white,
             ),
-            filled: true,
-            fillColor: Colors.white,
+            onChanged: (query) {
+              // Atualiza a pesquisa e os animais filtrados
+              setState(() {
+                _searchQuery = query;
+                _filteredAnimais =
+                    _filterAnimaisByType(animaisParaMostrar).where((animal) {
+                  final animalLower = animal.name?.toLowerCase() ?? '';
+                  final queryLower = query.toLowerCase();
+                  return animalLower.contains(queryLower);
+                }).toList();
+              });
+            },
           ),
-          onChanged: (query) {
-            // Atualiza a pesquisa e os animais filtrados
-            setState(() {
-              _searchQuery = query;
-              _filteredAnimais = _filterAnimaisByType(animaisParaMostrar).where((animal) {
-                final animalLower = animal.name?.toLowerCase() ?? '';
-                final queryLower = query.toLowerCase();
-                return animalLower.contains(queryLower);
-              }).toList();
-            });
-          },
         ),
-      ),
-      Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-  child: Wrap(
-    spacing: 8.0,
-    children: [
-      ElevatedButton(
-        onPressed: () {
-          setState(() {
-            _handleTypeSelection(null);
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _getButtonColor(null), // Cor do botão "Todos"
-        ),
-        child: Text('Todos'),
-      ),
-      ..._animalTypes.map((type) {
-        return ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _handleTypeSelection(type.id);
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _getButtonColor(type.id), // Cor do botão do tipo de animal
-          ),
-          child: Text(type.type ?? ''),
-        );
-      }).toList(),
-    ],
-  ),
-),
-      Expanded(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : _filteredAnimais.isEmpty
-                ? Center(child: Text('Nenhum animal encontrado'))
-                : ListView.builder(
-                    itemCount: _filteredAnimais.length,
-                    itemBuilder: (context, index) {
-                      if (index >= _filteredAnimais.length) {
-                        return SizedBox.shrink(); // Retorna um widget vazio se o índice for inválido
-                      }
-                      final animal = _filteredAnimais[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CustomCard(
-                          name: animal.name.toString(),
-                          email: animal.race.toString(),
-                          phone: animal.description.toString(),
-                          onTap: () {
-                            showAnimalDetailDialog(context, animal, () {
-                              _fetchAnimais();
-                            });
-                          },
-                        ),
-                      );
-                    },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Wrap(
+            spacing: 8.0,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _handleTypeSelection(null);
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      _getButtonColor(null), // Cor do botão "Todos"
+                ),
+                child: Text('Todos'),
+              ),
+              ..._animalTypes.map((type) {
+                return ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _handleTypeSelection(type.id);
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _getButtonColor(
+                        type.id), // Cor do botão do tipo de animal
                   ),
-      ),
-    ],
-  );
-}
+                  child: Text(type.type ?? ''),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : _filteredAnimais.isEmpty
+                  ? Center(child: Text('Nenhum animal encontrado'))
+                  : ListView.builder(
+                      itemCount: _filteredAnimais.length,
+                      itemBuilder: (context, index) {
+                        if (index >= _filteredAnimais.length) {
+                          return SizedBox
+                              .shrink(); // Retorna um widget vazio se o índice for inválido
+                        }
+                        final animal = _filteredAnimais[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomCard(
+                            name: animal.name.toString(),
+                            email: animal.race.toString(),
+                            phone: animal.description.toString(),
+                            onTap: () {
+                              showAnimalDetailDialog(
+                                  context, animal, _fetchAnimais);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
 }

@@ -9,8 +9,6 @@ class Home {
   String? address;
   String? number;
   bool? status;
-  String? createdAt;
-  String? updatedAt;
   String? collaboratorId;
 
   Home({
@@ -22,8 +20,6 @@ class Home {
     this.address,
     this.number,
     this.status,
-    this.createdAt,
-    this.updatedAt,
     this.collaboratorId,
   });
 
@@ -37,8 +33,6 @@ class Home {
       address: map['address'],
       number: map['number'],
       status: map['status'],
-      createdAt: map['createdAt'],
-      updatedAt: map['updatedAt'],
       collaboratorId: map['collaboratorId'],
     );
   }
@@ -53,8 +47,6 @@ class Home {
       'address': address,
       'number': number,
       'status': status,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
       'collaboratorId': collaboratorId,
     };
   }

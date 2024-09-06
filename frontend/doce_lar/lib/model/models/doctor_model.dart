@@ -15,8 +15,6 @@ class Doctor {
   String? number;
   String? openHours;
   bool? status;
-  String? createdAt;
-  String? updatedAt;
 
   Doctor({
     this.id,
@@ -33,8 +31,6 @@ class Doctor {
     this.number,
     this.openHours,
     this.status,
-    this.createdAt,
-    this.updatedAt,
   });
 
   factory Doctor.fromMap(Map<String, dynamic> map) {
@@ -53,8 +49,6 @@ class Doctor {
       number: map['number'],
       openHours: map['openHours'],
       status: map['status'],
-      createdAt: map['createdAt'],
-      updatedAt: map['updatedAt'],
     );
   }
 
@@ -78,8 +72,6 @@ class Doctor {
       'number': number,
       'openHours': openHours,
       'status': status,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
     };
   }
 }

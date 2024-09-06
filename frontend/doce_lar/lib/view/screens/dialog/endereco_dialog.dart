@@ -173,14 +173,6 @@ void showEnderecoDialog(BuildContext context, String colaboradorId) {
             onPressed: () async {
               await _addEndereco();
               Navigator.of(context).pop();
-              showEnderecoDialog(context, colaboradorId);
-            },
-            child: Text('Novo endereço'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await _addEndereco();
-              Navigator.of(context).pop();
             },
             child: Text('Concluir'),
           ),

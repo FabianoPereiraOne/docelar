@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
@@ -37,71 +37,95 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
   showDialog(
     context: context,
     builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(animal.name ?? 'Detalhes do Animal'),
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Fechar o diálogo
-                  },
+      return Dialog(
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                color: Colors.white,
+                child: TabBar(
+                  tabs: [
+                    Tab(text: 'Detalhes'),
+                    Tab(text: 'Serviços'),
+                  ],
                 ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start, // Alinha o conteúdo à esquerda
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 300,
+                  child: TabBarView(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 20),
+                            _buildDetailRow('Descrição', animal.description),
+                            _buildDetailRow('Raça', animal.race),
+                            _buildDetailRow('Sexo', animal.sex == 'M' ? 'Masculino' : 'Feminino'),
+                            _buildDetailRow('Castrado', animal.castrated == true ? 'Sim' : 'Não'),
+                            _buildDetailRow('Status', animal.status == true ? 'Ativo' : 'Inativo'),
+                            _buildDetailRow('Data de Saída', animal.dateExit ?? 'N/A'),
+                            _buildDetailRow('Tipo de Animal', animalTypeName),
+                            _buildDetailRow('Endereço da Casa', homeAddress),
+                            _buildDetailRow('Data de entrada', animal.createdAt),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          animal.services != null && animal.services!.isNotEmpty
+                              ? Expanded(
+                                  child: ListView.builder(
+                                    itemCount: animal.services!.length,
+                                    itemBuilder: (context, index) {
+                                      final service = animal.services![index];
+                                      return ListTile(
+                                        title: Text(service.createdAt ?? 'Serviço Desconhecido'),
+                                        subtitle: Text('Descrição: ${service.description}'),
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Text('Nenhum serviço encontrado para este animal.'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  SizedBox(height: 20),
-                  _buildDetailRow('Descrição', animal.description),
-                  _buildDetailRow('Raça', animal.race),
-                  _buildDetailRow('Sexo', animal.sex == 'M' ? 'Masculino' : 'Feminino'),
-                  _buildDetailRow('Castrado', animal.castrated == true ? 'Sim' : 'Não'),
-                  _buildDetailRow('Status', animal.status == true ? 'Ativo' : 'Inativo'),
-                  _buildDetailRow('Data de Saída', animal.dateExit ?? 'N/A'),
-                  _buildDetailRow('Tipo de Animal', animalTypeName),
-                  _buildDetailRow('Endereço da Casa', homeAddress),
-                  _buildDetailRow('Data de entrada', animal.createdAt),
-                  SizedBox(height: 20),
-                  Text('Serviços:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  animal.services != null && animal.services!.isNotEmpty
-                      ? Column(
-                          children: animal.services!.map((service) {
-                            return ListTile(
-                              title: Text(service.createdAt ?? 'Serviço Desconhecido'),
-                              subtitle: Text('Descrição: ${service.description}'),
-                            );
-                          }).toList(),
-                        )
-                      : Text('Nenhum serviço encontrado para este animal.'),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Fechar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _showEditAnimalDialog(context, animal, onAnimalUpdated);
+                    },
+                    child: Text('Editar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _confirmDeleteAnimal(context, animal.id!, onAnimalUpdated);
+                    },
+                    child: Text('Deletar'),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  ),
                 ],
               ),
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _showEditAnimalDialog(context, animal, onAnimalUpdated);
-                },
-                child: Text('Editar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _confirmDeleteAnimal(context, animal.id!, onAnimalUpdated);
-                },
-                child: Text('Deletar'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              ),
             ],
-          );
-        },
+          ),
+        ),
       );
     },
   );

@@ -5,16 +5,12 @@ class Procedure {
   String? name;
   String? description;
   String? dosage;
-  String? createdAt;
-  String? updatedAt;
 
   Procedure({
     this.id,
     this.name,
     this.description,
     this.dosage,
-    this.createdAt,
-    this.updatedAt,
   });
 
   factory Procedure.fromMap(Map<String, dynamic> map) {
@@ -23,8 +19,6 @@ class Procedure {
       name: map['name'],
       description: map['description'],
       dosage: map['dosage'],
-      createdAt: map['createdAt'],
-      updatedAt: map['updatedAt'],
     );
   }
 
@@ -34,8 +28,6 @@ class Procedure {
       'name': name,
       'description': description,
       'dosage': dosage,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
     };
   }
 

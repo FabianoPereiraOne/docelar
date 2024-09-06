@@ -1,5 +1,6 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
+import 'package:doce_lar/view/screens/dialog/details/procedure_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -103,7 +104,7 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
                               email: procedure.description.toString(),
                               phone: procedure.dosage.toString(),
                               onTap: () {
-                                // Adicione ações ao tocar no card do procedimento
+                                showProcedureDetailDialog(context, procedure, _fetchProcedures);
                               },
                             ),
                           );

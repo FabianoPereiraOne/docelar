@@ -1,5 +1,6 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
+import 'package:doce_lar/view/screens/dialog/details/doctor_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -103,7 +104,11 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
                               email: doctor.expertise.toString(),
                               phone: doctor.phone.toString(),
                               onTap: () {
-                                // Adicione ações ao tocar no card do doutor
+                                showDoctorDetailDialog(
+                                  context,
+                                  doctor,
+                                  _fetchDoctors
+                                );
                               },
                             ),
                           );

@@ -93,6 +93,7 @@ class HomeRepository {
   }
 
     Future<void> updateHome(Home home, String token) async {
+      log('Atualizando casa: ${home.id}');
     try {
       // Defina o endpoint da API
       String endpoint = '$url/homes';
