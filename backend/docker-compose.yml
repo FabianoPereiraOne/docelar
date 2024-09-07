@@ -2,8 +2,12 @@ services:
   docelar_api:
     build: .
     container_name: docelar_api
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_SECRET_KEY=${NEXT_PUBLIC_SECRET_KEY}
     ports:
       - 7001:7001
     restart: always
@@ -13,8 +17,8 @@ services:
           cpus: "0.1"
           memory: 125M
     networks:
-      - docelar_api_net
+      - docelar-api-net
 
 networks:
-  docelar_api_net:
-    driver: bridge
+  docelar-api-net:
+    external: true
