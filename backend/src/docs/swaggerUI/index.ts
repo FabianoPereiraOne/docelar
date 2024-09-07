@@ -26,15 +26,6 @@ export const SwaggerUIDocConfig = () => {
         done()
       }
     },
-    staticCSP: true,
-    transformStaticCSP: (header: any) => header,
-    transformSpecification: (
-      swaggerObject: any,
-      request: FastifyRequest,
-      reply: FastifyReply
-    ) => {
-      return swaggerObject
-    },
-    transformSpecificationClone: true
+    staticCSP: false
   }
 }
