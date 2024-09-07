@@ -21,6 +21,16 @@ const SwaggerDocConfig = () => {
                     description: "Authorization Token"
                 }
             },
+            servers: [
+                {
+                    url: "http://patrick.vps-kinghost.net:7001",
+                    description: "Ambiente de Produção"
+                },
+                {
+                    url: "http://localhost:7001",
+                    description: "Ambiente de Desenvolvimento"
+                }
+            ],
             externalDocs: {
                 url: "https://swagger.io",
                 description: "Descubra mais"
