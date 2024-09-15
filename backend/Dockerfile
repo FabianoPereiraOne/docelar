@@ -10,6 +10,7 @@ COPY ./.env .
 
 COPY ./prisma /prisma
 COPY ./dist /dist
+COPY ./public /public
 
 RUN npx prisma generate
 

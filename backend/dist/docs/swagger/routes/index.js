@@ -16,6 +16,7 @@ const get_6 = require("./services/get");
 const sign_1 = require("./sign");
 const typesAnimals_1 = require("./typesAnimals");
 const get_7 = require("./typesAnimals/get");
+const upload_1 = require("./upload");
 exports.SwaggerRoutes = {
     "/sign": sign_1.PathSign,
     "/collaborators": collaborators_1.PathCollaborators,
@@ -25,6 +26,7 @@ exports.SwaggerRoutes = {
     "/doctors": doctors_1.PathDoctors,
     "/procedures": procedures_1.PathProcedure,
     "/services": services_1.PathServices,
+    "/upload": upload_1.PathUpload,
     "/collaborators/{id}": { get: get_2.GetConfigCollaborators },
     "/homes/{id}": { get: get_4.GetConfigHomes },
     "/animals/{id}": { get: get_1.GetConfigAnimals },

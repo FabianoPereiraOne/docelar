@@ -1,9 +1,11 @@
 export type ServicePostParams = {
   description: string
   animalId: string
-  listDoctors: {
-    id: string
-  }[]
+  listDoctors:
+    | {
+        id: string
+      }[]
+    | []
   listProcedures: {
     id: number
   }[]

@@ -36,20 +36,14 @@ export default async function PostServices(server: FastifyInstance) {
           })
         }
 
-        const listDoctors = await useGetArrayEntity({
-          listEntity: doctors,
-          functionGet: fetchDoctor
-        })
+        const listDoctors =
+          doctors &&
+          (await useGetArrayEntity({
+            listEntity: doctors,
+            functionGet: fetchDoctor
+          }))
 
-        const listDoctorsValid = useReturnValidID(listDoctors)
-        const hasDoctors = listDoctorsValid.length > 0
-
-        if (!hasDoctors) {
-          return reply.status(statusCode.conflict.status).send({
-            error: statusCode.conflict.error,
-            description: "Invalid doctor(s)"
-          })
-        }
+        const listDoctorsValid = useReturnValidID(listDoctors ?? [])
 
         const listProcedures = await useGetArrayEntity({
           listEntity: procedures,
