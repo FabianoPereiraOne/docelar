@@ -4,7 +4,7 @@ exports.postProperties = void 0;
 exports.postProperties = {
     body: {
         type: "object",
-        required: ["description", "procedures", "doctors"],
+        required: ["description", "procedures"],
         properties: {
             animalId: { type: "string", pattern: "\\S" },
             description: {

@@ -30,18 +30,12 @@ async function PostServices(server) {
                     description: "We were unable to locate the animal"
                 });
             }
-            const listDoctors = await (0, useVerifyEntity_1.useGetArrayEntity)({
-                listEntity: doctors,
-                functionGet: fetch_2.fetchDoctor
-            });
-            const listDoctorsValid = (0, useReturnValidID_1.useReturnValidID)(listDoctors);
-            const hasDoctors = listDoctorsValid.length > 0;
-            if (!hasDoctors) {
-                return reply.status(statusCode_1.statusCode.conflict.status).send({
-                    error: statusCode_1.statusCode.conflict.error,
-                    description: "Invalid doctor(s)"
-                });
-            }
+            const listDoctors = doctors &&
+                (await (0, useVerifyEntity_1.useGetArrayEntity)({
+                    listEntity: doctors,
+                    functionGet: fetch_2.fetchDoctor
+                }));
+            const listDoctorsValid = (0, useReturnValidID_1.useReturnValidID)(listDoctors ?? []);
             const listProcedures = await (0, useVerifyEntity_1.useGetArrayEntity)({
                 listEntity: procedures,
                 functionGet: fetch_3.fetchProcedure

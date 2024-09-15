@@ -5,7 +5,7 @@ export type CustomTypePost = {
     procedures: {
       id: number
     }[]
-    doctors: {
+    doctors?: {
       id: string
     }[]
   }

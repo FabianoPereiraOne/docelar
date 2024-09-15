@@ -1,11 +1,32 @@
+import fastifyCors from "@fastify/cors"
+import fastifyMultipart from "@fastify/multipart"
+import fastifyStatic from "@fastify/static"
 import swagger, { FastifyDynamicSwaggerOptions } from "@fastify/swagger"
 import swaggerUI, { FastifySwaggerUiOptions } from "@fastify/swagger-ui"
 import fastify, { FastifyInstance } from "fastify"
+import path from "path"
 import { SwaggerDocConfig } from "./docs/swagger"
 import { SwaggerUIDocConfig } from "./docs/swaggerUI"
 import RoutesInitController from "./routes"
 
-const server: FastifyInstance = fastify({ logger: true })
+const server: FastifyInstance = fastify()
+server.register(fastifyMultipart, {
+  limits: {
+    fileSize: 20 * 1024 * 1024
+  }
+})
+
+server.register(fastifyStatic, {
+  root: path.join(__dirname, "../public/uploads"),
+  prefix: "/uploads/"
+})
+
+server.register(fastifyCors, {
+  origin: "*",
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+})
+
 RoutesInitController(server)
 
 server.register(

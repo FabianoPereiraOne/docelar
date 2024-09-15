@@ -12,6 +12,7 @@ const procedures_1 = __importDefault(require("./procedures"));
 const services_1 = __importDefault(require("./services"));
 const sign_1 = __importDefault(require("./sign"));
 const typesAnimals_1 = __importDefault(require("./typesAnimals"));
+const upload_1 = __importDefault(require("./upload"));
 async function RoutesInitController(server) {
     (0, collaborators_1.default)(server);
     (0, sign_1.default)(server);
@@ -21,4 +22,5 @@ async function RoutesInitController(server) {
     (0, doctors_1.default)(server);
     (0, procedures_1.default)(server);
     (0, services_1.default)(server);
+    (0, upload_1.default)(server);
 }
