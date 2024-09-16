@@ -503,7 +503,6 @@ void _showSelectHomeDialog({
   }
 
   Widget _buildAnimalList(bool isActive) {
-    // Verifica se o tipo de animal está correto e ajusta a lista filtrada
     List<Animal> animaisParaMostrar =
         isActive ? _activeAnimais : _inactiveAnimais;
 
