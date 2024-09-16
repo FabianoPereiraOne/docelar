@@ -6,6 +6,8 @@ import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/home_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/endereco_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
 void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
@@ -150,25 +152,19 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
   );
 }
 
-Future<List<Home>> _fetchAndFilterHomes(Usuario colaborador) async {
-  try {
-    final homes =
-        colaborador.homes?.map((homeData) => Home.fromMap(homeData)).toList() ??
-            [];
-    return homes;
-  } catch (e) {
-    throw Exception('Erro ao processar lares: $e');
-  }
-}
+
+
+
 
 void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
     Function() onColaboradorUpdated) {
+
   final TextEditingController nameController =
       TextEditingController(text: colaborador.name ?? '');
-  final TextEditingController emailController =
-      TextEditingController(text: colaborador.email ?? '');
-  final TextEditingController phoneController =
-      TextEditingController(text: colaborador.phone ?? '');
+  
+  // Usando MaskedTextController para o campo de telefone
+  final phoneController = MaskedTextController(mask: '(00) 00000-0000');
+  phoneController.text = colaborador.phone ?? '';
 
   bool isActive = colaborador.statusAccount ?? true;
   String selectedRole = colaborador.type ?? 'USER'; // Cargo atual do usuário
@@ -191,6 +187,9 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                   TextField(
                     decoration: InputDecoration(labelText: 'Telefone'),
                     controller: phoneController,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(15),
+                    ],
                   ),
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(labelText: 'Cargo'),
@@ -239,7 +238,6 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     final updatedColaborador = Usuario(
                       id: colaborador.id,
                       name: nameController.text,
-                      email: emailController.text,
                       phone: phoneController.text,
                       type: selectedRole, // Cargo selecionado
                       statusAccount: isActive,
@@ -288,6 +286,7 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
     },
   );
 }
+
 
 void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
     Function() onColaboradorDeleted) {

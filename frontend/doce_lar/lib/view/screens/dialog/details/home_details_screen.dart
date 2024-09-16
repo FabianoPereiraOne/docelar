@@ -1,8 +1,10 @@
 
+import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
 void showHomeDetailDialog(BuildContext context, Home home, Function() onHomeUpdated) async {
@@ -123,7 +125,7 @@ Widget _buildDetailRow(String label, String? value) {
 }
 
 void _showEditHomeDialog(BuildContext context, Home home, Function() onHomeUpdated) {
-  final TextEditingController cepController = TextEditingController(text: home.cep ?? '');
+  final TextEditingController cepController = MaskedTextController(mask: '00000-000', text: home.cep ?? '');
   final TextEditingController stateController = TextEditingController(text: home.state ?? '');
   final TextEditingController cityController = TextEditingController(text: home.city ?? '');
   final TextEditingController districtController = TextEditingController(text: home.district ?? '');
@@ -131,6 +133,14 @@ void _showEditHomeDialog(BuildContext context, Home home, Function() onHomeUpdat
   final TextEditingController numberController = TextEditingController(text: home.number ?? '');
 
   bool status = home.status ?? true;
+
+  // Adicione o listener para buscar o CEP automaticamente
+  cepController.addListener(() async {
+    String cep = cepController.text.replaceAll('-', '');
+    if (cep.length == 8) {
+      await _buscarCep(cep, stateController, cityController, districtController, addressController);
+    }
+  });
 
   showDialog(
     context: context,
@@ -219,4 +229,25 @@ void _showEditHomeDialog(BuildContext context, Home home, Function() onHomeUpdat
       );
     },
   );
+}
+
+Future<void> _buscarCep(String cep, TextEditingController stateController, TextEditingController cityController, TextEditingController districtController, TextEditingController addressController) async {
+  try {
+    String cepSemHifen = cep.replaceAll('-', '');
+
+    if (cepSemHifen.length == 8) {
+      final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
+      if (endereco != null) {
+        addressController.text = endereco['logradouro'] ?? '';
+        cityController.text = endereco['localidade'] ?? '';
+        stateController.text = endereco['uf'] ?? '';
+        districtController.text = endereco['bairro'] ?? '';
+      } else {
+        
+        
+      }
+    }
+  } catch (e) {
+    print('Erro ao buscar CEP: $e');
+  }
 }

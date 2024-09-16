@@ -1,12 +1,12 @@
-import 'package:doce_lar/controller/cep.dart';
+import 'package:doce_lar/view/screens/dialog/details/doctor_details_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:provider/provider.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
-import 'package:doce_lar/utils/masks.dart';
-import 'package:doce_lar/view/screens/dialog/details/doctor_details_screen.dart';
-import 'package:doce_lar/view/widgets/custom_card.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
+import 'package:doce_lar/view/widgets/custom_card.dart';
+import 'package:doce_lar/controller/cep.dart';
 
 class DoctorListScreen extends StatefulWidget {
   @override
@@ -17,10 +17,8 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
   List<Doctor> _doctors = [];
   List<Doctor> _activeDoctors = [];
   List<Doctor> _inactiveDoctors = [];
-  List<Doctor> _filteredDoctors = [];
   String _searchQuery = '';
-  bool _isLoading = false; // Variável para rastrear o estado de carregamento
-  int _selectedTabIndex = 0; // Variável para controlar a aba selecionada
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -33,7 +31,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
     final doctorRepository = DoctorRepository();
 
     setState(() {
-      _isLoading = true; // Inicia o carregamento
+      _isLoading = true;
     });
 
     try {
@@ -42,22 +40,18 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
         _doctors = doctors;
         _activeDoctors = doctors.where((doctor) => doctor.status!).toList();
         _inactiveDoctors = doctors.where((doctor) => !doctor.status!).toList();
-        _filteredDoctors =
-            _selectedTabIndex == 0 ? _activeDoctors : _inactiveDoctors;
-        _isLoading = false; // Finaliza o carregamento
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false; // Finaliza o carregamento em caso de erro
+        _isLoading = false;
       });
       // Trate o erro adequadamente
     }
   }
 
   void _filterDoctors(String query) {
-    final filteredDoctors =
-        (_selectedTabIndex == 0 ? _activeDoctors : _inactiveDoctors)
-            .where((doctor) {
+    final filteredDoctors = _doctors.where((doctor) {
       final doctorLower = doctor.name!.toLowerCase();
       final queryLower = query.toLowerCase();
       return doctorLower.contains(queryLower);
@@ -65,308 +59,275 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
 
     setState(() {
       _searchQuery = query;
-      _filteredDoctors = filteredDoctors;
+      _activeDoctors =
+          filteredDoctors.where((doctor) => doctor.status!).toList();
+      _inactiveDoctors =
+          filteredDoctors.where((doctor) => !doctor.status!).toList();
     });
   }
 
-  void _showAddDoctorDialog() {
-    // Variáveis de estado para armazenar os dados do médico
-    String name = '';
-    String crmv = '';
-    String expertise = '';
-    String phone = '';
-    String socialReason = '';
-    String cep = '';
-    String state = '';
-    String city = '';
-    String district = '';
-    String address = '';
-    String number = '';
-    String openHours = '';
+void _showAddDoctorDialog() {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController crmvController = TextEditingController();
+  final TextEditingController expertiseController = TextEditingController();
+  final TextEditingController phoneController =
+      MaskedTextController(mask: '(00) 00000-0000');
+  final TextEditingController socialReasonController =
+      TextEditingController();
+  final TextEditingController cepController =
+      MaskedTextController(mask: '00000-000');
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController districtController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController numberController = TextEditingController();
+  final TextEditingController openHoursController = TextEditingController();
 
-    // Controladores para os campos de texto
-    final TextEditingController _cepController = TextEditingController();
-    final TextEditingController _stateController = TextEditingController();
-    final TextEditingController _cityController = TextEditingController();
-    final TextEditingController _districtController = TextEditingController();
-    final TextEditingController _addressController = TextEditingController();
+  Future<void> _buscarCep(String cep) async {
+    String cepSemHifen = cep.replaceAll('-', '');
 
-    Future<void> _buscarCep(String cep) async {
-      String cepSemHifen = cep.replaceAll('-', '');
-
-      if (cepSemHifen.length == 8) {
-        final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
-        if (endereco != null) {
-          _addressController.text = endereco['logradouro'] ?? '';
-          _cityController.text = endereco['localidade'] ?? '';
-          _stateController.text = endereco['uf'] ?? '';
-          _districtController.text = endereco['bairro'] ?? '';
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('CEP inválido ou não encontrado')),
-          );
-        }
+    if (cepSemHifen.length == 8) {
+      final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
+      if (endereco != null) {
+        setState(() {
+          addressController.text = endereco['logradouro'] ?? '';
+          cityController.text = endereco['localidade'] ?? '';
+          stateController.text = endereco['uf'] ?? '';
+          districtController.text = endereco['bairro'] ?? '';
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('CEP inválido ou não encontrado')),
+        );
       }
     }
+  }
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Adicionar Novo Médico'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Nome do Médico'),
-                      onChanged: (value) {
-                        setState(() {
-                          name = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'CRMV'),
-                      onChanged: (value) {
-                        setState(() {
-                          crmv = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Especialidade'),
-                      onChanged: (value) {
-                        setState(() {
-                          expertise = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Telefone'),
-                      inputFormatters: [InputMasks.phoneMask],
-                      onChanged: (value) {
-                        setState(() {
-                          phone = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Razão Social'),
-                      onChanged: (value) {
-                        setState(() {
-                          socialReason = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      controller: _cepController,
-                      decoration: InputDecoration(labelText: 'CEP'),
-                      inputFormatters: [InputMasks.cepMask],
-                      onChanged: (value) {
-                        setState(() {
-                          cep = value;
-                          _buscarCep(value); // Chama a função de busca do CEP
-                        });
-                      },
-                    ),
-                    TextField(
-                      controller: _stateController,
-                      decoration: InputDecoration(labelText: 'Estado'),
-                      onChanged: (value) {
-                        setState(() {
-                          state = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      controller: _cityController,
-                      decoration: InputDecoration(labelText: 'Cidade'),
-                      onChanged: (value) {
-                        setState(() {
-                          city = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      controller: _districtController,
-                      decoration: InputDecoration(labelText: 'Bairro'),
-                      onChanged: (value) {
-                        setState(() {
-                          district = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      controller: _addressController,
-                      decoration: InputDecoration(labelText: 'Endereço'),
-                      onChanged: (value) {
-                        setState(() {
-                          address = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Número'),
-                      onChanged: (value) {
-                        setState(() {
-                          number = value;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                          labelText: 'Horário de Funcionamento'),
-                      onChanged: (value) {
-                        setState(() {
-                          openHours = value;
-                        });
-                      },
-                    ),
-                  ],
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Adicionar Novo Médico'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: 'Nome do Médico'),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
-              ),
-              actions: [
-                TextButton(
-                  child: Text('Cancelar'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                TextFormField(
+                  controller: crmvController,
+                  decoration: InputDecoration(labelText: 'CRMV'),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
+                ),
+                TextFormField(
+                  controller: expertiseController,
+                  decoration: InputDecoration(labelText: 'Especialidade'),
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: InputDecoration(labelText: 'Telefone'),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
+                ),
+                TextFormField(
+                  controller: socialReasonController,
+                  decoration: InputDecoration(labelText: 'Razão Social'),
+                ),
+                TextFormField(
+                  controller: cepController,
+                  decoration: InputDecoration(labelText: 'CEP'),
+                  onChanged: (value) {
+                    _buscarCep(value);
                   },
                 ),
-                ElevatedButton(
-                  child: Text('Adicionar'),
-                  onPressed: () async {
-                    final loginProvider =
-                        Provider.of<LoginController>(context, listen: false);
-                    final doctorRepository = DoctorRepository();
-
-                    try {
-                      final newDoctor = Doctor(
-                        name: name,
-                        crmv: crmv,
-                        expertise: expertise,
-                        phone: phone,
-                        socialReason: socialReason,
-                        cep: cep,
-                        state: state,
-                        city: city,
-                        district: district,
-                        address: address,
-                        number: number,
-                        openHours: openHours,
-                        status: true,
-                      );
-
-                      // Adiciona o novo médico
-                      await doctorRepository.addDoctor(
-                          newDoctor, loginProvider.token);
-
-                      // Atualiza a lista de médicos ou executa outras ações necessárias
-                      _fetchDoctors();
-
-                      Navigator.of(context).pop();
-                    } catch (e) {
-                      print('Erro ao adicionar médico: $e');
-                    }
-                  },
+                TextFormField(
+                  controller: stateController,
+                  decoration: InputDecoration(labelText: 'Estado'),
+                ),
+                TextFormField(
+                  controller: cityController,
+                  decoration: InputDecoration(labelText: 'Cidade'),
+                ),
+                TextFormField(
+                  controller: districtController,
+                  decoration: InputDecoration(labelText: 'Bairro'),
+                ),
+                TextFormField(
+                  controller: addressController,
+                  decoration: InputDecoration(labelText: 'Endereço'),
+                ),
+                TextFormField(
+                  controller: numberController,
+                  decoration: InputDecoration(labelText: 'Número'),
+                ),
+                TextFormField(
+                  controller: openHoursController,
+                  decoration:
+                      InputDecoration(labelText: 'Horário de Funcionamento'),
                 ),
               ],
-            );
-          },
-        );
-      },
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState?.validate() ?? false) {
+                final loginProvider =
+                    Provider.of<LoginController>(context, listen: false);
+                final doctorRepository = DoctorRepository();
+
+                final newDoctor = Doctor(
+                  name: nameController.text,
+                  crmv: crmvController.text,
+                  expertise: expertiseController.text,
+                  phone: phoneController.text,
+                  socialReason: socialReasonController.text,
+                  cep: cepController.text,
+                  state: stateController.text,
+                  city: cityController.text,
+                  district: districtController.text,
+                  address: addressController.text,
+                  number: numberController.text,
+                  openHours: openHoursController.text,
+                  status: true,
+                );
+
+                try {
+                  await doctorRepository.addDoctor(
+                      newDoctor, loginProvider.token);
+                  _fetchDoctors();
+                  Navigator.of(context).pop();
+                  _showFeedbackDialog(
+                      context, 'Médico adicionado com sucesso!', true);
+                } catch (e) {
+                  _showFeedbackDialog(
+                      context, 'Erro ao adicionar médico: $e', false);
+                }
+              }
+            },
+            child: Text('Adicionar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  void _showFeedbackDialog(BuildContext context, String message, bool isSuccess) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(isSuccess ? 'Sucesso' : 'Erro'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Fechar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+  Widget _buildDoctorList(List<Doctor> doctors) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Pesquisar médico...',
+              prefixIcon: Icon(Icons.search, color: Colors.green),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            onChanged: _filterDoctors,
+          ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : doctors.isEmpty
+                  ? Center(child: Text('Nenhum médico encontrado'))
+                  : ListView.builder(
+                      itemCount: doctors.length,
+                      itemBuilder: (context, index) {
+                        final doctor = doctors[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomCard(
+                            title: doctor.name.toString(),
+                            info1: doctor.expertise.toString(),
+                            info2: doctor.phone.toString(),
+                            onTap: () {
+                              showDoctorDetailDialog(context, doctor, _fetchDoctors);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Doutores'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/base');
-          },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Médicos'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('/base');
+            },
+          ),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Ativos'),
+              Tab(text: 'Inativos'),
+            ],
+          ),
         ),
-      ),
-      body: DefaultTabController(
-        length: 2, // Número de abas
-        child: Column(
+        body: TabBarView(
           children: [
-            Container(
-              color: Colors.white,
-              child: TabBar(
-                onTap: (index) {
-                  setState(() {
-                    _selectedTabIndex = index;
-                    _filterDoctors(
-                        _searchQuery); // Refiltra a lista ao mudar de aba
-                  });
-                },
-                tabs: [
-                  Tab(text: 'Ativos'),
-                  Tab(text: 'Inativos'),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Pesquisar doutor...',
-                        prefixIcon: Icon(Icons.search, color: Colors.green),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      onChanged: _filterDoctors,
-                    ),
-                  ),
-                  Expanded(
-                    child: _isLoading
-                        ? Center(child: CircularProgressIndicator())
-                        : _filteredDoctors.isEmpty
-                            ? Center(child: Text('Nenhum doutor encontrado'))
-                            : ListView.builder(
-                                itemCount: _filteredDoctors.length,
-                                itemBuilder: (context, index) {
-                                  final doctor = _filteredDoctors[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: CustomCard(
-                                      title: doctor.name.toString(),
-                                      info1: doctor.expertise.toString(),
-                                      info2: doctor.phone.toString(),
-                                      onTap: () {
-                                        showDoctorDetailDialog(
-                                          context,
-                                          doctor,
-                                          _fetchDoctors,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                              ),
-                  ),
-                ],
-              ),
-            ),
+            _buildDoctorList(_activeDoctors),
+            _buildDoctorList(_inactiveDoctors),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddDoctorDialog,
-        child: Icon(Icons.add),
-        backgroundColor: Colors.green,
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showAddDoctorDialog,
+          backgroundColor: Colors.green,
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }

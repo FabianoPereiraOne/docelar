@@ -4,15 +4,16 @@ import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/login_controller.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
-import 'package:doce_lar/utils/masks.dart';
+
 
 void showEnderecoDialog(BuildContext context, String colaboradorId, Function() callback) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _ruaController = TextEditingController();
   final TextEditingController _cidadeController = TextEditingController();
   final TextEditingController _estadoController = TextEditingController();
-  final TextEditingController _cepController = TextEditingController();
+  final TextEditingController _cepController = MaskedTextController(mask: '00000-000');
   final TextEditingController _districtController = TextEditingController();
   final TextEditingController _numeroController = TextEditingController();
   final loginProvider = Provider.of<LoginController>(context, listen: false);
@@ -66,7 +67,6 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  inputFormatters: [InputMasks.cepMask],
                   controller: _cepController,
                   decoration: InputDecoration(
                     labelText: 'CEP',

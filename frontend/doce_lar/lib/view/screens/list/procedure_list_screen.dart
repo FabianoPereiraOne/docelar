@@ -59,7 +59,7 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
     });
   }
 
-  void _showAddProcedureDialog() {
+void _showAddProcedureDialog() {
   // Inicialize as variáveis de estado
   String name = '';
   String description = '';
@@ -126,18 +126,39 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
                     // Adiciona o novo procedimento
                     await procedureRepository.addProcedure(newProcedure, loginProvider.token);
 
-                    // Atualiza a lista de procedimentos ou executa outras ações necessárias
+                    // Atualiza a lista de procedimentos
                     _fetchProcedures();
 
                     Navigator.of(context).pop();
+                    _showFeedbackDialog(context, 'Procedimento adicionado com sucesso!', true);
                   } catch (e) {
-                    print('Erro ao adicionar procedimento: $e');
+                    _showFeedbackDialog(context, 'Erro ao adicionar procedimento: $e', false);
                   }
                 },
               ),
             ],
           );
         },
+      );
+    },
+  );
+}
+
+void _showFeedbackDialog(BuildContext context, String message, bool isSuccess) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(isSuccess ? 'Sucesso' : 'Erro'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Fechar'),
+          ),
+        ],
       );
     },
   );

@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
@@ -6,6 +7,7 @@ import 'package:doce_lar/model/repositories/service_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
 void showDoctorDetailDialog(
@@ -235,33 +237,42 @@ Widget _buildDetailRow(String label, String? value) {
     ),
   );
 }
+Future<Map<String, String>?> _buscarCep(String cep) async {
+  try {
+    String cepSemHifen = cep.replaceAll('-', '');
 
-void _showEditDoctorDialog(
-    BuildContext context, Doctor doctor, Function() onDoctorUpdated) {
-  final TextEditingController nameController =
-      TextEditingController(text: doctor.name ?? '');
-  final TextEditingController crmvController =
-      TextEditingController(text: doctor.crmv ?? '');
-  final TextEditingController expertiseController =
-      TextEditingController(text: doctor.expertise ?? '');
-  final TextEditingController phoneController =
-      TextEditingController(text: doctor.phone ?? '');
-  final TextEditingController socialReasonController =
-      TextEditingController(text: doctor.socialReason ?? '');
-  final TextEditingController cepController =
-      TextEditingController(text: doctor.cep ?? '');
-  final TextEditingController stateController =
-      TextEditingController(text: doctor.state ?? '');
-  final TextEditingController cityController =
-      TextEditingController(text: doctor.city ?? '');
-  final TextEditingController districtController =
-      TextEditingController(text: doctor.district ?? '');
-  final TextEditingController addressController =
-      TextEditingController(text: doctor.address ?? '');
-  final TextEditingController numberController =
-      TextEditingController(text: doctor.number ?? '');
-  final TextEditingController openHoursController =
-      TextEditingController(text: doctor.openHours ?? '');
+    if (cepSemHifen.length == 8) {
+      final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
+      if (endereco != null) {
+        return {
+          'logradouro': endereco['logradouro'] ?? '',
+          'localidade': endereco['localidade'] ?? '',
+          'uf': endereco['uf'] ?? '',
+          'bairro': endereco['bairro'] ?? '',
+        };
+      } else {
+        return null;
+      }
+    }
+  } catch (e) {
+    print('Erro ao buscar CEP: $e');
+  }
+  return null;
+}
+
+void _showEditDoctorDialog(BuildContext context, Doctor doctor, Function() onDoctorUpdated) {
+  final TextEditingController nameController = TextEditingController(text: doctor.name ?? '');
+  final TextEditingController crmvController = TextEditingController(text: doctor.crmv ?? '');
+  final TextEditingController expertiseController = TextEditingController(text: doctor.expertise ?? '');
+  final TextEditingController phoneController = TextEditingController(text: doctor.phone ?? '');
+  final TextEditingController socialReasonController = TextEditingController(text: doctor.socialReason ?? '');
+  final TextEditingController cepController = MaskedTextController(mask: '00000-000', text: doctor.cep ?? '');
+  final TextEditingController stateController = TextEditingController(text: doctor.state ?? '');
+  final TextEditingController cityController = TextEditingController(text: doctor.city ?? '');
+  final TextEditingController districtController = TextEditingController(text: doctor.district ?? '');
+  final TextEditingController addressController = TextEditingController(text: doctor.address ?? '');
+  final TextEditingController numberController = TextEditingController(text: doctor.number ?? '');
+  final TextEditingController openHoursController = TextEditingController(text: doctor.openHours ?? '');
 
   bool status = doctor.status ?? true;
 
@@ -270,6 +281,25 @@ void _showEditDoctorDialog(
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
+          cepController.addListener(() async {
+            String cep = cepController.text.replaceAll('-', '');
+            if (cep.length == 8) {
+              final endereco = await _buscarCep(cep);
+              if (endereco != null) {
+                setState(() {
+                  addressController.text = endereco['logradouro'] ?? '';
+                  cityController.text = endereco['localidade'] ?? '';
+                  stateController.text = endereco['uf'] ?? '';
+                  districtController.text = endereco['bairro'] ?? '';
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('CEP inválido ou não encontrado')),
+                );
+              }
+            }
+          });
+
           return AlertDialog(
             title: Text('Editar Médico'),
             content: SingleChildScrollView(
@@ -321,8 +351,7 @@ void _showEditDoctorDialog(
                     controller: numberController,
                   ),
                   TextField(
-                    decoration:
-                        InputDecoration(labelText: 'Horário de Funcionamento'),
+                    decoration: InputDecoration(labelText: 'Horário de Funcionamento'),
                     controller: openHoursController,
                   ),
                   SwitchListTile(
@@ -347,8 +376,7 @@ void _showEditDoctorDialog(
               ElevatedButton(
                 child: Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
+                  final loginProvider = Provider.of<LoginController>(context, listen: false);
                   final doctorRepository = DoctorRepository();
 
                   try {
@@ -369,8 +397,7 @@ void _showEditDoctorDialog(
                       status: status,
                     );
 
-                    await doctorRepository.updateDoctor(
-                        updatedDoctor, loginProvider.token);
+                    await doctorRepository.updateDoctor(updatedDoctor, loginProvider.token);
 
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onDoctorUpdated(); // Atualizar a tela principal
