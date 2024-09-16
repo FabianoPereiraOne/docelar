@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -38,25 +40,25 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   List<Home> _homes = [];
   Home? _selectedHome;
 
-  void _fetchHomes(String colaboradorId) async {
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final homeRepository = HomeRepository();
+void _fetchHomes(String colaboradorId) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final homeRepository = HomeRepository();
 
-    try {
-      final allHomes = await homeRepository.fetchHomes(loginProvider.token);
-      setState(() {
-        _homes = allHomes
-            .where((home) => home.collaboratorId == colaboradorId)
-            .toList();
-        // Defina o home selecionado para o primeiro endereço se a lista não estiver vazia
-        if (_homes.isNotEmpty) {
-          _selectedHome = _homes.first;
-        }
-      });
-    } catch (e) {
-      print('Erro ao buscar endereços: $e');
-    }
+  try {
+    final allHomes = await homeRepository.fetchHomes(loginProvider.token);
+    setState(() {
+      _homes = allHomes
+          .where((home) => home.collaboratorId == colaboradorId)
+          .toList();
+
+      if (_homes.isNotEmpty) {
+        _selectedHome = _homes.first;
+      }
+    });
+  } catch (e) {
+    log('Erro ao buscar endereços: $e');
   }
+}
 
   // Método para buscar colaboradores
   void _fetchColaboradores() async {
@@ -180,7 +182,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     });
   }
 
-  void _showAddAnimalDialog() {
+void _showAddAnimalDialog() {
   String name = '';
   String sex = 'M'; // Default to 'M'
   bool castrated = false;
@@ -188,8 +190,6 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   String linkPhoto = '';
   int typeAnimalId = _animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1; // Default to first type ID if available
   bool status = true;
-  Usuario? selectedColaborador = _selectedColaborador;
-  Home? selectedHome = _selectedHome;
   final descriptionController = TextEditingController();
 
   showDialog(
@@ -207,6 +207,24 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                     decoration: const InputDecoration(labelText: 'Nome'),
                     onChanged: (value) {
                       name = value;
+                    },
+                  ),
+                  DropdownButtonFormField<Usuario>(
+                    value: _selectedColaborador,
+                    decoration: const InputDecoration(labelText: 'Selecione o Colaborador'),
+                    items: _colaboradores.map((colaborador) {
+                      return DropdownMenuItem(
+                        value: colaborador,
+                        child: Text(colaborador.name ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedColaborador = value;
+                        if (_selectedColaborador != null) {
+                          _fetchHomes(_selectedColaborador!.id!); // Fetch homes when a collaborator is selected
+                        }
+                      });
                     },
                   ),
                   DropdownButtonFormField<String>(
@@ -234,39 +252,6 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                     onChanged: (value) {
                       setState(() {
                         typeAnimalId = value ?? (_animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1);
-                      });
-                    },
-                  ),
-                  DropdownButtonFormField<Usuario>(
-                    value: selectedColaborador,
-                    decoration: const InputDecoration(labelText: 'Colaborador'),
-                    items: _colaboradores.map((colaborador) {
-                      return DropdownMenuItem(
-                        value: colaborador,
-                        child: Text(colaborador.name ?? 'Desconhecido'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedColaborador = value;
-                        if (selectedColaborador != null) {
-                          _fetchHomes(selectedColaborador!.id ?? '');
-                        }
-                      });
-                    },
-                  ),
-                  DropdownButtonFormField<Home>(
-                    value: selectedHome,
-                    decoration: const InputDecoration(labelText: 'Endereço'),
-                    items: _homes.map((home) {
-                      return DropdownMenuItem(
-                        value: home,
-                        child: Text('${home.address}, ${home.number}, ${home.city}'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedHome = value;
                       });
                     },
                   ),
@@ -311,6 +296,8 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                     minLines: 3,
                     keyboardType: TextInputType.multiline,
                   ),
+                  const SizedBox(height: 16),
+                  
                 ],
               ),
             ),
@@ -322,15 +309,102 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                 },
               ),
               ElevatedButton(
-                child: const Text('Adicionar'),
+                child: const Text('Continuar'),
+                onPressed: () {
+                  if (_selectedColaborador == null) {
+                    _showFeedbackDialog(context, 'Por favor, selecione um colaborador', false);
+                    return;
+                  }
+                  // Verifica se a lista de lares não está vazia antes de continuar
+                  if (_homes.isEmpty) {
+                    _showFeedbackDialog(context, 'Não há lares disponíveis para o colaborador selecionado', false);
+                    return;
+                  }
+                  Navigator.of(context).pop(); // Fecha o primeiro diálogo
+                  _showSelectHomeDialog(
+                    name: name,
+                    sex: sex,
+                    castrated: castrated,
+                    race: race,
+                    linkPhoto: linkPhoto,
+                    typeAnimalId: typeAnimalId,
+                    status: status,
+                    description: descriptionController.text,
+                  ); // Abre o diálogo de seleção do lar
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+
+void _showSelectHomeDialog({
+  required String name,
+  required String sex,
+  required bool castrated,
+  required String race,
+  required String linkPhoto,
+  required int typeAnimalId,
+  required bool status,
+  required String description,
+}) {
+  Home? selectedHome = _selectedHome;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Lar do Animal'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<Home>(
+                  value: selectedHome,
+                  decoration: const InputDecoration(labelText: 'Selecione o Lar'),
+                  items: _homes.map((home) {
+                    return DropdownMenuItem<Home>(
+                      value: home,
+                      child: Text('${home.address}, ${home.number}'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedHome = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Cancelar'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+              ),
+              ElevatedButton(
+                child: const Text('Concluir'),
                 onPressed: () async {
+                  if (selectedHome == null) {
+                    _showFeedbackDialog(context, 'Por favor, selecione um lar', false);
+                    return;
+                  }
+
                   final loginProvider = Provider.of<LoginController>(context, listen: false);
                   final animalRepository = AnimalRepository();
 
                   try {
                     final newAnimal = Animal(
                       name: name,
-                      description: descriptionController.text,
+                      description: description,
                       sex: sex,
                       castrated: castrated,
                       race: race,
@@ -340,21 +414,19 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                       updatedAt: DateTime.now().toString(),
                       dateExit: "0",
                       status: status,
-                      homeId: selectedHome?.id, // Adiciona o endereço selecionado
+                      homeId: selectedHome!.id, // Adiciona o lar selecionado
                     );
 
                     await animalRepository.addAnimal(newAnimal, loginProvider.token);
 
-                    Navigator.of(context).pop(); // Fecha o dialogo de adicionar animal
+                    Navigator.of(context).pop(); // Fecha o diálogo de seleção de lar
 
                     _fetchAnimais(); // Atualiza a lista de animais
 
-                    // Mostrar o dialogo de sucesso
                     _showFeedbackDialog(context, 'Animal adicionado com sucesso', true);
                   } catch (e) {
                     print('Erro ao adicionar animal: $e');
 
-                    // Mostrar o dialogo de erro
                     _showFeedbackDialog(context, 'Erro ao adicionar animal', false);
                   }
                 },
@@ -366,6 +438,10 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     },
   );
 }
+
+
+
+
 
 
   void _showFeedbackDialog(
@@ -399,7 +475,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/base');
+              Navigator.of(context).pushReplacementNamed('/home');
             },
           ),
           bottom: TabBar(

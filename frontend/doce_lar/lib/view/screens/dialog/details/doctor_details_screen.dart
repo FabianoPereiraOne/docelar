@@ -70,14 +70,14 @@ void showDoctorDetailDialog(
                                   },
                                   child: Text('Editar'),
                                 ),
-                                // ElevatedButton(
-                                //   onPressed: () {
-                                //     Navigator.of(context).pop();
-                                //     _confirmDeleteDoctor(context, doctor.id!, onDoctorUpdated);
-                                //   },
-                                //   child: Text('Deletar'),
-                                //   style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                // ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _confirmDeleteDoctor(context, doctor.id!, onDoctorUpdated);
+                                  },
+                                  child: Text('Deletar'),
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                ),
                               ],
                             ),
                           ],

@@ -307,7 +307,7 @@ void _showAddDoctorDialog() {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/base');
+              Navigator.of(context).pushReplacementNamed('/home');
             },
           ),
           bottom: TabBar(

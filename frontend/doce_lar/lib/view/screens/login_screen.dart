@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await loginProvider.autenticaUsuario(
           _usernameController.text.trim(), _passwordController.text.trim());
       if (loginProvider.hasData) {
-        Navigator.of(context).pushReplacementNamed('/base');
+        Navigator.of(context).pushReplacementNamed('/home');
       } else {
         AsukaSnackbar.alert('Usuário ou senha inválidos');
       }

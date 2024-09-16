@@ -160,17 +160,17 @@ void showAnimalDetailDialog(
                                   },
                                   child: Text('Editar'),
                                 ),
-                                // ElevatedButton(
-                                //   onPressed: () {
-                                //     Navigator.of(context)
-                                //         .pop(); // Fechar o diálogo
-                                //     _confirmDeleteAnimal(
-                                //         context, animal.id!, onAnimalUpdated);
-                                //   },
-                                //   child: Text('Deletar'),
-                                //   style: TextButton.styleFrom(
-                                //       foregroundColor: Colors.red),
-                                // ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Fechar o diálogo
+                                    _confirmDeleteAnimal(
+                                        context, animal.id!, onAnimalUpdated);
+                                  },
+                                  child: Text('Deletar'),
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red),
+                                ),
                               ],
                             ),
                           ],

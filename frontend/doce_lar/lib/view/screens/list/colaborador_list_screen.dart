@@ -308,7 +308,7 @@ void _showColaboradorDialog(BuildContext context) {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/base');
+              Navigator.of(context).pushReplacementNamed('/home');
             },
           ),
           bottom: const TabBar(

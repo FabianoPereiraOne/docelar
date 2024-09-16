@@ -155,7 +155,7 @@ Future<void> updateDoctor(Doctor doctor, String token) async {
 
 Future<void> deleteDoctor(String doctorId, String token) async {
   try {
-    String endpoint = '$url/doctors/$doctorId';
+    String endpoint = '$url/doctors?id=$doctorId';
 
     Response response = await dio.delete(
       endpoint,
