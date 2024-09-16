@@ -1,14 +1,18 @@
-
-
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
+import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/model/repositories/animals_types_repository.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
+import 'package:doce_lar/model/repositories/service_repository.dart';
+import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
+import 'package:doce_lar/view/screens/dialog/service_dialog.dart';
+import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAnimalUpdated) async {
+void showAnimalDetailDialog(
+    BuildContext context, Animal animal, Function() onAnimalUpdated) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final homeRepository = HomeRepository();
   final animalTypeRepository = AnimalTypeRepository();
@@ -18,8 +22,10 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
 
   if (animal.homeId != null) {
     try {
-      final home = await homeRepository.fetchHomeById(animal.homeId!, loginProvider.token);
-      homeAddress = '${home.address}, ${home.number}, ${home.district}, ${home.city}, ${home.state}';
+      final home = await homeRepository.fetchHomeById(
+          animal.homeId!, loginProvider.token);
+      homeAddress =
+          '${home.address}, ${home.number}, ${home.district}, ${home.city}, ${home.state}';
     } catch (e) {
       homeAddress = 'Erro ao carregar endereço';
     }
@@ -27,7 +33,8 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
 
   if (animal.typeAnimalId != null) {
     try {
-      final animalType = await animalTypeRepository.fetchAnimalTypeById(animal.typeAnimalId!, loginProvider.token);
+      final animalType = await animalTypeRepository.fetchAnimalTypeById(
+          animal.typeAnimalId!, loginProvider.token);
       animalTypeName = animalType.type ?? 'Desconhecido';
     } catch (e) {
       animalTypeName = 'Erro ao carregar tipo de animal';
@@ -55,7 +62,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 300,
+                  height: 500,
                   child: TabBarView(
                     children: [
                       SingleChildScrollView(
@@ -63,65 +70,191 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 20),
-                            _buildDetailRow('Descrição', animal.description),
-                            _buildDetailRow('Raça', animal.race),
-                            _buildDetailRow('Sexo', animal.sex == 'M' ? 'Masculino' : 'Feminino'),
-                            _buildDetailRow('Castrado', animal.castrated == true ? 'Sim' : 'Não'),
-                            _buildDetailRow('Status', animal.status == true ? 'Ativo' : 'Inativo'),
-                            _buildDetailRow('Data de Saída', animal.dateExit ?? 'N/A'),
+                            Center(
+                              child: Text(animal.name ?? 'N/A',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                            ),
                             _buildDetailRow('Tipo de Animal', animalTypeName),
-                            _buildDetailRow('Endereço da Casa', homeAddress),
-                            _buildDetailRow('Data de entrada', animal.createdAt),
+                            _buildDetailRow('Raça', animal.race),
+                            _buildDetailRow('Sexo',
+                                animal.sex == 'M' ? 'Masculino' : 'Feminino'),
+                            _buildDetailRow('Castrado',
+                                animal.castrated == true ? 'Sim' : 'Não'),
+                            _buildDetailRow('Status',
+                                animal.status == true ? 'Ativo' : 'Inativo'),
+                            _buildDetailRow('Data de entrada',
+                                formatDate(animal.createdAt)),
+                            _buildDetailRow(
+                                'Data de Saída', formatDate(animal.dateExit)),
+
+                            //exibindo endereço do lar temporário
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Endereço do Lar Temporário',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      homeAddress,
+                                      style: TextStyle(color: Colors.grey[700]),
+                                      textAlign: TextAlign.left,
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                  Divider()
+                                ],
+                              ),
+                            ),
+                            // Exibindo a descrição com largura fixa
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Descrição',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Container(
+                                    width: 300, // Largura fixa
+                                    padding: const EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.grey, width: 1.0),
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                    child: Text(
+                                      animal.description!,
+                                      style: TextStyle(color: Colors.grey[700]),
+                                      textAlign: TextAlign.left,
+                                      softWrap: true, // Quebrar linhas
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Fechar o diálogo
+                                    _showEditAnimalDialog(
+                                        context, animal, onAnimalUpdated);
+                                  },
+                                  child: Text('Editar'),
+                                ),
+                                // ElevatedButton(
+                                //   onPressed: () {
+                                //     Navigator.of(context)
+                                //         .pop(); // Fechar o diálogo
+                                //     _confirmDeleteAnimal(
+                                //         context, animal.id!, onAnimalUpdated);
+                                //   },
+                                //   child: Text('Deletar'),
+                                //   style: TextButton.styleFrom(
+                                //       foregroundColor: Colors.red),
+                                // ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                      Column(
-                        children: [
-                          animal.services != null && animal.services!.isNotEmpty
-                              ? Expanded(
-                                  child: ListView.builder(
-                                    itemCount: animal.services!.length,
-                                    itemBuilder: (context, index) {
-                                      final service = animal.services![index];
-                                      return ListTile(
-                                        title: Text(service.createdAt ?? 'Serviço Desconhecido'),
-                                        subtitle: Text('Descrição: ${service.description}'),
-                                      );
+                      FutureBuilder<List<Service>>(
+                        future: _fetchServicesWithProcedures(animal.services?.map((s) => s.id ?? '').toList() ?? [], loginProvider.token),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Erro ao carregar serviços'));
+                          }
+
+                          final services = snapshot.data;
+
+                          return Column(
+                            children: [
+                              services != null && services.isNotEmpty
+                                  ? Expanded(
+                                      child: ListView.builder(
+                                        itemCount: services.length,
+                                        itemBuilder: (context, index) {
+                                          final service = services[index];
+                                          return ListTile(
+                                            title: Text(formatDate(service.createdAt)),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                if (service.procedures != null)
+                                                  ...service.procedures!.map(
+                                                    (procedure) => Text('${procedure.name}'),
+                                                  ).toList(),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              // Exibir detalhes do serviço ao clicar
+                                              showServiceDetailsDialog(context, service.id!, () {
+                                                Navigator.of(context).pop();
+                                                onAnimalUpdated();
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text('Nenhum serviço encontrado para este animal.')),
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      showServiceDialog(context, animal.id!, onAnimalUpdated);
                                     },
+                                    child: Text('Adicionar Serviço'),
                                   ),
-                                )
-                              : Text('Nenhum serviço encontrado para este animal.'),
-                        ],
+                                ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Fechar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showEditAnimalDialog(context, animal, onAnimalUpdated);
-                    },
-                    child: Text('Editar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _confirmDeleteAnimal(context, animal.id!, onAnimalUpdated);
-                    },
-                    child: Text('Deletar'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Fechar'),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -131,8 +264,28 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, Function() onAn
   );
 }
 
+Future<List<Service>> _fetchServicesWithProcedures(List<String> serviceIds, String token) async {
+  final serviceRepository = ServiceRepository();
+  final services = <Service>[];
 
-void _confirmDeleteAnimal(BuildContext context, String animalId, Function() onAnimalDeleted) {
+  for (String serviceId in serviceIds) {
+    try {
+      final service = await serviceRepository.getServiceById(serviceId, token);
+      services.add(service);
+    } catch (e) {
+      print('Erro ao carregar serviço: $e');
+    }
+  }
+
+  // Ordenar os serviços do mais novo para o mais antigo
+  services.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+  return services;
+}
+
+
+void _confirmDeleteAnimal(
+    BuildContext context, String animalId, Function() onAnimalDeleted) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -154,8 +307,9 @@ void _confirmDeleteAnimal(BuildContext context, String animalId, Function() onAn
             final animalRepository = AnimalRepository();
 
             try {
-              await animalRepository.deleteAnimal(animalId, loginProvider.token);
-              Navigator.of(context).pop(); // Fechar o diálogo de confirmação
+              await animalRepository.deleteAnimal(
+                  animalId, loginProvider.token);
+              Navigator.of(context).pop();
               onAnimalDeleted(); // Atualizar a tela principal
             } catch (e) {
               print('Erro ao excluir animal: $e');
@@ -167,30 +321,36 @@ void _confirmDeleteAnimal(BuildContext context, String animalId, Function() onAn
   );
 }
 
-
 Widget _buildDetailRow(String label, String? value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Flexible(
+              child: Text(
+                value ?? 'N/A',
+                style: TextStyle(color: Colors.grey[700]),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
         ),
-        Flexible(
-          child: Text(
-            value ?? 'N/A',
-            style: TextStyle(color: Colors.grey[700]),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    ),
+      ),
+      Divider(), // Linha abaixo do detalhe
+    ],
   );
 }
 
-void _showEditAnimalDialog(BuildContext context, Animal animal, Function() onAnimalUpdated) {
+void _showEditAnimalDialog(
+    BuildContext context, Animal animal, Function() onAnimalUpdated) {
   final TextEditingController nameController =
       TextEditingController(text: animal.name ?? '');
   final TextEditingController descriptionController =
@@ -219,10 +379,6 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, Function() onAni
                   TextField(
                     decoration: InputDecoration(labelText: 'Nome'),
                     controller: nameController,
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Descrição'),
-                    controller: descriptionController,
                   ),
                   DropdownButtonFormField<String>(
                     value: sex,
@@ -263,6 +419,17 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, Function() onAni
                       });
                     },
                   ),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      border: OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
+                    controller: descriptionController,
+                    maxLines: 5,
+                    minLines: 3,
+                    keyboardType: TextInputType.multiline,
+                  ),
                 ],
               ),
             ),
@@ -297,7 +464,8 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, Function() onAni
                       homeId: animal.homeId,
                     );
 
-                    await animalRepository.updateAnimal(updatedAnimal, loginProvider.token);
+                    await animalRepository.updateAnimal(
+                        updatedAnimal, loginProvider.token);
 
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onAnimalUpdated(); // Atualizar a tela principal
@@ -312,5 +480,4 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, Function() onAni
       );
     },
   );
-  
 }

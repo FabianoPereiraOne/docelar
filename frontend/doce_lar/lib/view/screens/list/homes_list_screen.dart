@@ -205,9 +205,9 @@ class _HomeListScreenState extends State<HomeListScreen> {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CustomCard(
-                              name: home.address.toString(),
-                              email: home.city.toString(),
-                              phone: home.district.toString(),
+                              title: home.address.toString(),
+                              info1: home.city.toString(),
+                              info2: home.district.toString(),
                               onTap: () {
                                 showHomeDetailDialog(
                                     context, home, _fetchHomes);

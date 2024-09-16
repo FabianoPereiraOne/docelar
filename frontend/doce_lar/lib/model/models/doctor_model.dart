@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:doce_lar/model/models/service_model.dart';
+
 class Doctor {
   String? id;
   String? name;
@@ -15,6 +17,7 @@ class Doctor {
   String? number;
   String? openHours;
   bool? status;
+  List<Service>? services;
 
   Doctor({
     this.id,
@@ -31,6 +34,7 @@ class Doctor {
     this.number,
     this.openHours,
     this.status,
+    this.services,
   });
 
   factory Doctor.fromMap(Map<String, dynamic> map) {
@@ -49,6 +53,7 @@ class Doctor {
       number: map['number'],
       openHours: map['openHours'],
       status: map['status'],
+      services: (map['services'] as List<dynamic>?)?.map((service) => Service.fromMap(service)).toList(),
     );
   }
 
@@ -72,6 +77,7 @@ class Doctor {
       'number': number,
       'openHours': openHours,
       'status': status,
+      'services': services?.map((service) => service.toMap()).toList(),
     };
   }
 }

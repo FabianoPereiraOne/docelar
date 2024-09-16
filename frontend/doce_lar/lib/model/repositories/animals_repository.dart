@@ -15,7 +15,7 @@ class AnimalRepository {
           options: Options(headers: {
             "Accept": "application/json",
             "Access-Control-Allow-Origin": "*",
-            "Authorization": "$token" // Usando o formato correto de Bearer token
+            "Authorization": "$token" 
           })
       );
 

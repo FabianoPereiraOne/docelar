@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
-  final String name;
-  final String email;
-  final String phone;
+  final String title;
+  final String info1;
+  final String info2;
   final VoidCallback onTap;
 
   const CustomCard({
     super.key,
-    required this.name,
-    required this.email,
-    required this.phone,
+    required this.title,
+    required this.info1,
+    required this.info2,
     required this.onTap,
   });
 
@@ -34,7 +34,7 @@ class CustomCard extends StatelessWidget {
       child: Center(
         child: ListTile(
           title: Text(
-            name,
+            title,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -44,11 +44,11 @@ class CustomCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                email,
+                info1,
                 style: const TextStyle(fontSize: 14),
               ),
               Text(
-                phone,
+                info2,
                 style: const TextStyle(fontSize: 14),
               ),
             ],

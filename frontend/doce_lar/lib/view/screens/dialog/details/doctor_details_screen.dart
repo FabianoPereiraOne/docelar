@@ -1,11 +1,16 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
+import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
+import 'package:doce_lar/model/repositories/service_repository.dart';
+import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
+import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showDoctorDetailDialog(BuildContext context, Doctor doctor, Function() onDoctorUpdated) async {
-
+void showDoctorDetailDialog(
+    BuildContext context, Doctor doctor, Function() onDoctorUpdated) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
 
   showDialog(
     context: context,
@@ -21,18 +26,18 @@ void showDoctorDetailDialog(BuildContext context, Doctor doctor, Function() onDo
                 child: TabBar(
                   tabs: [
                     Tab(text: 'Detalhes'),
-                    Tab(text: 'Serviços'), // Abas para serviços ainda não implementadas
+                    Tab(text: 'Serviços'),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 300,
+                  height: 500,
                   child: TabBarView(
                     children: [
                       SingleChildScrollView(
-                        child: Column(
+                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 20),
@@ -40,50 +45,111 @@ void showDoctorDetailDialog(BuildContext context, Doctor doctor, Function() onDo
                             _buildDetailRow('CRM', doctor.crmv),
                             _buildDetailRow('Especialidade', doctor.expertise),
                             _buildDetailRow('Telefone', doctor.phone),
-                            _buildDetailRow('Razão Social', doctor.socialReason),
+                            _buildDetailRow(
+                                'Razão Social', doctor.socialReason),
                             _buildDetailRow('CEP', doctor.cep),
                             _buildDetailRow('Estado', doctor.state),
                             _buildDetailRow('Cidade', doctor.city),
                             _buildDetailRow('Bairro', doctor.district),
                             _buildDetailRow('Endereço', doctor.address),
                             _buildDetailRow('Número', doctor.number),
-                            _buildDetailRow('Horário de Funcionamento', doctor.openHours),
-                            _buildDetailRow('Status', doctor.status == true ? 'Ativo' : 'Inativo'),
+                            _buildDetailRow(
+                                'Horário de Funcionamento', doctor.openHours),
+                            _buildDetailRow('Status',
+                                doctor.status == true ? 'Ativo' : 'Inativo'),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _showEditDoctorDialog(
+                                        context, doctor, onDoctorUpdated);
+                                  },
+                                  child: Text('Editar'),
+                                ),
+                                // ElevatedButton(
+                                //   onPressed: () {
+                                //     Navigator.of(context).pop();
+                                //     _confirmDeleteDoctor(context, doctor.id!, onDoctorUpdated);
+                                //   },
+                                //   child: Text('Deletar'),
+                                //   style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                // ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                      Center(
-                        child: Text('Serviços ainda não implementados.'),
+                      FutureBuilder<List<Service>>(
+                        future: _fetchServicesForDoctor(doctor.services?.map((s) => s.id ?? '').toList() ?? [], loginProvider.token),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Erro ao carregar serviços'));
+                          }
+
+                          final services = snapshot.data;
+
+                          return Column(
+                            children: [
+                              services != null && services.isNotEmpty
+                                  ? Expanded(
+                                      child: ListView.builder(
+                                        itemCount: services.length,
+                                        itemBuilder: (context, index) {
+                                          final service = services[index];
+                                          return ListTile(
+                                            title: Text(formatDate(service.createdAt)),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(service.animal!.name! ),
+                                                if (service.procedures != null)
+                                                  ...service.procedures!.map(
+                                                    (procedure) => Text('${procedure.name}'),
+                                                  ).toList(),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              // Exibir detalhes do serviço ao clicar
+                                              showServiceDetailsDialog(context, service.id!, () {
+                                                Navigator.of(context).pop();
+                                                onDoctorUpdated();
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text('Nenhum serviço encontrado para este médico.')),
+                              SizedBox(height: 20),
+                              
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Fechar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showEditDoctorDialog(context, doctor, onDoctorUpdated);
-                    },
-                    child: Text('Editar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _confirmDeleteDoctor(context, doctor.id!, onDoctorUpdated);
-                    },
-                    child: Text('Deletar'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Fechar'),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -93,7 +159,26 @@ void showDoctorDetailDialog(BuildContext context, Doctor doctor, Function() onDo
   );
 }
 
-void _confirmDeleteDoctor(BuildContext context, String doctorId, Function() onDoctorDeleted) {
+
+Future<List<Service>> _fetchServicesForDoctor(
+    List<String> serviceIds, String token) async {
+  final serviceRepository = ServiceRepository();
+  final services = <Service>[];
+
+  for (String serviceId in serviceIds) {
+    try {
+      final service = await serviceRepository.getServiceById(serviceId, token);
+      services.add(service);
+    } catch (e) {
+      print('Erro ao carregar serviço: $e');
+    }
+  }
+
+  return services;
+}
+
+void _confirmDeleteDoctor(
+    BuildContext context, String doctorId, Function() onDoctorDeleted) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -110,11 +195,13 @@ void _confirmDeleteDoctor(BuildContext context, String doctorId, Function() onDo
           child: Text('Deletar'),
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           onPressed: () async {
-            final loginProvider = Provider.of<LoginController>(context, listen: false);
+            final loginProvider =
+                Provider.of<LoginController>(context, listen: false);
             final doctorRepository = DoctorRepository();
 
             try {
-              await doctorRepository.deleteDoctor(doctorId, loginProvider.token);
+              await doctorRepository.deleteDoctor(
+                  doctorId, loginProvider.token);
               Navigator.of(context).pop(); // Fechar o diálogo de confirmação
               onDoctorDeleted(); // Atualizar a tela principal
             } catch (e) {
@@ -149,19 +236,32 @@ Widget _buildDetailRow(String label, String? value) {
   );
 }
 
-void _showEditDoctorDialog(BuildContext context, Doctor doctor, Function() onDoctorUpdated) {
-  final TextEditingController nameController = TextEditingController(text: doctor.name ?? '');
-  final TextEditingController crmvController = TextEditingController(text: doctor.crmv ?? '');
-  final TextEditingController expertiseController = TextEditingController(text: doctor.expertise ?? '');
-  final TextEditingController phoneController = TextEditingController(text: doctor.phone ?? '');
-  final TextEditingController socialReasonController = TextEditingController(text: doctor.socialReason ?? '');
-  final TextEditingController cepController = TextEditingController(text: doctor.cep ?? '');
-  final TextEditingController stateController = TextEditingController(text: doctor.state ?? '');
-  final TextEditingController cityController = TextEditingController(text: doctor.city ?? '');
-  final TextEditingController districtController = TextEditingController(text: doctor.district ?? '');
-  final TextEditingController addressController = TextEditingController(text: doctor.address ?? '');
-  final TextEditingController numberController = TextEditingController(text: doctor.number ?? '');
-  final TextEditingController openHoursController = TextEditingController(text: doctor.openHours ?? '');
+void _showEditDoctorDialog(
+    BuildContext context, Doctor doctor, Function() onDoctorUpdated) {
+  final TextEditingController nameController =
+      TextEditingController(text: doctor.name ?? '');
+  final TextEditingController crmvController =
+      TextEditingController(text: doctor.crmv ?? '');
+  final TextEditingController expertiseController =
+      TextEditingController(text: doctor.expertise ?? '');
+  final TextEditingController phoneController =
+      TextEditingController(text: doctor.phone ?? '');
+  final TextEditingController socialReasonController =
+      TextEditingController(text: doctor.socialReason ?? '');
+  final TextEditingController cepController =
+      TextEditingController(text: doctor.cep ?? '');
+  final TextEditingController stateController =
+      TextEditingController(text: doctor.state ?? '');
+  final TextEditingController cityController =
+      TextEditingController(text: doctor.city ?? '');
+  final TextEditingController districtController =
+      TextEditingController(text: doctor.district ?? '');
+  final TextEditingController addressController =
+      TextEditingController(text: doctor.address ?? '');
+  final TextEditingController numberController =
+      TextEditingController(text: doctor.number ?? '');
+  final TextEditingController openHoursController =
+      TextEditingController(text: doctor.openHours ?? '');
 
   bool status = doctor.status ?? true;
 
@@ -221,7 +321,8 @@ void _showEditDoctorDialog(BuildContext context, Doctor doctor, Function() onDoc
                     controller: numberController,
                   ),
                   TextField(
-                    decoration: InputDecoration(labelText: 'Horário de Funcionamento'),
+                    decoration:
+                        InputDecoration(labelText: 'Horário de Funcionamento'),
                     controller: openHoursController,
                   ),
                   SwitchListTile(
@@ -246,7 +347,8 @@ void _showEditDoctorDialog(BuildContext context, Doctor doctor, Function() onDoc
               ElevatedButton(
                 child: Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider = Provider.of<LoginController>(context, listen: false);
+                  final loginProvider =
+                      Provider.of<LoginController>(context, listen: false);
                   final doctorRepository = DoctorRepository();
 
                   try {
@@ -267,7 +369,8 @@ void _showEditDoctorDialog(BuildContext context, Doctor doctor, Function() onDoc
                       status: status,
                     );
 
-                    await doctorRepository.updateDoctor(updatedDoctor, loginProvider.token);
+                    await doctorRepository.updateDoctor(
+                        updatedDoctor, loginProvider.token);
 
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onDoctorUpdated(); // Atualizar a tela principal

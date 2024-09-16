@@ -7,7 +7,7 @@ import 'package:doce_lar/controller/login_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:doce_lar/utils/masks.dart';
 
-void showEnderecoDialog(BuildContext context, String colaboradorId) {
+void showEnderecoDialog(BuildContext context, String colaboradorId, Function() callback) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _ruaController = TextEditingController();
   final TextEditingController _cidadeController = TextEditingController();
@@ -50,6 +50,7 @@ void showEnderecoDialog(BuildContext context, String colaboradorId) {
 
       final homeRepository = HomeRepository();
       await homeRepository.addHome(newHome, loginProvider.token);
+      callback();
     }
   }
 

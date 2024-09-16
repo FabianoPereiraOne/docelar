@@ -1,4 +1,3 @@
-
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -11,9 +10,6 @@ import 'package:provider/provider.dart';
 
 void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
     Function() onColaboradorUpdated) {
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final homeRepository = HomeRepository();
-
   showDialog(
     context: context,
     builder: (context) {
@@ -53,92 +49,77 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                 colaborador.statusAccount == true
                                     ? 'Ativo'
                                     : 'Inativo'),
-                            SizedBox(height: 20),
+                            SizedBox(height: 50),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                TextButton(
+                                ElevatedButton(
                                   onPressed: () {
-                                    Navigator.of(context).pop(); // Fechar o diálogo
-                                    _showEditColaboradorDialog(
-                                        context, colaborador, onColaboradorUpdated);
+                                    Navigator.of(context)
+                                        .pop(); // Fechar o diálogo
+                                    _showEditColaboradorDialog(context,
+                                        colaborador, onColaboradorUpdated);
                                   },
                                   child: Text('Editar'),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop(); // Fechar o diálogo
-                                    _confirmDeleteColaborador(context, colaborador.id!,
-                                        onColaboradorUpdated);
-                                  },
-                                  child: Text('Deletar'),
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red),
-                                ),
+                                // ElevatedButton(
+                                //   onPressed: () {
+                                //     Navigator.of(context).pop(); // Fechar o diálogo
+                                //     _confirmDeleteColaborador(context, colaborador.id!,
+                                //         onColaboradorUpdated);
+                                //   },
+                                //   child: Text('Desativar'),
+                                //   style: TextButton.styleFrom(
+                                //       foregroundColor: Colors.red),
+                                // ),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      
+
                       // Aba "Lares"
                       Column(
                         children: [
-                          Expanded(
-                            child: FutureBuilder<List<Home>>(
-                              future: _fetchAndFilterHomes(homeRepository,
-                                  loginProvider.token, colaborador.id!),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return Center(
-                                      child: CircularProgressIndicator());
-                                } else if (snapshot.hasError) {
-                                  return Center(
-                                      child: Text('Erro ao carregar lares'));
-                                } else if (!snapshot.hasData ||
-                                    snapshot.data!.isEmpty) {
-                                  return Center(
-                                      child: Text('Nenhum lar encontrado'));
-                                }
-
-                                final homes = snapshot.data!;
-
-                                return ListView.builder(
-                                  itemCount: homes.length,
-                                  itemBuilder: (context, index) {
-                                    final home = homes[index];
-                                    return ListTile(
-                                      title: Text(home.address!),
-                                      subtitle: Text(
-                                          '${home.district}, ${home.number}'),
-                                      trailing: Icon(Icons.search,
-                                          color: Colors.grey),
-                                      onTap: () {
-                                        showHomeDetailDialog(
-                                          context,
-                                          home,
-                                          () {
-                                            Navigator.of(context).pop();
-                                            onColaboradorUpdated();
-                                          },
-                                        );
-                                      },
-                                      tileColor: home.status!
-                                          ? Colors.green[100]
-                                          : Colors.yellow[100],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
+                          colaborador.homes != null &&
+                                  colaborador.homes!.isNotEmpty
+                              ? Expanded(
+                                  child: ListView.builder(
+                                    itemCount: colaborador.homes!.length,
+                                    itemBuilder: (context, index) {
+                                      final home = Home.fromMap(
+                                          colaborador.homes![index]);
+                                      return ListTile(
+                                        title: Text(home.address!),
+                                        subtitle: Text(
+                                            '${home.district}, ${home.number}'),
+                                        trailing: Icon(Icons.search,
+                                            color: Colors.grey),
+                                        onTap: () {
+                                          showHomeDetailDialog(
+                                            context,
+                                            home,
+                                            () {
+                                              Navigator.of(context).pop();
+                                              onColaboradorUpdated();
+                                            },
+                                          );
+                                        },
+                                        tileColor: home.status!
+                                            ? Colors.green[100]
+                                            : Colors.yellow[100],
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Center(child: Text('Nenhum lar encontrado')),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.of(context).pop(); // Fechar o diálogo
-                                showEnderecoDialog(context, colaborador.id!);
+                                showEnderecoDialog(context, colaborador.id!,
+                                    onColaboradorUpdated);
                               },
                               child: Text('Adicionar Novo Lar'),
                             ),
@@ -153,7 +134,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop(); // Fechar o diálogo
                     },
@@ -169,20 +150,19 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
   );
 }
 
-Future<List<Home>> _fetchAndFilterHomes(
-    HomeRepository homeRepository, String token, String collaboratorId) async {
+Future<List<Home>> _fetchAndFilterHomes(Usuario colaborador) async {
   try {
-    final allHomes = await homeRepository.fetchHomes(token);
-    return allHomes
-        .where((home) => home.collaboratorId == collaboratorId)
-        .toList();
+    final homes =
+        colaborador.homes?.map((homeData) => Home.fromMap(homeData)).toList() ??
+            [];
+    return homes;
   } catch (e) {
-    throw Exception('Erro ao buscar lares: $e');
+    throw Exception('Erro ao processar lares: $e');
   }
 }
 
-void _showEditColaboradorDialog(
-    BuildContext context, Usuario colaborador, Function() onColaboradorUpdated) {
+void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
+    Function() onColaboradorUpdated) {
   final TextEditingController nameController =
       TextEditingController(text: colaborador.name ?? '');
   final TextEditingController emailController =
@@ -268,18 +248,19 @@ void _showEditColaboradorDialog(
                     await colaboradorRepository.updateColaborador(
                         updatedColaborador, loginProvider.token);
 
-                                         // Se o colaborador foi desativado, desativar também os lares associados
+                    // Se o colaborador foi desativado, desativar também os lares associados
                     if (!isActive) {
-                      print('Colaborador desativado, iniciando desativação dos lares...');
+                      print(
+                          'Colaborador desativado, iniciando desativação dos lares...');
 
                       final homes = colaborador.homes;
 
                       if (homes!.isNotEmpty) {
                         for (var homeData in homes) {
                           // Convertendo o mapa para uma instância da classe Home
-                          Home home = Home.fromMap(homeData); 
+                          Home home = Home.fromMap(homeData);
                           home.status = false; // Desativando lar
-                          
+
                           try {
                             await homeRepository.updateHome(
                                 home, loginProvider.token);
@@ -292,7 +273,6 @@ void _showEditColaboradorDialog(
                         print('Nenhum lar associado ao colaborador.');
                       }
                     }
-
 
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onColaboradorUpdated(); // Atualizar a tela principal
@@ -309,15 +289,13 @@ void _showEditColaboradorDialog(
   );
 }
 
-
-
 void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
     Function() onColaboradorDeleted) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Confirmar Exclusão'),
-      content: Text('Tem certeza que deseja excluir este colaborador?'),
+      title: Text('Confirmar Desativação'),
+      content: Text('Tem certeza que deseja desativar este colaborador?'),
       actions: [
         TextButton(
           child: Text('Cancelar'),

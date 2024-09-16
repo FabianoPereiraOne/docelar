@@ -247,7 +247,7 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                     _fetchColaboradores();
                     Navigator.of(context).pop();
 
-                    showEnderecoDialog(context, colaboradorId);
+                    showEnderecoDialog(context, colaboradorId, _fetchColaboradores);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -348,9 +348,9 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CustomCard(
-                            name: colaborador.name.toString(),
-                            email: colaborador.email.toString(),
-                            phone: colaborador.phone.toString(),
+                            title: colaborador.name.toString(),
+                            info1: colaborador.email.toString(),
+                            info2: colaborador.phone.toString(),
                             onTap: () {
                               showColaboradorDetailDialog(
                                   context, colaborador, _fetchColaboradores);

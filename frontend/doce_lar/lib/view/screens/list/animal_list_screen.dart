@@ -130,7 +130,6 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   void _showAddAnimalDialog() {
     // Initialize state variables
     String name = '';
-    String description = '';
     String sex = 'M'; // Default to 'M'
     bool castrated = false;
     String race = '';
@@ -139,6 +138,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
         ? _animalTypes.first.id ?? 1
         : 1; // Default to first type ID if available
     bool status = true;
+    final descriptionController = TextEditingController();
 
     showDialog(
       context: context,
@@ -157,18 +157,12 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                         name = value;
                       },
                     ),
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Descrição'),
-                      onChanged: (value) {
-                        description = value;
-                      },
-                    ),
                     DropdownButtonFormField<String>(
                       value: sex,
                       decoration: InputDecoration(labelText: 'Sexo'),
                       items: [
-                        DropdownMenuItem(child: Text('Masculino'), value: 'M'),
-                        DropdownMenuItem(child: Text('Feminino'), value: 'F'),
+                        DropdownMenuItem(child: Text('Macho'), value: 'M'),
+                        DropdownMenuItem(child: Text('Fêmea'), value: 'F'),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -224,6 +218,17 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                         });
                       },
                     ),
+                    TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Descrição',
+                      border: OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
+                    controller: descriptionController,
+                    maxLines: 5,
+                    minLines: 3,
+                    keyboardType: TextInputType.multiline,
+                  ),
                   ],
                 ),
               ),
@@ -244,7 +249,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                     try {
                       final newAnimal = Animal(
                           name: name,
-                          description: description,
+                          description: descriptionController.text,
                           sex: sex,
                           castrated: castrated,
                           race: race,
@@ -313,105 +318,115 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   }
 
   Widget _buildAnimalList(bool isActive) {
-    // Verifica se o tipo de animal está correto e ajusta a lista filtrada
-    List<Animal> animaisParaMostrar =
-        isActive ? _activeAnimais : _inactiveAnimais;
+  // Verifica se o tipo de animal está correto e ajusta a lista filtrada
+  List<Animal> animaisParaMostrar =
+      isActive ? _activeAnimais : _inactiveAnimais;
 
-    Color _getButtonColor(int? typeId) {
-      return _selectedTypeId == typeId ? Colors.green : Colors.grey;
-    }
+  String _getSexDescription(String sex) {
+    return sex == 'M' ? 'Macho' : 'Fêmea';
+  }
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Pesquisar animal...',
-              prefixIcon: Icon(Icons.search, color: Colors.green),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              filled: true,
-              fillColor: Colors.white,
+  String _getAnimalTypeName(int? typeId) {
+    final type = _animalTypes.firstWhere(
+      (t) => t.id == typeId,
+      orElse: () => AnimalType(type: 'Desconhecido'),
+    );
+    return type.type ?? 'Desconhecido';
+  }
+
+  Color _getButtonColor(int? typeId) {
+    return _selectedTypeId == typeId ? Colors.green : Colors.grey;
+  }
+
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'Pesquisar animal...',
+            prefixIcon: Icon(Icons.search, color: Colors.green),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
             ),
-            onChanged: (query) {
-              // Atualiza a pesquisa e os animais filtrados
-              setState(() {
-                _searchQuery = query;
-                _filteredAnimais =
-                    _filterAnimaisByType(animaisParaMostrar).where((animal) {
-                  final animalLower = animal.name?.toLowerCase() ?? '';
-                  final queryLower = query.toLowerCase();
-                  return animalLower.contains(queryLower);
-                }).toList();
-              });
-            },
+            filled: true,
+            fillColor: Colors.white,
           ),
+          onChanged: (query) {
+            // Atualiza a pesquisa e os animais filtrados
+            setState(() {
+              _searchQuery = query;
+              _filteredAnimais =
+                  _filterAnimaisByType(animaisParaMostrar).where((animal) {
+                final animalLower = animal.name?.toLowerCase() ?? '';
+                final queryLower = query.toLowerCase();
+                return animalLower.contains(queryLower);
+              }).toList();
+            });
+          },
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Wrap(
-            spacing: 8.0,
-            children: [
-              ElevatedButton(
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Wrap(
+          spacing: 8.0,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _handleTypeSelection(null);
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    _getButtonColor(null), // Cor do botão "Todos"
+              ),
+              child: Text('Todos'),
+            ),
+            ..._animalTypes.map((type) {
+              return ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _handleTypeSelection(null);
+                    _handleTypeSelection(type.id);
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _getButtonColor(null), // Cor do botão "Todos"
+                  backgroundColor: _getButtonColor(type.id),
                 ),
-                child: Text('Todos'),
-              ),
-              ..._animalTypes.map((type) {
-                return ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _handleTypeSelection(type.id);
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _getButtonColor(
-                        type.id), // Cor do botão do tipo de animal
+                child: Text(type.type ?? ''),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+      Expanded(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _filteredAnimais.isEmpty
+                ? Center(child: Text('Nenhum animal encontrado'))
+                : ListView.builder(
+                    itemCount: _filteredAnimais.length,
+                    itemBuilder: (context, index) {
+                      if (index >= _filteredAnimais.length) {
+                        return SizedBox.shrink(); // Retorna um widget vazio se o índice for inválido
+                      }
+                      final animal = _filteredAnimais[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomCard(
+                          title: animal.name.toString(),
+                          info1: _getAnimalTypeName(animal.typeAnimalId), // Nome do tipo de animal
+                          info2: _getSexDescription(animal.sex ?? ''), // Descrição do sexo
+                          onTap: () {
+                            showAnimalDetailDialog(
+                                context, animal, _fetchAnimais);
+                          },
+                        ),
+                      );
+                    },
                   ),
-                  child: Text(type.type ?? ''),
-                );
-              }).toList(),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : _filteredAnimais.isEmpty
-                  ? Center(child: Text('Nenhum animal encontrado'))
-                  : ListView.builder(
-                      itemCount: _filteredAnimais.length,
-                      itemBuilder: (context, index) {
-                        if (index >= _filteredAnimais.length) {
-                          return SizedBox
-                              .shrink(); // Retorna um widget vazio se o índice for inválido
-                        }
-                        final animal = _filteredAnimais[index];
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomCard(
-                            name: animal.name.toString(),
-                            email: animal.race.toString(),
-                            phone: animal.description.toString(),
-                            onTap: () {
-                              showAnimalDetailDialog(
-                                  context, animal, _fetchAnimais);
-                            },
-                          ),
-                        );
-                      },
-                    ),
-        ),
-      ],
-    );
+      ),
+    ],
+  );
   }
-}
+    }

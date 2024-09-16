@@ -59,6 +59,91 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
     });
   }
 
+  void _showAddProcedureDialog() {
+  // Inicialize as variáveis de estado
+  String name = '';
+  String description = '';
+  String dosage = '';
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Adicionar Novo Procedimento'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Nome do Procedimento'),
+                    onChanged: (value) {
+                      setState(() {
+                        name = value;
+                      });
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Descrição'),
+                    onChanged: (value) {
+                      setState(() {
+                        description = value;
+                      });
+                    },
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: 'Dosagem'),
+                    onChanged: (value) {
+                      setState(() {
+                        dosage = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text('Cancelar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                child: Text('Adicionar'),
+                onPressed: () async {
+                  final loginProvider = Provider.of<LoginController>(context, listen: false);
+                  final procedureRepository = ProcedureRepository();
+
+                  try {
+                    final newProcedure = Procedure(
+                      name: name,
+                      description: description,
+                      dosage: dosage,
+                    );
+
+                    // Adiciona o novo procedimento
+                    await procedureRepository.addProcedure(newProcedure, loginProvider.token);
+
+                    // Atualiza a lista de procedimentos ou executa outras ações necessárias
+                    _fetchProcedures();
+
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    print('Erro ao adicionar procedimento: $e');
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,9 +185,9 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CustomCard(
-                              name: procedure.name.toString(),
-                              email: procedure.description.toString(),
-                              phone: procedure.dosage.toString(),
+                              title: procedure.name.toString(),
+                              info1: procedure.description.toString(),
+                              info2: procedure.dosage.toString(),
                               onTap: () {
                                 showProcedureDetailDialog(context, procedure, _fetchProcedures);
                               },
@@ -112,6 +197,11 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
                       ),
           ),
         ],
+      ),
+       floatingActionButton: FloatingActionButton(
+        onPressed: _showAddProcedureDialog,
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
     );
   }

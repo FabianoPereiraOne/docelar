@@ -105,9 +105,10 @@ class DoctorRepository {
 
 Future<void> updateDoctor(Doctor doctor, String token) async {
   try {
-    String endpoint = '$url/doctors/${doctor.id}';
+    String endpoint = '$url/doctors';
 
     Map<String, dynamic> doctorData = {
+      'id': doctor.id,
       'name': doctor.name,
       'crmv': doctor.crmv,
       'expertise': doctor.expertise,
