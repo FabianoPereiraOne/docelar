@@ -56,8 +56,43 @@ exports.GetAllConfigAnimals = {
                                 updateAt: {
                                     type: "string"
                                 },
-                                homeId: {
-                                    type: "string"
+                                home: {
+                                    type: "object",
+                                    properties: {
+                                        id: {
+                                            type: "string"
+                                        },
+                                        cep: {
+                                            type: "string"
+                                        },
+                                        state: {
+                                            type: "string"
+                                        },
+                                        city: {
+                                            type: "string"
+                                        },
+                                        district: {
+                                            type: "string"
+                                        },
+                                        address: {
+                                            type: "string"
+                                        },
+                                        number: {
+                                            type: "string"
+                                        },
+                                        status: {
+                                            type: "boolean"
+                                        },
+                                        createdAt: {
+                                            type: "string"
+                                        },
+                                        updatedAt: {
+                                            type: "string"
+                                        },
+                                        collaboratorId: {
+                                            type: "string"
+                                        }
+                                    }
                                 },
                                 typeAnimal: {
                                     type: "object",
