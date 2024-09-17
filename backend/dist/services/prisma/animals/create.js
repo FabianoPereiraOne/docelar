@@ -36,7 +36,21 @@ const createAnimal = async ({ name, castrated, dateExit, description, homeId, li
             status: true,
             createdAt: true,
             updatedAt: true,
-            homeId: true,
+            home: {
+                select: {
+                    id: true,
+                    cep: true,
+                    state: true,
+                    city: true,
+                    district: true,
+                    address: true,
+                    number: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    collaboratorId: true
+                }
+            },
             typeAnimal: {
                 select: {
                     id: true,
