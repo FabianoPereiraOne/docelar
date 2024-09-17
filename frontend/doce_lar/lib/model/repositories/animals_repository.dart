@@ -15,9 +15,8 @@ class AnimalRepository {
           options: Options(headers: {
             "Accept": "application/json",
             "Access-Control-Allow-Origin": "*",
-            "Authorization": "$token" 
-          })
-      );
+            "Authorization": "$token"
+          }));
 
       if (response.statusCode == 200) {
         // Verificar se response.data é um Map
@@ -41,10 +40,10 @@ class AnimalRepository {
       }
     } on DioException catch (e) {
       if (e.response != null) {
-       // log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-      //  log('Resposta do servidor: ${e.response?.data}');
+        // log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+        //  log('Resposta do servidor: ${e.response?.data}');
       } else {
-       // log('Erro na solicitação: ${e.message}');
+        // log('Erro na solicitação: ${e.message}');
       }
       throw e;
     } catch (e, s) {
@@ -53,57 +52,58 @@ class AnimalRepository {
     }
   }
 
-Future<void> addAnimal(Animal animal, String token) async {
-  try {
-    // Defina o endpoint da API
-    String endpoint = '$url/animals';
-    
-    // Crie um mapa de dados com todos os campos necessários, incluindo homeId
-    Map<String, dynamic> animalData = {
-      'name': animal.name,
-      'description': animal.description,
-      'sex': animal.sex,
-      'castrated': animal.castrated,
-      'race': animal.race,
-      'linkPhoto': animal.linkPhoto,
-      'typeAnimalId': animal.typeAnimalId,
-      'status': animal.status,
-      'homeId': animal.homeId,  // Certifique-se de que o homeId está presente aqui
-      'updatedAt': animal.updatedAt,
-    };
+  Future<void> addAnimal(Animal animal, String token) async {
+    try {
+      // Defina o endpoint da API
+      String endpoint = '$url/animals';
 
-    // Faça a requisição POST para adicionar o animal
-    Response response = await dio.post(
-      endpoint,
-      data: animalData, // Envie o mapa de dados como JSON
-      options: Options(headers: {
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Authorization": "$token"
-      }),
-    );
+      // Crie um mapa de dados com todos os campos necessários, incluindo homeId
+      Map<String, dynamic> animalData = {
+        'name': animal.name,
+        'description': animal.description,
+        'sex': animal.sex,
+        'castrated': animal.castrated,
+        'race': animal.race,
+        'linkPhoto': animal.linkPhoto,
+        'typeAnimal': animal.typeAnimal,
+        'status': animal.status,
+        'home':
+            animal.home, // Certifique-se de que o homeId está presente aqui
+        'updatedAt': animal.updatedAt,
+      };
 
-    // Verifique a resposta da API
-    if (response.statusCode == 201) {
-      log('Animal adicionado com sucesso!');
-    } else {
-      throw Exception('Falha ao adicionar animal: ${response.statusCode}');
+      // Faça a requisição POST para adicionar o animal
+      Response response = await dio.post(
+        endpoint,
+        data: animalData, // Envie o mapa de dados como JSON
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Authorization": "$token"
+        }),
+      );
+
+      // Verifique a resposta da API
+      if (response.statusCode == 201) {
+        log('Animal adicionado com sucesso!');
+      } else {
+        throw Exception('Falha ao adicionar animal: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+        log('Resposta do servidor: ${e.response?.data}');
+      } else {
+        log('Erro na solicitação: ${e.message}');
+      }
+      throw e;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      throw e;
     }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-      log('Resposta do servidor: ${e.response?.data}');
-    } else {
-      log('Erro na solicitação: ${e.message}');
-    }
-    throw e;
-  } catch (e, s) {
-    log(e.toString(), error: e, stackTrace: s);
-    throw e;
   }
-}
 
- Future<void> updateAnimal(Animal animal, String token) async {
+  Future<void> updateAnimal(Animal animal, String token) async {
     try {
       // Defina o endpoint da API
       String endpoint = '$url/animals';
@@ -117,9 +117,9 @@ Future<void> addAnimal(Animal animal, String token) async {
         'castrated': animal.castrated,
         'race': animal.race,
         'linkPhoto': animal.linkPhoto,
-        'typeAnimalId': animal.typeAnimalId,
+        'typeAnimal': animal.typeAnimal,
         'status': animal.status,
-        'homeId': animal.homeId,
+        'home': animal.home,
         'createdAt': animal.createdAt,
         'updatedAt': animal.updatedAt,
       };
@@ -155,38 +155,36 @@ Future<void> addAnimal(Animal animal, String token) async {
     }
   }
 
+  Future<void> deleteAnimal(String animalId, String token) async {
+    try {
+      // Inclua o animalId como um parâmetro de consulta na URL
+      String endpoint = '$url/animals?id=$animalId';
 
-Future<void> deleteAnimal(String animalId, String token) async {
-  try {
-    // Inclua o animalId como um parâmetro de consulta na URL
-    String endpoint = '$url/animals?id=$animalId';
+      Response response = await dio.delete(
+        endpoint,
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Authorization": "$token"
+        }),
+      );
 
-    Response response = await dio.delete(
-      endpoint,
-      options: Options(headers: {
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Authorization": "$token"
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      log('Animal excluído com sucesso!');
-    } else {
-      throw Exception('Falha ao excluir animal: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        log('Animal excluído com sucesso!');
+      } else {
+        throw Exception('Falha ao excluir animal: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+        log('Resposta do servidor: ${e.response?.data}');
+      } else {
+        log('Erro na solicitação: ${e.message}');
+      }
+      throw e;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      throw e;
     }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-      log('Resposta do servidor: ${e.response?.data}');
-    } else {
-      log('Erro na solicitação: ${e.message}');
-    }
-    throw e;
-  } catch (e, s) {
-    log(e.toString(), error: e, stackTrace: s);
-    throw e;
   }
-}
-
 }

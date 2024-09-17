@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:doce_lar/model/models/animal_type_model.dart';
+import 'package:doce_lar/model/models/homes_model.dart';
 import 'service_model.dart'; // Importe o modelo Service
 
 class Animal {
@@ -13,9 +15,9 @@ class Animal {
   bool? status;
   String? createdAt;
   String? updatedAt;
-  int? typeAnimalId;
-  String? homeId;
-  List<Service>? services; // Adicione esta linha para a lista de serviços
+  AnimalType? typeAnimal; // Alterado para AnimalType
+  Home? home; // Definido como Home
+  List<Service>? services; // Lista de serviços
 
   Animal({
     this.id,
@@ -29,13 +31,17 @@ class Animal {
     this.status,
     this.createdAt,
     this.updatedAt,
-    this.typeAnimalId,
-    this.homeId,
-    this.services, // Adicione esta linha para o construtor
+    this.typeAnimal,
+    this.home,
+    this.services,
   });
 
   factory Animal.fromMap(Map<String, dynamic> map) {
-    final typeAnimal = map['typeAnimal'] ?? {};
+    final homeData =
+        map['home'] as Map<String, dynamic>?; // Extraia o mapa de home
+    final typeAnimalData = map['typeAnimal']
+        as Map<String, dynamic>?; // Extraia o mapa de typeAnimal
+
     return Animal(
       id: map['id'],
       name: map['name'],
@@ -48,9 +54,15 @@ class Animal {
       status: map['status'],
       createdAt: map['createdAt'],
       updatedAt: map['updatedAt'],
-      typeAnimalId: typeAnimal['id'],
-      homeId: map['homeId'],
-      services: (map['services'] as List<dynamic>?)?.map((service) => Service.fromMap(service)).toList(), // Mapeia a lista de serviços
+      typeAnimal: typeAnimalData != null
+          ? AnimalType.fromMap(typeAnimalData)
+          : null, // Crie uma instância de AnimalType
+      home: homeData != null
+          ? Home.fromMap(homeData)
+          : null, // Crie uma instância de Home
+      services: (map['services'] as List<dynamic>?)
+          ?.map((service) => Service.fromMap(service))
+          .toList(), // Mapeia a lista de serviços
     );
   }
 
@@ -67,9 +79,12 @@ class Animal {
       'status': status,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'typeAnimalId': typeAnimalId,
-      'homeId': homeId,
-      'services': services?.map((service) => service.toMap()).toList(), // Converte a lista de serviços para Map
+      'typeAnimal':
+          typeAnimal?.toMap(), // Converte AnimalType para Map se não for null
+      'home': home?.toMap(), // Converte Home para Map se não for null
+      'services': services
+          ?.map((service) => service.toMap())
+          .toList(), // Converte a lista de serviços para Map
     };
   }
 
