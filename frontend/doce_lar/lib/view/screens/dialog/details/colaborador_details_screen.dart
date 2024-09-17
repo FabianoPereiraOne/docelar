@@ -4,7 +4,7 @@ import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/home_details_screen.dart';
-import 'package:doce_lar/view/screens/dialog/endereco_dialog.dart';
+import 'package:doce_lar/view/screens/dialog/add/endereco_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';

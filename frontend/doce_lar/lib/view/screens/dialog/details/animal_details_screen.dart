@@ -6,7 +6,7 @@ import 'package:doce_lar/model/repositories/animals_types_repository.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
-import 'package:doce_lar/view/screens/dialog/service_dialog.dart';
+import 'package:doce_lar/view/screens/dialog/add/service_dialog.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

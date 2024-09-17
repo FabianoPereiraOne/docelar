@@ -1,7 +1,7 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/colaborador_details_screen.dart';
-import 'package:doce_lar/view/screens/dialog/endereco_dialog.dart';
+import 'package:doce_lar/view/screens/dialog/add/endereco_dialog.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

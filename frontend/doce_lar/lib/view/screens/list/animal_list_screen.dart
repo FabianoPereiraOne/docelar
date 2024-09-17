@@ -1,12 +1,11 @@
 import 'dart:developer';
 
 import 'package:doce_lar/controller/login_controller.dart';
-import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/model/repositories/animals_types_repository.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
-import 'package:doce_lar/model/repositories/homes_repository.dart';
+import 'package:doce_lar/view/screens/dialog/add/animal_dialog.dart';
 import 'package:doce_lar/view/screens/dialog/details/animal_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
@@ -23,123 +22,60 @@ class AnimalListScreen extends StatefulWidget {
 
 class _AnimalListScreenState extends State<AnimalListScreen>
     with SingleTickerProviderStateMixin {
-  List<Animal> _animais = [];
+
   List<Animal> _activeAnimais = [];
   List<Animal> _inactiveAnimais = [];
   List<AnimalType> _animalTypes = [];
   List<Animal> _filteredAnimais = [];
-  String _searchQuery = '';
   bool _isLoading = false;
-  int? _selectedTypeId; // ID do tipo de animal selecionado
-  bool _showActive = true; // Controla a exibição de animais ativos ou inativos
+  int? _selectedTypeId;
+  bool _showActive = true;
   TabController? _tabController;
-
   List<Usuario> _colaboradores = [];
-  Usuario? _selectedColaborador;
 
-  List<Home> _homes = [];
-  Home? _selectedHome;
-
-void _fetchHomes(String colaboradorId) async {
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final homeRepository = HomeRepository();
-
-  try {
-    final allHomes = await homeRepository.fetchHomes(loginProvider.token);
-    setState(() {
-      _homes = allHomes
-          .where((home) => home.collaboratorId == colaboradorId)
-          .toList();
-
-      if (_homes.isNotEmpty) {
-        _selectedHome = _homes.first;
-      }
-    });
-  } catch (e) {
-    log('Erro ao buscar endereços: $e');
-  }
-}
-
-  // Método para buscar colaboradores
-  void _fetchColaboradores() async {
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final colaboradorRepository = ColaboradorRepository();
-
-    try {
-      final colaboradores =
-          await colaboradorRepository.fetchColaboradores(loginProvider.token);
-      setState(() {
-        _colaboradores = colaboradores;
-        // Defina o colaborador selecionado para o primeiro colaborador se a lista não estiver vazia
-        if (_colaboradores.isNotEmpty) {
-          _selectedColaborador = _colaboradores.first;
-        }
-      });
-    } catch (e) {
-      print('Erro ao buscar colaboradores: $e');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController?.addListener(() {
-      if (_tabController?.indexIsChanging ?? false) {
-        _toggleAnimalStatus(_tabController?.index == 0);
-      }
-    });
-    _fetchAnimais();
-    _fetchAnimalTypes();
-    _fetchColaboradores();
-  }
-
-  void _fetchAnimais() async {
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalRepository = AnimalRepository();
-
+  Future<void> _fetchData() async {
     setState(() {
       _isLoading = true;
     });
 
+    final loginProvider = Provider.of<LoginController>(context, listen: false);
+    final animalRepository = AnimalRepository();
+    final animalTypeRepository = AnimalTypeRepository();
+    final colaboradorRepository = ColaboradorRepository();
+
     try {
-      final animais = await animalRepository.fetchAnimais(loginProvider.token);
+      // Inicia todas as requisições assíncronas
+      final animaisFuture = animalRepository.fetchAnimais(loginProvider.token);
+      final typesFuture = animalTypeRepository.fetchAnimalTypes(loginProvider.token);
+      final colaboradoresFuture = colaboradorRepository.fetchColaboradores(loginProvider.token);
+
+      // Aguarda todas as requisições serem concluídas
+      final animais = await animaisFuture;
+      final types = await typesFuture;
+      final colaboradores = await colaboradoresFuture;
+
+      // Atualiza o estado uma vez com todos os dados
       setState(() {
-        _animais = animais;
-        _activeAnimais =
-            animais.where((animal) => animal.status ?? false).toList();
-        _inactiveAnimais =
-            animais.where((animal) => !(animal.status ?? false)).toList();
+
+        _activeAnimais = animais.where((animal) => animal.status ?? false).toList();
+        _inactiveAnimais = animais.where((animal) => !(animal.status ?? false)).toList();
+        _animalTypes = types;
+        _colaboradores = colaboradores.where((colaborador) => colaborador.statusAccount == true).toList();
+
         _updateFilteredAnimais();
         _isLoading = false;
       });
     } catch (e) {
+      log('Erro ao buscar dados: $e');
       setState(() {
         _isLoading = false;
       });
-      // Trate o erro adequadamente
-    }
-  }
-
-  void _fetchAnimalTypes() async {
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalTypeRepository = AnimalTypeRepository();
-
-    try {
-      final types =
-          await animalTypeRepository.fetchAnimalTypes(loginProvider.token);
-      setState(() {
-        _animalTypes = types;
-      });
-    } catch (e) {
-      print('Erro ao buscar tipos de animais: $e');
     }
   }
 
   void _updateFilteredAnimais() {
     setState(() {
-      _filteredAnimais =
-          _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais);
+      _filteredAnimais = _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais);
     });
   }
 
@@ -148,24 +84,7 @@ void _fetchHomes(String colaboradorId) async {
       return animais;
     }
 
-    return animais
-        .where((animal) => animal.typeAnimalId == _selectedTypeId)
-        .toList();
-  }
-
-  void _filterAnimais(String query) {
-    final filteredAnimais =
-        _filterAnimaisByType(_showActive ? _activeAnimais : _inactiveAnimais)
-            .where((animal) {
-      final animalLower = animal.name?.toLowerCase() ?? '';
-      final queryLower = query.toLowerCase();
-      return animalLower.contains(queryLower);
-    }).toList();
-
-    setState(() {
-      _searchQuery = query;
-      _filteredAnimais = filteredAnimais;
-    });
+    return animais.where((animal) => animal.typeAnimalId == _selectedTypeId).toList();
   }
 
   void _handleTypeSelection(int? typeId) {
@@ -182,287 +101,25 @@ void _fetchHomes(String colaboradorId) async {
     });
   }
 
-void _showAddAnimalDialog() {
-  String name = '';
-  String sex = 'M'; // Default to 'M'
-  bool castrated = false;
-  String race = '';
-  String linkPhoto = '';
-  int typeAnimalId = _animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1; // Default to first type ID if available
-  bool status = true;
-  final descriptionController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Adicionar Novo Animal'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(labelText: 'Nome'),
-                    onChanged: (value) {
-                      name = value;
-                    },
-                  ),
-                  DropdownButtonFormField<Usuario>(
-                    value: _selectedColaborador,
-                    decoration: const InputDecoration(labelText: 'Selecione o Colaborador'),
-                    items: _colaboradores.map((colaborador) {
-                      return DropdownMenuItem(
-                        value: colaborador,
-                        child: Text(colaborador.name ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedColaborador = value;
-                        if (_selectedColaborador != null) {
-                          _fetchHomes(_selectedColaborador!.id!); // Fetch homes when a collaborator is selected
-                        }
-                      });
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: sex,
-                    decoration: const InputDecoration(labelText: 'Sexo'),
-                    items: const [
-                      DropdownMenuItem(value: 'M', child: Text('Macho')),
-                      DropdownMenuItem(value: 'F', child: Text('Fêmea')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        sex = value!;
-                      });
-                    },
-                  ),
-                  DropdownButtonFormField<int>(
-                    value: typeAnimalId,
-                    decoration: const InputDecoration(labelText: 'Tipo de Animal'),
-                    items: _animalTypes.map((type) {
-                      return DropdownMenuItem(
-                        value: type.id,
-                        child: Text(type.type ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        typeAnimalId = value ?? (_animalTypes.isNotEmpty ? _animalTypes.first.id ?? 1 : 1);
-                      });
-                    },
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(labelText: 'Raça'),
-                    onChanged: (value) {
-                      race = value;
-                    },
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(labelText: 'Link da Foto'),
-                    onChanged: (value) {
-                      linkPhoto = value;
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('Castrado'),
-                    value: castrated,
-                    onChanged: (value) {
-                      setState(() {
-                        castrated = value;
-                      });
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('Status'),
-                    value: status,
-                    onChanged: (value) {
-                      setState(() {
-                        status = value;
-                      });
-                    },
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    controller: descriptionController,
-                    maxLines: 5,
-                    minLines: 3,
-                    keyboardType: TextInputType.multiline,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancelar'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              ElevatedButton(
-                child: const Text('Continuar'),
-                onPressed: () {
-                  if (_selectedColaborador == null) {
-                    _showFeedbackDialog(context, 'Por favor, selecione um colaborador', false);
-                    return;
-                  }
-                  // Verifica se a lista de lares não está vazia antes de continuar
-                  if (_homes.isEmpty) {
-                    _showFeedbackDialog(context, 'Não há lares disponíveis para o colaborador selecionado', false);
-                    return;
-                  }
-                  Navigator.of(context).pop(); // Fecha o primeiro diálogo
-                  _showSelectHomeDialog(
-                    name: name,
-                    sex: sex,
-                    castrated: castrated,
-                    race: race,
-                    linkPhoto: linkPhoto,
-                    typeAnimalId: typeAnimalId,
-                    status: status,
-                    description: descriptionController.text,
-                  ); // Abre o diálogo de seleção do lar
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
-
-
-void _showSelectHomeDialog({
-  required String name,
-  required String sex,
-  required bool castrated,
-  required String race,
-  required String linkPhoto,
-  required int typeAnimalId,
-  required bool status,
-  required String description,
-}) {
-  Home? selectedHome = _selectedHome;
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Lar do Animal'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<Home>(
-                  value: selectedHome,
-                  decoration: const InputDecoration(labelText: 'Selecione o Lar'),
-                  items: _homes.map((home) {
-                    return DropdownMenuItem<Home>(
-                      value: home,
-                      child: Text('${home.address}, ${home.number}'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedHome = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancelar'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fecha o diálogo
-                },
-              ),
-              ElevatedButton(
-                child: const Text('Concluir'),
-                onPressed: () async {
-                  if (selectedHome == null) {
-                    _showFeedbackDialog(context, 'Por favor, selecione um lar', false);
-                    return;
-                  }
-
-                  final loginProvider = Provider.of<LoginController>(context, listen: false);
-                  final animalRepository = AnimalRepository();
-
-                  try {
-                    final newAnimal = Animal(
-                      name: name,
-                      description: description,
-                      sex: sex,
-                      castrated: castrated,
-                      race: race,
-                      linkPhoto: linkPhoto,
-                      typeAnimalId: typeAnimalId,
-                      createdAt: DateTime.now().toString(),
-                      updatedAt: DateTime.now().toString(),
-                      dateExit: "0",
-                      status: status,
-                      homeId: selectedHome!.id, // Adiciona o lar selecionado
-                    );
-
-                    await animalRepository.addAnimal(newAnimal, loginProvider.token);
-
-                    Navigator.of(context).pop(); // Fecha o diálogo de seleção de lar
-
-                    _fetchAnimais(); // Atualiza a lista de animais
-
-                    _showFeedbackDialog(context, 'Animal adicionado com sucesso', true);
-                  } catch (e) {
-                    print('Erro ao adicionar animal: $e');
-
-                    _showFeedbackDialog(context, 'Erro ao adicionar animal', false);
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
-
-
-
-
-  void _showFeedbackDialog(
-      BuildContext context, String message, bool isSuccess) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(isSuccess ? 'Sucesso' : 'Erro'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Fechar'),
-            ),
-          ],
-        );
-      },
+  void _showAddAnimalDialog() {
+    showAddAnimalDialog(
+      context,
+      _colaboradores,
+      _animalTypes,
+      _fetchData, // Passa a função de atualização de dados
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController?.addListener(() {
+      if (_tabController?.indexIsChanging ?? false) {
+        _toggleAnimalStatus(_tabController?.index == 0);
+      }
+    });
+    _fetchData(); // Chama a função que busca todos os dados
   }
 
   @override
@@ -503,8 +160,7 @@ void _showSelectHomeDialog({
   }
 
   Widget _buildAnimalList(bool isActive) {
-    List<Animal> animaisParaMostrar =
-        isActive ? _activeAnimais : _inactiveAnimais;
+    List<Animal> animaisParaMostrar = isActive ? _activeAnimais : _inactiveAnimais;
 
     String getSexDescription(String sex) {
       return sex == 'M' ? 'Macho' : 'Fêmea';
@@ -537,11 +193,9 @@ void _showSelectHomeDialog({
               fillColor: Colors.white,
             ),
             onChanged: (query) {
-              // Atualiza a pesquisa e os animais filtrados
               setState(() {
-                _searchQuery = query;
-                _filteredAnimais =
-                    _filterAnimaisByType(animaisParaMostrar).where((animal) {
+               
+                _filteredAnimais = _filterAnimaisByType(animaisParaMostrar).where((animal) {
                   final animalLower = animal.name?.toLowerCase() ?? '';
                   final queryLower = query.toLowerCase();
                   return animalLower.contains(queryLower);
@@ -591,21 +245,17 @@ void _showSelectHomeDialog({
                       itemCount: _filteredAnimais.length,
                       itemBuilder: (context, index) {
                         if (index >= _filteredAnimais.length) {
-                          return const SizedBox
-                              .shrink(); // Retorna um widget vazio se o índice for inválido
+                          return const SizedBox.shrink(); // Retorna um widget vazio se o índice for inválido
                         }
                         final animal = _filteredAnimais[index];
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CustomCard(
                             title: animal.name.toString(),
-                            info1: getAnimalTypeName(
-                                animal.typeAnimalId), // Nome do tipo de animal
-                            info2: getSexDescription(
-                                animal.sex ?? ''), // Descrição do sexo
+                            info1: getAnimalTypeName(animal.typeAnimalId), // Nome do tipo de animal
+                            info2: getSexDescription(animal.sex ?? ''), // Descrição do sexo
                             onTap: () {
-                              showAnimalDetailDialog(
-                                  context, animal, _fetchAnimais);
+                              showAnimalDetailDialog(context, animal, _fetchData);
                             },
                           ),
                         );
