@@ -14,7 +14,6 @@ class ProcedureListScreen extends StatefulWidget {
 class _ProcedureListScreenState extends State<ProcedureListScreen> {
   List<Procedure> _procedures = [];
   List<Procedure> _filteredProcedures = [];
-  String _searchQuery = '';
   bool _isLoading = false; // Variável para rastrear o estado de carregamento
 
   @override
@@ -54,7 +53,6 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
     }).toList();
 
     setState(() {
-      _searchQuery = query;
       _filteredProcedures = filteredProcedures;
     });
   }

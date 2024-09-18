@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
@@ -5,38 +7,40 @@ import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
+import 'package:doce_lar/view/widgets/confirm_delete.dart';
+import 'package:doce_lar/view/widgets/detail_row.dart';
+import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
-void showServiceDetailsDialog(BuildContext context, String serviceId, Function() onServiceUpdated) async {
+void showServiceDetailsDialog(
+    BuildContext context, String serviceId, Function() onServiceUpdated) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final serviceRepository = ServiceRepository();
-
-  // Exibir um indicador de carregamento enquanto os dados do serviço são buscados
   Service? service;
-  
+
   showDialog(
     context: context,
-    builder: (context) => Center(child: CircularProgressIndicator()),
+    builder: (context) => const Center(child: CircularProgressIndicator()),
   );
 
-  // Buscar o serviço pelo ID
   try {
-    service = await serviceRepository.getServiceById(serviceId, loginProvider.token);
-    Navigator.of(context).pop(); // Fechar o diálogo de carregamento
+    service =
+        await serviceRepository.getServiceById(serviceId, loginProvider.token);
+    Navigator.of(context).pop();
   } catch (e) {
-    Navigator.of(context).pop(); // Fechar o diálogo de carregamento
+    Navigator.of(context).pop();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Erro'),
-        content: Text('Não foi possível carregar os detalhes do serviço.'),
+        title: const Text('Erro'),
+        content:
+            const Text('Não foi possível carregar os detalhes do serviço.'),
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('Fechar'),
+            child: const Text('Fechar'),
           ),
         ],
       ),
@@ -44,14 +48,11 @@ void showServiceDetailsDialog(BuildContext context, String serviceId, Function()
     return;
   }
 
-  // Função auxiliar para construir uma lista de nomes a partir de uma lista de objetos
-  String _buildNamesList(List<dynamic> items, String Function(dynamic) getName) {
+  String buildNamesList(List<dynamic> items, String Function(dynamic) getName) {
     return items.isEmpty
         ? 'N/A'
         : items.map((item) => getName(item)).join(', ');
   }
-
-  // Exibir os detalhes do serviço após carregar os dados
   showDialog(
     context: context,
     builder: (context) {
@@ -63,7 +64,7 @@ void showServiceDetailsDialog(BuildContext context, String serviceId, Function()
               children: [
                 Text(service!.animal!.name!),
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
                     Navigator.of(context).pop(); // Fechar o diálogo
                   },
@@ -75,60 +76,64 @@ void showServiceDetailsDialog(BuildContext context, String serviceId, Function()
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
-                  // _buildDetailRow('Status', service.status == true ? 'Concluido' : 'Em progresso'),
-                  _buildDetailRow('Data de Criação', formatDate(service.createdAt!)),
-                  _buildDetailRow('Médicos', _buildNamesList(service.doctors!, (doctor) => doctor.name)),
-                  _buildDetailRow('Procedimentos', _buildNamesList(service.procedures!, (procedure) => procedure.name)),
-
-                Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Descrição',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Container(
-                                    width: 300, // Largura fixa
-                                    padding: const EdgeInsets.all(8.0),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.grey, width: 1.0),
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Text(
-                                     service.description!,
-                                      style: TextStyle(color: Colors.grey[700]),
-                                      textAlign: TextAlign.left,
-                                      softWrap: true, // Quebrar linhas
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                  const SizedBox(height: 20),
+                  DetailRow(
+                      label: 'Data de Criação',
+                      value: formatDate(service.createdAt!)),
+                  DetailRow(
+                      label: 'Médicos',
+                      value: buildNamesList(
+                          service.doctors!, (doctor) => doctor.name)),
+                  DetailRow(
+                      label: 'Procedimentos',
+                      value: buildNamesList(
+                          service.procedures!, (procedure) => procedure.name)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Descrição',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          width: 300,
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey, width: 1.0),
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Text(
+                            service.description!,
+                            style: TextStyle(color: Colors.grey[700]),
+                            textAlign: TextAlign.left,
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
             actions: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
+                  Navigator.of(context).pop();
                   _showEditServiceDialog(context, service!, onServiceUpdated);
                 },
-                child: Text('Editar'),
+                child: const Text('Editar'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _confirmDeleteService(context, service!.id!, onServiceUpdated);
+                  Navigator.of(context).pop();
+                  showDeleteDialog(context, serviceId, 'services', 'Serviço',
+                      onServiceUpdated);
                 },
-                child: Text('Deletar'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Deletar'),
               ),
             ],
           );
@@ -138,119 +143,83 @@ void showServiceDetailsDialog(BuildContext context, String serviceId, Function()
   );
 }
 
-Widget _buildDetailRow(String label, String? value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Flexible(
-          child: Text(
-            value ?? 'N/A',
-            style: TextStyle(color: Colors.grey[700]),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-void _confirmDeleteService(BuildContext context, String serviceId, Function() onServiceDeleted) {
+void showDeleteDialog(
+  BuildContext context,
+  String itemId,
+  String route,
+  String entityType,
+  Function() onDeleted,
+) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Confirmar Exclusão'),
-      content: Text('Tem certeza que deseja excluir este serviço?'),
-      actions: [
-        TextButton(
-          child: Text('Cancelar'),
-          onPressed: () {
-            Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-          },
-        ),
-        ElevatedButton(
-          child: Text('Deletar'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          onPressed: () async {
-            final loginProvider = Provider.of<LoginController>(context, listen: false);
-            final serviceRepository = ServiceRepository();
-
-            try {
-              await serviceRepository.deleteService(serviceId, loginProvider.token);
-              Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-              onServiceDeleted(); // Atualizar a tela principal
-            } catch (e) {
-              print('Erro ao excluir serviço: $e');
-            }
-          },
-        ),
-      ],
-    ),
+    builder: (BuildContext context) {
+      return DeleteConfirmationDialog(
+        itemId: itemId,
+        route: route,
+        entityType: entityType,
+        onDeleted: onDeleted,
+      );
+    },
   );
 }
 
-void _showEditServiceDialog(BuildContext context, Service service, Function() onServiceUpdated) {
-  final TextEditingController descriptionController = TextEditingController(text: service.description ?? '');
-  bool status = service.status ?? true;
-
-  // Listas de médicos e procedimentos para selecionar
-  List<Doctor> _doctors = [];
-  List<Procedure> _procedures = [];
-  
-  // Seleção atual
-  Doctor? _selectedDoctor;
-  Procedure? _selectedProcedure;
-  
+void _showEditServiceDialog(
+    BuildContext context, Service service, Function() onServiceUpdated) {
+  final TextEditingController descriptionController =
+      TextEditingController(text: service.description ?? '');
+  List<Doctor> doctors = [];
+  List<Procedure> procedures = [];
+  Doctor? selectedDoctor;
+  Procedure? selectedProcedure;
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  
-  Future<void> _loadOptions() async {
+
+  Future<void> loadOptions() async {
     final doctorRepository = DoctorRepository();
     final procedureRepository = ProcedureRepository();
 
-    _doctors = await doctorRepository.fetchDoctors(loginProvider.token);
-    _procedures = await procedureRepository.fetchProcedures(loginProvider.token);
-
-    // Definir seleção inicial com base no serviço
-    _selectedDoctor = _doctors.firstWhere((doc) => doc.id == service.doctors!.first.id, orElse: () => _doctors.first);
-    _selectedProcedure = _procedures.firstWhere((proc) => proc.id == service.procedures!.first.id, orElse: () => _procedures.first);
+    doctors = await doctorRepository.fetchDoctors(loginProvider.token);
+    procedures = await procedureRepository.fetchProcedures(loginProvider.token);
+    selectedDoctor = doctors.firstWhere(
+        (doc) => doc.id == service.doctors!.first.id,
+        orElse: () => doctors.first);
+    selectedProcedure = procedures.firstWhere(
+        (proc) => proc.id == service.procedures!.first.id,
+        orElse: () => procedures.first);
   }
 
-  Future<void> _saveService() async {
-    if (_selectedDoctor == null || _selectedProcedure == null) {
-      // Exibir mensagem de erro se médico ou procedimento não for selecionado corretamente
-      print('Erro: Médico ou Procedimento não selecionado corretamente');
+  Future<void> saveService(BuildContext dialogContext) async {
+    if (selectedDoctor == null || selectedProcedure == null) {
+      log('Erro: Médico ou Procedimento não selecionado corretamente');
       return;
     }
 
     final updatedService = Service(
       id: service.id,
       description: descriptionController.text,
-      status: status,
-      doctors: [_selectedDoctor!],
-      procedures: [_selectedProcedure!],
+      doctors: [selectedDoctor!],
+      procedures: [selectedProcedure!],
     );
 
     final serviceRepository = ServiceRepository();
     await serviceRepository.updateService(updatedService, loginProvider.token);
-    
-    onServiceUpdated(); // Atualizar a tela principal após a edição
+    TopSnackBar.show(
+      dialogContext,
+      'Serviço atualizado com sucesso',
+      true,
+    );
+    Navigator.of(dialogContext).pop();
+    onServiceUpdated();
+
   }
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return FutureBuilder(
-        future: _loadOptions(),
+        future: loadOptions(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return AlertDialog(
+            return const AlertDialog(
               title: Text('Carregando'),
               content: CircularProgressIndicator(),
             );
@@ -259,20 +228,20 @@ void _showEditServiceDialog(BuildContext context, Service service, Function() on
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: Text('Editar Serviço'),
+                title: const Text('Editar Serviço'),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DropdownButtonFormField<Doctor>(
-                        value: _selectedDoctor,
+                        value: selectedDoctor,
                         decoration: InputDecoration(
                           labelText: 'Selecionar Médico',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                           ),
                         ),
-                        items: _doctors.map((doctor) {
+                        items: doctors.map((doctor) {
                           return DropdownMenuItem<Doctor>(
                             value: doctor,
                             child: Text(doctor.name ?? 'Médico ${doctor.id}'),
@@ -280,7 +249,7 @@ void _showEditServiceDialog(BuildContext context, Service service, Function() on
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            _selectedDoctor = value;
+                            selectedDoctor = value;
                           });
                         },
                         validator: (value) {
@@ -290,24 +259,25 @@ void _showEditServiceDialog(BuildContext context, Service service, Function() on
                           return null;
                         },
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       DropdownButtonFormField<Procedure>(
-                        value: _selectedProcedure,
+                        value: selectedProcedure,
                         decoration: InputDecoration(
                           labelText: 'Selecionar Procedimento',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
                           ),
                         ),
-                        items: _procedures.map((procedure) {
+                        items: procedures.map((procedure) {
                           return DropdownMenuItem<Procedure>(
                             value: procedure,
-                            child: Text(procedure.name ?? 'Procedimento ${procedure.id}'),
+                            child: Text(procedure.name ??
+                                'Procedimento ${procedure.id}'),
                           );
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            _selectedProcedure = value;
+                            selectedProcedure = value;
                           });
                         },
                         validator: (value) {
@@ -317,20 +287,11 @@ void _showEditServiceDialog(BuildContext context, Service service, Function() on
                           return null;
                         },
                       ),
-                      // SizedBox(height: 10),
-                      // SwitchListTile(
-                      //   title: Text('Status'),
-                      //   value: status,
-                      //   onChanged: (value) {
-                      //     setState(() {
-                      //       status = value;
-                      //     });
-                      //   },
-                      // ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: descriptionController,
-                        decoration: InputDecoration(labelText: 'Descrição'),
+                        decoration:
+                            const InputDecoration(labelText: 'Descrição'),
                         maxLines: 5,
                         minLines: 3,
                         keyboardType: TextInputType.multiline,
@@ -343,14 +304,13 @@ void _showEditServiceDialog(BuildContext context, Service service, Function() on
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('Cancelar'),
+                    child: const Text('Cancelar'),
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      await _saveService();
-                      Navigator.of(context).pop();
+                      await saveService(context);
                     },
-                    child: Text('Salvar'),
+                    child: const Text('Salvar'),
                   ),
                 ],
               );

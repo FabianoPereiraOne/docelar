@@ -17,7 +17,7 @@ Future<void> showAddAnimalDialog(
   Function() onAnimalUpdated,
 ) async {
   String name = '';
-  String? sex; // Alterado para String?
+  String? sex;
   bool castrated = false;
   String race = '';
   String linkPhoto = '1';
@@ -36,10 +36,8 @@ Future<void> showAddAnimalDialog(
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          // Função para atualizar a lista de lares e o lar selecionado
           void updateHomes(Usuario? colaborador) {
             if (colaborador != null) {
-              // Atualiza a lista de homes com base no colaborador selecionado
               homes = colaborador.homes
                       ?.map((homeJson) => Home.fromMap(homeJson))
                       .where((home) => home.status == true)
@@ -47,7 +45,6 @@ Future<void> showAddAnimalDialog(
                   [];
 
               if (homes.isEmpty) {
-                // Se não houver lares, limpa o selectedHome
                 selectedHome = null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   TopSnackBar.show(
@@ -57,21 +54,18 @@ Future<void> showAddAnimalDialog(
                   );
                 });
               } else {
-                // Se houver lares, seleciona o primeiro por padrão
                 selectedHome =
-                    null; // Altere para null para que o usuário escolha
+                    null; 
               }
             } else {
-              // Se o colaborador for nulo, limpa a lista de lares e o lar selecionado
               homes = [];
               selectedHome = null;
             }
           }
 
-          // Gera os itens do dropdown de lares com base na lista de homes
           List<DropdownMenuItem<Home>> homeItems = [
             const DropdownMenuItem<Home>(
-              value: null, // Opção "Nenhum endereço"
+              value: null,
               child: Text(''),
             ),
             ...homes.map((home) {
@@ -82,7 +76,6 @@ Future<void> showAddAnimalDialog(
             }),
           ];
 
-          // Lista de opções para o sexo do animal
           final sexOptions = {
             'Macho': 'M',
             'Fêmea': 'F',
@@ -122,7 +115,7 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           selectedColaborador = value;
                           updateHomes(
-                              selectedColaborador); // Atualiza a lista de lares ao selecionar colaborador
+                              selectedColaborador);
                         });
                       },
                       validator: (value) {
@@ -139,7 +132,7 @@ Future<void> showAddAnimalDialog(
                       onChanged: (value) {
                         setState(() {
                           selectedHome =
-                              value; // Atualiza com a seleção do usuário
+                              value;
                         });
                       },
                       validator: (value) {
@@ -162,7 +155,6 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           sex = value;
                         });
-                        // Log do valor selecionado para sexo
                         log('Sexo selecionado: $value');
                       },
                       validator: (value) {
@@ -186,7 +178,7 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           selectedAnimalType = value;
                         });
-                        // Log do valor selecionado para tipo de animal
+
                         log('Tipo de Animal selecionado: ${value?.type}');
                       },
                       validator: (value) {

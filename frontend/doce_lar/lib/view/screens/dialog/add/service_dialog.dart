@@ -1,8 +1,8 @@
 import 'dart:developer';
-
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
+import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:doce_lar/model/models/service_model.dart';
@@ -13,112 +13,96 @@ import 'package:doce_lar/model/models/procedure_model.dart';
 
 void showServiceDialog(
     BuildContext context, String animalId, Function() callback) {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _descriptionController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController descriptionController = TextEditingController();
 
   final loginProvider = Provider.of<LoginController>(context, listen: false);
 
-  // Para armazenar os médicos, procedimentos e status selecionados
-  Doctor? _selectedDoctor;
-  Procedure? _selectedProcedure;
-  String? _selectedStatus; // Novo campo para armazenar o status selecionado
+  Doctor? selectedDoctor;
+  Procedure? selectedProcedure;
 
-  // Para armazenar as listas de médicos e procedimentos
-  List<Doctor> _doctors = [];
-  List<Procedure> _procedures = [];
+  List<Doctor> doctors = [];
+  List<Procedure> procedures = [];
 
-  Future<void> _loadOptions() async {
-    // Carregue os médicos e procedimentos do repositório
+  Future<void> loadOptions() async {
     final doctorRepository = DoctorRepository();
     final procedureRepository = ProcedureRepository();
 
-    _doctors = await doctorRepository.fetchDoctors(loginProvider.token);
-    _procedures =
-        await procedureRepository.fetchProcedures(loginProvider.token);
-    log(_procedures.toString());
-  }
-  
-Future<void> _saveService() async {
-  if (_formKey.currentState?.validate() ?? false) {
-    // Capturar os IDs de médico e procedimento
-    final String? doctorId = _selectedDoctor?.id;
-    final int? procedureId = _selectedProcedure?.id;
+    doctors = await doctorRepository.fetchDoctors(loginProvider.token);
 
-    if (doctorId == null || procedureId == null || _selectedStatus == null) {
-      // Exibir mensagem de erro se o ID ou status não for selecionado corretamente
-      log('Erro: Médico, Procedimento ou Status não selecionado corretamente');
-      return;
+    doctors = doctors.where((doctor) => doctor.status == true).toList();
+
+    procedures = await procedureRepository.fetchProcedures(loginProvider.token);
+    log(procedures.toString());
+  }
+
+  Future<void> saveService(BuildContext dialogContext) async {
+    if (formKey.currentState?.validate() ?? false) {
+      final String? doctorId = selectedDoctor?.id;
+      final int? procedureId = selectedProcedure?.id;
+
+      if (doctorId == null || procedureId == null) {
+        log('Erro: Médico ou Procedimento não selecionado corretamente');
+        return;
+      }
+
+      final newService = Service(
+        description: descriptionController.text,
+        animal: Animal(id: animalId),
+        doctors: [Doctor(id: doctorId)],
+        procedures: [Procedure(id: procedureId)],
+      );
+
+      final serviceRepository = ServiceRepository();
+      await serviceRepository.addService(newService, loginProvider.token);
+
+      TopSnackBar.show(dialogContext, 'Serviço adicionado com sucesso', true);
+
+      Navigator.of(dialogContext).pop();
+
+      callback();
+    } else {
+      TopSnackBar.show(context, 'Erro ao adicionar serviço', false);
     }
-
-    // Log para verificar o valor de _selectedStatus
-    log('Status selecionado: $_selectedStatus');
-
-    // Converter o status selecionado para booleano
-    final bool status = _selectedStatus == 'Concluído' ? true : false;
-
-    // Log para verificar o valor booleano de status
-    log('Status convertido para booleano: $status');
-
-    final newService = Service(
-      description: _descriptionController.text,
-      status: status, 
-      animal: Animal(id: animalId), 
-      doctors: [Doctor(id: doctorId)], 
-      procedures: [Procedure(id: procedureId)],
-    );
-
-    // Log do objeto newService para verificar os dados antes de salvar
-    log('Novo serviço a ser salvo: ${newService.toString()}');
-
-    final serviceRepository = ServiceRepository();
-    await serviceRepository.addService(newService, loginProvider.token);
-
-    // Log após a tentativa de salvar o serviço
-    log('Serviço salvo com sucesso');
-
-    callback();
-  } else {
-    log('Formulário inválido');
   }
-}
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return FutureBuilder(
-        future: _loadOptions(),
+        future: loadOptions(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return AlertDialog(
+            return const AlertDialog(
               title: Text('Carregando'),
               content: CircularProgressIndicator(),
             );
           }
 
           return AlertDialog(
-            title: Text('Adicionar Serviço'),
+            title: const Text('Adicionar Serviço'),
             content: SingleChildScrollView(
               child: Form(
-                key: _formKey,
+                key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<Doctor>(
-                      value: _selectedDoctor,
+                      value: selectedDoctor,
                       decoration: InputDecoration(
                         labelText: 'Selecionar Médico',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                       ),
-                      items: _doctors.map((doctor) {
+                      items: doctors.map((doctor) {
                         return DropdownMenuItem<Doctor>(
                           value: doctor,
                           child: Text(doctor.name ?? 'Médico ${doctor.id}'),
                         );
                       }).toList(),
                       onChanged: (value) {
-                        _selectedDoctor = value;
+                        selectedDoctor = value;
                       },
                       validator: (value) {
                         if (value == null) {
@@ -127,16 +111,16 @@ Future<void> _saveService() async {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     DropdownButtonFormField<Procedure>(
-                      value: _selectedProcedure,
+                      value: selectedProcedure,
                       decoration: InputDecoration(
                         labelText: 'Selecionar Procedimento',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                       ),
-                      items: _procedures.map((procedure) {
+                      items: procedures.map((procedure) {
                         return DropdownMenuItem<Procedure>(
                           value: procedure,
                           child: Text(
@@ -144,8 +128,8 @@ Future<void> _saveService() async {
                         );
                       }).toList(),
                       onChanged: (value) {
-                        _selectedProcedure = value;
-                        log(_selectedProcedure!.name!);
+                        selectedProcedure = value;
+                        log(selectedProcedure!.name!);
                       },
                       validator: (value) {
                         if (value == null) {
@@ -154,42 +138,13 @@ Future<void> _saveService() async {
                         return null;
                       },
                     ),
-                    SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: _selectedStatus,
-                      decoration: InputDecoration(
-                        labelText: 'Selecionar Status',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                      ),
-                      items: [
-                        DropdownMenuItem(
-                          value: 'Em andamento',
-                          child: Text('Em andamento'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Concluído',
-                          child: Text('Concluído'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        _selectedStatus = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Por favor, selecione um status';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextFormField(
-                      controller: _descriptionController,
+                      controller: descriptionController,
                       maxLines: 5,
                       minLines: 3,
                       keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Descrição',
                         border: OutlineInputBorder(),
                         alignLabelWithHint: true,
@@ -208,16 +163,19 @@ Future<void> _saveService() async {
             actions: [
               TextButton(
                 onPressed: () async {
-                  await _saveService();
-                  Navigator.of(context).pop();
+                  if (formKey.currentState?.validate() ?? false) {
+                    await saveService(context);
+                  } else {
+                    log('Formulário inválido');
+                  }
                 },
-                child: Text('Salvar'),
+                child: const Text('Salvar'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
             ],
           );

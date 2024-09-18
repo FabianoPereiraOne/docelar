@@ -20,7 +20,6 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
   List<Usuario> _colaboradores = [];
   List<Usuario> _activeColaboradores = [];
   List<Usuario> _inactiveColaboradores = [];
-  String _searchQuery = '';
   bool _isLoading = false;
 
   @override
@@ -288,7 +287,6 @@ void _showColaboradorDialog(BuildContext context) {
     }).toList();
 
     setState(() {
-      _searchQuery = query;
       _activeColaboradores = filteredColaboradores
           .where((colaborador) => colaborador.statusAccount!)
           .toList();

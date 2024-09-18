@@ -56,7 +56,6 @@ class ServiceRepository {
     String endpoint = '$url/services';
     Map<String, dynamic> serviceData = {
       'description': service.description,
-      'status': service.status,
       'animalId': service.animal!.id, // Inclua o objeto Animal aqui
       'doctors': service.doctors?.map((doc) => {'id': doc.id}).toList(),
       'procedures': service.procedures?.map((proc) => {'id': proc.id}).toList(),

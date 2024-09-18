@@ -116,9 +116,10 @@ class AnimalRepository {
         'typeAnimal': animal.typeAnimal,
         'status': animal.status,
         'home': animal.home,
-        'createdAt': animal.createdAt,
-        'updatedAt': animal.updatedAt,
+        'dateExit': DateTime.now().toIso8601String(),
       };
+
+      log(DateTime.now().toIso8601String());
 
       // Faça a requisição PATCH para atualizar o animal
       Response response = await dio.patch(

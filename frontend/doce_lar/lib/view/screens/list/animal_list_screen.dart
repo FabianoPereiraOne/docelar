@@ -27,7 +27,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   List<AnimalType> _animalTypes = [];
   List<Animal> _filteredAnimais = [];
   bool _isLoading = false;
-  AnimalType? _selectedAnimalType; // Alterado para AnimalType
+  AnimalType? _selectedAnimalType;
   bool _showActive = true;
   TabController? _tabController;
   List<Usuario> _colaboradores = [];
@@ -43,19 +43,16 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     final colaboradorRepository = ColaboradorRepository();
 
     try {
-      // Inicia todas as requisições assíncronas
       final animaisFuture = animalRepository.fetchAnimais(loginProvider.token);
       final typesFuture =
           animalTypeRepository.fetchAnimalTypes(loginProvider.token);
       final colaboradoresFuture =
           colaboradorRepository.fetchColaboradores(loginProvider.token);
 
-      // Aguarda todas as requisições serem concluídas
       final animais = await animaisFuture;
       final types = await typesFuture;
       final colaboradores = await colaboradoresFuture;
 
-      // Atualiza o estado uma vez com todos os dados
       setState(() {
         _activeAnimais =
             animais.where((animal) => animal.status ?? false).toList();
@@ -113,7 +110,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
       context,
       _colaboradores,
       _animalTypes,
-      _fetchData, // Passa a função de atualização de dados
+      _fetchData,
     );
   }
 
@@ -126,7 +123,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
         _toggleAnimalStatus(_tabController?.index == 0);
       }
     });
-    _fetchData(); // Chama a função que busca todos os dados
+    _fetchData();
   }
 
   @override
@@ -220,7 +217,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: getButtonColor(null), // Cor do botão "Todos"
+                  backgroundColor: getButtonColor(null),
                 ),
                 child: const Text('Todos'),
               ),
@@ -250,7 +247,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                       itemBuilder: (context, index) {
                         if (index >= _filteredAnimais.length) {
                           return const SizedBox
-                              .shrink(); // Retorna um widget vazio se o índice for inválido
+                              .shrink(); 
                         }
                         final animal = _filteredAnimais[index];
                         return Padding(
@@ -258,9 +255,9 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                           child: CustomCard(
                             title: animal.name.toString(),
                             info1: getAnimalTypeName(
-                                animal.typeAnimal), // Nome do tipo de animal
+                                animal.typeAnimal), 
                             info2: getSexDescription(
-                                animal.sex ?? ''), // Descrição do sexo
+                                animal.sex ?? ''), 
                             onTap: () {
                               showAnimalDetailDialog(
                                   context, animal, _colaboradores, _fetchData);

@@ -17,7 +17,6 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
   List<Doctor> _doctors = [];
   List<Doctor> _activeDoctors = [];
   List<Doctor> _inactiveDoctors = [];
-  String _searchQuery = '';
   bool _isLoading = false;
 
   @override
@@ -58,7 +57,6 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
     }).toList();
 
     setState(() {
-      _searchQuery = query;
       _activeDoctors =
           filteredDoctors.where((doctor) => doctor.status!).toList();
       _inactiveDoctors =
