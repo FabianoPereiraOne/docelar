@@ -4,7 +4,7 @@ import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
-import 'package:doce_lar/model/repositories/animals_types_repository.dart';
+import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/service_dialog.dart';
@@ -17,48 +17,36 @@ import 'package:provider/provider.dart';
 
 void showAnimalDetailDialog(BuildContext context, Animal animal,
     List<Usuario> colaboradores, Function() onAnimalUpdated) async {
+  // Mostra um CircularProgressIndicator enquanto carrega os dados
   showDialog(
     context: context,
-    barrierDismissible: false, // Não permitir fechar ao clicar fora
+    barrierDismissible: false,
     builder: (context) {
       return Center(child: CircularProgressIndicator());
     },
   );
 
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final animalTypeRepository = AnimalTypeRepository();
+  final colaboradorRepository = ColaboradorRepository();
 
-  String homeAddress = 'Carregando...';
-  String animalTypeName = 'Carregando...';
+  String colaboradorName = 'N/A';
 
-  // Carregar informações do tipo de animal
-  final animalType = animal.typeAnimal; // Use o objeto AnimalType diretamente
-  if (animalType != null) {
-    animalTypeName = animalType.type ?? 'Desconhecido';
-  } else {
+  // Tenta buscar o nome do colaborador se o ID estiver disponível
+  if (animal.home?.collaboratorId != null) {
     try {
-      // Caso não tenha o objeto AnimalType, busque pelo id
-      final animalTypeFetched = await animalTypeRepository.fetchAnimalTypeById(
-          animal.typeAnimal!.id!, loginProvider.token);
-      animalTypeName = animalTypeFetched.type ?? 'Desconhecido';
+      final colaborador = await colaboradorRepository.fetchColaboradorById(
+        animal.home!.collaboratorId!,
+        loginProvider.token,
+      );
+      colaboradorName = colaborador.name ?? 'N/A';
     } catch (e) {
-      animalTypeName = 'Erro ao carregar tipo de animal';
+      colaboradorName = 'Erro ao carregar colaborador';
     }
   }
 
-  // Obter o endereço do objeto home diretamente
-  final home = animal.home;
-  if (home != null) {
-    homeAddress =
-        '${home.address}, ${home.number}, ${home.district}, ${home.city}, ${home.state}';
-  } else {
-    homeAddress = 'Endereço não disponível';
-  }
-
-  // Após carregar todas as informações, feche o CircularProgressIndicator
+  // Fecha o CircularProgressIndicator e abre o diálogo com os detalhes
   Navigator.of(context).pop();
 
-  // Abrir o diálogo com as informações carregadas
   showDialog(
     context: context,
     builder: (context) {
@@ -95,13 +83,13 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                       fontWeight: FontWeight.bold)),
                             ),
                             DetailRow(
-                                label: 'Tipo de Animal', value: animalTypeName),
+                                label: 'Tipo de Animal', value: animal.typeAnimal!.type),
                             DetailRow(label: 'Raça', value: animal.race),
                             DetailRow(
                                 label: 'Sexo',
                                 value: animal.sex == 'M'
-                                    ? 'Masculino'
-                                    : 'Feminino'),
+                                    ? 'Macho'
+                                    : 'Fêmea'),
                             DetailRow(
                                 label: 'Castrado',
                                 value:
@@ -117,7 +105,9 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                             DetailRow(
                                 label: 'Data de Saída',
                                 value: formatDate(animal.dateExit)),
-
+                            DetailRow(
+                                label: 'Colaborador Responsável',
+                                value: colaboradorName), // Exibe o nome do colaborador
                             // Exibir endereço do lar temporário
                             Padding(
                               padding:
@@ -134,7 +124,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                   Container(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      homeAddress,
+                                      '${animal.home?.address}, ${animal.home?.number}, ${animal.home?.address}, ${animal.home?.city} - ${animal.home?.state}',
                                       style: TextStyle(color: Colors.grey[700]),
                                       textAlign: TextAlign.left,
                                       softWrap: true,
@@ -144,7 +134,6 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                 ],
                               ),
                             ),
-
                             // Exibir descrição com largura fixa
                             Padding(
                               padding:
@@ -167,11 +156,10 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                       borderRadius: BorderRadius.circular(5.0),
                                     ),
                                     child: Text(
-                                      animal.description ??
-                                          'Nenhuma descrição disponível',
+                                      animal.description ?? 'Nenhuma descrição disponível',
                                       style: TextStyle(color: Colors.grey[700]),
                                       textAlign: TextAlign.left,
-                                      softWrap: true, // Quebrar linhas
+                                      softWrap: true,
                                     ),
                                   ),
                                 ],
@@ -213,12 +201,10 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                       ),
                       FutureBuilder<List<Service>>(
                         future: _fetchServicesWithProcedures(
-                            animal.services?.map((s) => s.id ?? '').toList() ??
-                                [],
+                            animal.services?.map((s) => s.id ?? '').toList() ?? [],
                             loginProvider.token),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return Center(child: CircularProgressIndicator());
                           }
 
@@ -312,6 +298,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
 }
 
 
+
 void _showDeleteDialog(
   BuildContext context,
   String itemId,
@@ -375,7 +362,7 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
       orElse: () => Usuario(), // Return an empty Usuario object instead of null
       );
 
-  String? selectedCollaboratorId = currentCollaborator?.id;
+  String? selectedCollaboratorId = currentCollaborator.id;
   String? selectedHomeId = animal.home?.id;
 
   // Obter os endereços do colaborador selecionado

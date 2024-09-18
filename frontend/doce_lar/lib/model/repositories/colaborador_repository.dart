@@ -102,6 +102,7 @@ Future<String> addPartner(Usuario partner, String token, String password) async 
     throw e;
   }
 }
+
 Future<void> updateColaborador(Usuario colaborador, String token) async {
   try {
     // Defina o endpoint da API
@@ -180,5 +181,43 @@ Future<void> deleteColaborador(String colaboradorId, String token) async {
   }
 }
 
+Future<Usuario> fetchColaboradorById(String id, String token) async {
+  try {
+    String endpoint = '$url/collaborators/$id';
+    Response response = await dio.get(
+      endpoint,
+      options: Options(headers: {
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Authorization": "$token"
+      }),
+    );
 
+    log('Resposta da API para colaborador por ID: ${response.data}'); // Log adicional
+
+    if (response.statusCode == 200) {
+      // Verifique a estrutura da resposta e mapeie corretamente
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> && responseData.containsKey('data')) {
+        final data = responseData['data'];
+        return Usuario.fromMap(data);
+      } else {
+        throw Exception('Formato de resposta inesperado');
+      }
+    } else {
+      throw Exception('Falha ao buscar colaborador: ${response.statusCode}');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      log('Resposta do servidor: ${e.response?.data}');
+    } else {
+      log('Erro na solicitação: ${e.message}');
+    }
+    throw e;
+  } catch (e, s) {
+    log(e.toString(), error: e, stackTrace: s);
+    throw e;
+  }
+}
 }

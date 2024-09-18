@@ -58,19 +58,15 @@ class AnimalRepository {
       String endpoint = '$url/animals';
 
       // Crie um mapa de dados com todos os campos necessários, incluindo homeId
-      Map<String, dynamic> animalData = {
-        'name': animal.name,
-        'description': animal.description,
-        'sex': animal.sex,
-        'castrated': animal.castrated,
-        'race': animal.race,
-        'linkPhoto': animal.linkPhoto,
-        'typeAnimal': animal.typeAnimal,
-        'status': animal.status,
-        'home':
-            animal.home, // Certifique-se de que o homeId está presente aqui
-        'updatedAt': animal.updatedAt,
-      };
+    Map<String, dynamic> animalData = {
+      'name': animal.name,
+      'description': animal.description,
+      'sex': animal.sex,
+      'castrated': animal.castrated,
+      'race': animal.race,
+      'typeAnimalId': animal.typeAnimalId,
+      'homeId': animal.home?.id, // Certifique-se de que este ID é válido
+    };
 
       // Faça a requisição POST para adicionar o animal
       Response response = await dio.post(

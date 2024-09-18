@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -15,7 +17,7 @@ Future<void> showAddAnimalDialog(
   Function() onAnimalUpdated,
 ) async {
   String name = '';
-  String? sex;
+  String? sex; // Alterado para String?
   bool castrated = false;
   String race = '';
   String linkPhoto = '1';
@@ -34,38 +36,57 @@ Future<void> showAddAnimalDialog(
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          // Update homes based on selected collaborator
-          List<DropdownMenuItem<Home>> homeItems = [];
-          if (selectedColaborador != null) {
-            homes = selectedColaborador!.homes
-                ?.map((homeJson) => Home.fromMap(homeJson))
-                .where((home) => home.status == true)
-                .toList() ?? [];
-            
-            if (homes.isEmpty) {
-              // Show snack bar if no homes are available
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                TopSnackBar.show(
-                  context,
-                  'O colaborador selecionado não possui lares cadastrados.',
-                  false,
-                );
-              });
-              selectedHome = null; // Clear selected home
-            } else {
-              homeItems = homes.map((home) {
-                return DropdownMenuItem<Home>(
-                  value: home,
-                  child: Text('${home.address}, ${home.number}'),
-                );
-              }).toList();
+          // Função para atualizar a lista de lares e o lar selecionado
+          void updateHomes(Usuario? colaborador) {
+            if (colaborador != null) {
+              // Atualiza a lista de homes com base no colaborador selecionado
+              homes = colaborador.homes
+                      ?.map((homeJson) => Home.fromMap(homeJson))
+                      .where((home) => home.status == true)
+                      .toList() ??
+                  [];
 
-              // Ensure selectedHome is one of the homeItems
-              if (selectedHome != null && !homeItems.any((item) => item.value == selectedHome)) {
-                selectedHome = null; // Reset to null if no matching item
+              if (homes.isEmpty) {
+                // Se não houver lares, limpa o selectedHome
+                selectedHome = null;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  TopSnackBar.show(
+                    context,
+                    'O colaborador selecionado não possui lares cadastrados.',
+                    false,
+                  );
+                });
+              } else {
+                // Se houver lares, seleciona o primeiro por padrão
+                selectedHome =
+                    null; // Altere para null para que o usuário escolha
               }
+            } else {
+              // Se o colaborador for nulo, limpa a lista de lares e o lar selecionado
+              homes = [];
+              selectedHome = null;
             }
           }
+
+          // Gera os itens do dropdown de lares com base na lista de homes
+          List<DropdownMenuItem<Home>> homeItems = [
+            const DropdownMenuItem<Home>(
+              value: null, // Opção "Nenhum endereço"
+              child: Text(''),
+            ),
+            ...homes.map((home) {
+              return DropdownMenuItem<Home>(
+                value: home,
+                child: Text('${home.address}, ${home.number}'),
+              );
+            }),
+          ];
+
+          // Lista de opções para o sexo do animal
+          final sexOptions = {
+            'Macho': 'M',
+            'Fêmea': 'F',
+          };
 
           return AlertDialog(
             title: const Text('Adicionar Novo Animal'),
@@ -100,20 +121,8 @@ Future<void> showAddAnimalDialog(
                       onChanged: (value) {
                         setState(() {
                           selectedColaborador = value;
-                          homes = selectedColaborador?.homes
-                              ?.map((homeJson) => Home.fromMap(homeJson))
-                              .where((home) => home.status == true)
-                              .toList() ?? [];
-                          if (homes.isEmpty) {
-                            selectedHome = null; // Clear selected home if no homes are available
-                            TopSnackBar.show(
-                              context,
-                              'O colaborador selecionado não possui lares cadastrados.',
-                              false,
-                            );
-                          } else {
-                            selectedHome = null; // Reset selected home when changing collaborator
-                          }
+                          updateHomes(
+                              selectedColaborador); // Atualiza a lista de lares ao selecionar colaborador
                         });
                       },
                       validator: (value) {
@@ -129,7 +138,8 @@ Future<void> showAddAnimalDialog(
                       items: homeItems,
                       onChanged: (value) {
                         setState(() {
-                          selectedHome = value;
+                          selectedHome =
+                              value; // Atualiza com a seleção do usuário
                         });
                       },
                       validator: (value) {
@@ -139,9 +149,33 @@ Future<void> showAddAnimalDialog(
                         return null;
                       },
                     ),
+                    DropdownButtonFormField<String>(
+                      value: sex,
+                      decoration: const InputDecoration(labelText: 'Sexo'),
+                      items: sexOptions.entries.map((entry) {
+                        return DropdownMenuItem<String>(
+                          value: entry.value,
+                          child: Text(entry.key),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          sex = value;
+                        });
+                        // Log do valor selecionado para sexo
+                        log('Sexo selecionado: $value');
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Sexo é obrigatório';
+                        }
+                        return null;
+                      },
+                    ),
                     DropdownButtonFormField<AnimalType>(
                       value: selectedAnimalType,
-                      decoration: const InputDecoration(labelText: 'Tipo de Animal'),
+                      decoration:
+                          const InputDecoration(labelText: 'Tipo de Animal'),
                       items: animalTypes.map((type) {
                         return DropdownMenuItem<AnimalType>(
                           value: type,
@@ -152,6 +186,8 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           selectedAnimalType = value;
                         });
+                        // Log do valor selecionado para tipo de animal
+                        log('Tipo de Animal selecionado: ${value?.type}');
                       },
                       validator: (value) {
                         if (value == null) {
@@ -232,7 +268,7 @@ Future<void> showAddAnimalDialog(
                         castrated: castrated,
                         race: race,
                         linkPhoto: linkPhoto,
-                        typeAnimal: selectedAnimalType, // Altere para AnimalType
+                        typeAnimalId: selectedAnimalType!.id,
                         status: status,
                         home: selectedHome,
                       );

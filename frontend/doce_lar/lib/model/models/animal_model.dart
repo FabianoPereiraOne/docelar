@@ -15,9 +15,10 @@ class Animal {
   bool? status;
   String? createdAt;
   String? updatedAt;
-  AnimalType? typeAnimal; // Alterado para AnimalType
-  Home? home; // Definido como Home
-  List<Service>? services; // Lista de serviços
+  AnimalType? typeAnimal; // Objeto completo para atualização
+  int? typeAnimalId; // ID do tipo de animal para criação
+  Home? home;
+  List<Service>? services;
 
   Animal({
     this.id,
@@ -32,15 +33,14 @@ class Animal {
     this.createdAt,
     this.updatedAt,
     this.typeAnimal,
+    this.typeAnimalId,
     this.home,
     this.services,
   });
 
   factory Animal.fromMap(Map<String, dynamic> map) {
-    final homeData =
-        map['home'] as Map<String, dynamic>?; // Extraia o mapa de home
-    final typeAnimalData = map['typeAnimal']
-        as Map<String, dynamic>?; // Extraia o mapa de typeAnimal
+    final homeData = map['home'] as Map<String, dynamic>?;
+    final typeAnimalData = map['typeAnimal'] as Map<String, dynamic>?;
 
     return Animal(
       id: map['id'],
@@ -56,13 +56,12 @@ class Animal {
       updatedAt: map['updatedAt'],
       typeAnimal: typeAnimalData != null
           ? AnimalType.fromMap(typeAnimalData)
-          : null, // Crie uma instância de AnimalType
-      home: homeData != null
-          ? Home.fromMap(homeData)
-          : null, // Crie uma instância de Home
+          : null,
+      typeAnimalId: map['typeAnimalId'], // ID do tipo de animal
+      home: homeData != null ? Home.fromMap(homeData) : null,
       services: (map['services'] as List<dynamic>?)
           ?.map((service) => Service.fromMap(service))
-          .toList(), // Mapeia a lista de serviços
+          .toList(),
     );
   }
 
@@ -79,12 +78,10 @@ class Animal {
       'status': status,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'typeAnimal':
-          typeAnimal?.toMap(), // Converte AnimalType para Map se não for null
-      'home': home?.toMap(), // Converte Home para Map se não for null
-      'services': services
-          ?.map((service) => service.toMap())
-          .toList(), // Converte a lista de serviços para Map
+      'typeAnimal': typeAnimal?.toMap(), // Para atualização
+      'typeAnimalId': typeAnimalId, // Para criação
+      'home': home?.toMap(),
+      'services': services?.map((service) => service.toMap()).toList(),
     };
   }
 
