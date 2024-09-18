@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:asuka/snackbars/asuka_snack_bar.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/view/widgets/custom_input.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +12,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey<FormState> formKey = new GlobalKey();
+  final GlobalKey<FormState> formKey = GlobalKey();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isObscure = true;
+  bool _isLoading = false;
+  String? _errorMessage; 
   final EdgeInsetsGeometry _padding =
       const EdgeInsets.only(top: 24, left: 36, right: 36);
 
@@ -31,21 +32,36 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final loginProvider = Provider.of<LoginController>(context);
 
-login() async {
-  try {
-    log('chegou no login');
-    await loginProvider.autenticaUsuario(
-        _usernameController.text.trim(), _passwordController.text.trim());
-    
-    if (loginProvider.hasData) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      AsukaSnackbar.alert('Usuário ou senha inválidos');
+    login() async {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null; // Limpa a mensagem de erro anterior
+      });
+
+      try {
+        log('Tentando login');
+        await loginProvider.autenticaUsuario(
+            _usernameController.text.trim(), _passwordController.text.trim());
+        
+        if (loginProvider.hasData) {
+          Navigator.of(context).pushReplacementNamed('/home');
+        } else {
+          // Definir a mensagem de erro em caso de falha de login
+          setState(() {
+            _errorMessage = 'Usuário ou senha inválidos';
+          });
+        }
+      } catch (e) {
+        // Definir a mensagem de erro em caso de exceção
+        setState(() {
+          _errorMessage = 'Falha na conexão ou servidor indisponível';
+        });
+      } finally {
+        setState(() {
+          _isLoading = false; // Finaliza o carregamento
+        });
+      }
     }
-  } catch (e) {
-    AsukaSnackbar.alert(e.toString());
-  }
-}
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -58,8 +74,7 @@ login() async {
               ),
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                      'images/login.png'), // caminho da imagem de fundo
+                  image: AssetImage('images/login.png'), // imagem de fundo
                   fit: BoxFit.cover, // ajusta a imagem para cobrir o fundo
                 ),
               ),
@@ -83,19 +98,23 @@ login() async {
                             children: [
                               const SizedBox(height: 100),
                               Padding(
-                                  padding: _padding,
-                                  child: CustomInput(
-                                      validatorText: 'Informe o usuário',
-                                      hintText: 'Usuário',
-                                      icon: Icons.person_outlined,
-                                      controller: _usernameController)),
+                                padding: _padding,
+                                child: CustomInput(
+                                  validatorText: 'Informe o usuário',
+                                  hintText: 'Usuário',
+                                  icon: Icons.person_outlined,
+                                  controller: _usernameController,
+                                ),
+                              ),
                               Padding(
-                                  padding: _padding,
-                                  child: CustomInput(
-                                      validatorText: 'Informe a senha',
-                                      hintText: 'Senha',
-                                      icon: Icons.lock_outline,
-                                      controller: _passwordController)),
+                                padding: _padding,
+                                child: CustomInput(
+                                  validatorText: 'Informe a senha',
+                                  hintText: 'Senha',
+                                  icon: Icons.lock_outline,
+                                  controller: _passwordController,
+                                ),
+                              ),
                               Padding(
                                 padding: _padding,
                                 child: SizedBox(
@@ -116,11 +135,16 @@ login() async {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    child: const Text(
-                                      'Entrar',
-                                      style: TextStyle(
-                                          fontSize: 12, color: Colors.white),
-                                    ),
+                                    child: _isLoading
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : const Text(
+                                            'Entrar',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white),
+                                          ),
                                   ),
                                 ),
                               ),
@@ -128,6 +152,17 @@ login() async {
                             ],
                           ),
                         ),
+                        // Exibe a mensagem de erro abaixo do formulário, se houver
+                        if (_errorMessage != null) ...[
+                          const SizedBox(height: 20),
+                          Text(
+                            _errorMessage!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ]
                       ],
                     ),
                   ),

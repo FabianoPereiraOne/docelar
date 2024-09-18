@@ -52,8 +52,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
             builder: (context, constraints) {
               return ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height *
-                      0.8,
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -110,8 +109,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                       value: formatDate(animal.dateExit)),
                                   DetailRow(
                                       label: 'Colaborador Responsável',
-                                      value:
-                                          colaboradorName),
+                                      value: colaboradorName),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
@@ -180,8 +178,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                     children: [
                                       ElevatedButton(
                                         onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(); 
+                                          Navigator.of(context).pop();
                                           _showEditAnimalDialog(context, animal,
                                               colaboradores, onAnimalUpdated);
                                         },
@@ -189,8 +186,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
-                                          Navigator.of(context)
-                                              .pop();
+                                          Navigator.of(context).pop();
                                           _showDeleteDialog(
                                             context,
                                             animal.id!,
@@ -290,14 +286,13 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                       ),
                     ),
                     Padding(
-
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pop(); 
+                              Navigator.of(context).pop();
                             },
                             child: const Text('Fechar'),
                           ),
@@ -368,7 +363,6 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
   bool castrated = animal.castrated ?? false;
   bool status = animal.status ?? true;
 
-
   Usuario? currentCollaborator = colaboradores.firstWhere(
     (collaborator) => collaborator.id == animal.home?.collaboratorId,
     orElse: () => Usuario(),
@@ -377,13 +371,11 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
   String? selectedCollaboratorId = currentCollaborator.id;
   String? selectedHomeId = animal.home?.id;
 
-
   List<DropdownMenuItem<String>> homeItems = [];
   if (selectedCollaboratorId != null) {
     final selectedCollaborator = colaboradores.firstWhere(
         (collaborator) => collaborator.id == selectedCollaboratorId,
-        orElse: () => Usuario() 
-        );
+        orElse: () => Usuario());
     final homes =
         selectedCollaborator.homes?.cast<Map<String, dynamic>>() ?? [];
     final homeIds = <String>{};
@@ -397,6 +389,8 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
       );
     }).toList();
   }
+
+  bool initialStatus = status; // Armazena o status inicial
 
   showDialog(
     context: context,
@@ -442,26 +436,22 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
                     onChanged: (value) {
                       setState(() {
                         selectedCollaboratorId = value;
-                        selectedHomeId =
-                            null;
+                        selectedHomeId = null;
                         if (value != null) {
                           final selectedCollaborator = colaboradores.firstWhere(
                               (collaborator) => collaborator.id == value,
                               orElse: () => Usuario());
                           final homes = selectedCollaborator.homes
-                                  ?.cast<Map<String, dynamic>>() ??
+                                  ?.cast<Map<String, dynamic>>() ?? 
                               [];
-                          final homeIds =
-                              <String>{}; 
+                          final homeIds = <String>{};
                           homeItems = homes.where((home) {
                             final homeId = home['id'] as String;
-                            return homeIds.add(
-                                homeId);
+                            return homeIds.add(homeId);
                           }).map((home) {
                             return DropdownMenuItem<String>(
                               value: home['id'] as String,
-                              child:
-                                  Text('${home['address']}, ${home['number']}'),
+                              child: Text('${home['address']}, ${home['number']}'),
                             );
                           }).toList();
                         }
@@ -537,6 +527,9 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
                       typeAnimal: selectedType,
                       status: status,
                       createdAt: animal.createdAt,
+                      dateExit: status
+                          ? DateTime(0000, 1, 1).toUtc().toIso8601String()
+                          : DateTime.now().toUtc().toIso8601String(),
                       home: selectedHomeId != null
                           ? Home(id: selectedHomeId)
                           : null,
@@ -544,7 +537,21 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
 
                     await animalRepository.updateAnimal(
                         updatedAnimal, loginProvider.token);
-                    TopSnackBar.show(context, 'Animal editado com sucesso', true);
+
+                    if (initialStatus != status) {
+                      TopSnackBar.show(
+                        context,
+                        status ? 'Animal ativado' : 'Animal desativado',
+                        status ? true : false,
+                      );
+                    } else {
+                      TopSnackBar.show(
+                        context,
+                        'Animal atualizado com sucesso',
+                        true,
+                      );
+                    }
+                    
                     Navigator.of(context).pop();
                     onAnimalUpdated();
                   } catch (e) {
@@ -559,3 +566,4 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
     },
   );
 }
+

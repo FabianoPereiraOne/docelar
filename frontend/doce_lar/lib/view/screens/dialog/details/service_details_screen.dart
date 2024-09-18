@@ -53,21 +53,32 @@ void showServiceDetailsDialog(
         ? 'N/A'
         : items.map((item) => getName(item)).join(', ');
   }
+
   showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(service!.animal!.name!),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Fechar o diálogo
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Fechar o diálogo
+                      },
+                    ),
+                  ],
+                ),
+                Text(
+                  service!.animal!.name!,
+                  maxLines: null, // Permite múltiplas linhas
+                  overflow: TextOverflow
+                      .visible, // Exibe o texto além da largura disponível
                 ),
               ],
             ),
@@ -122,18 +133,18 @@ void showServiceDetailsDialog(
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _showEditServiceDialog(context, service!, onServiceUpdated);
-                },
-                child: const Text('Editar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
                   showDeleteDialog(context, serviceId, 'services', 'Serviço',
                       onServiceUpdated);
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Deletar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showEditServiceDialog(context, service!, onServiceUpdated);
+                },
+                child: const Text('Editar'),
               ),
             ],
           );
@@ -209,7 +220,6 @@ void _showEditServiceDialog(
     );
     Navigator.of(dialogContext).pop();
     onServiceUpdated();
-
   }
 
   showDialog(

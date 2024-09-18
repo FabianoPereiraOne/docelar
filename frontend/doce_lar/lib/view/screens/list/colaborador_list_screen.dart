@@ -1,5 +1,6 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
+import 'package:doce_lar/view/screens/dialog/add/colaborador_dialog.dart';
 import 'package:doce_lar/view/screens/dialog/details/colaborador_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/endereco_dialog.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
@@ -57,227 +58,9 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
     }
   }
 
-  String capitalizeWords(String input) {
-    if (input.isEmpty) {
-      return '';
-    }
-    return input.split(' ').map((word) {
-      if (word.isEmpty) return '';
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
-  }
 
-void _showColaboradorDialog(BuildContext context) {
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController =
-      MaskedTextController(mask: '(00) 00000-0000');
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController(); // Controlador para confirmar senha
-  String selectedUserType = 'USER';
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Adicionar Colaborador'),
-        content: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                  ],
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Nome',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (!RegExp(
-                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                        .hasMatch(value)) {
-                      return 'Email inválido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Telefone',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value.length < 15) {
-                      return 'Número de telefone inválido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Senha',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value.length < 6) {
-                      return 'A senha deve ter no mínimo 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar Senha',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    if (value != passwordController.text) {
-                      return 'As senhas não coincidem';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: selectedUserType,
-                  decoration: InputDecoration(
-                    labelText: 'Tipo de Usuário',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  items: <String>['USER', 'ADMIN'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    selectedUserType = newValue ?? 'USER';
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              String formattedName = capitalizeWords(nameController.text);
 
-              if (formKey.currentState?.validate() ?? false) {
-                Usuario newColaborador = Usuario(
-                  name: formattedName,
-                  email: emailController.text,
-                  phone: phoneController.text,
-                  type: selectedUserType,
-                  statusAccount: true,
-                );
-
-                final loginProvider =
-                    Provider.of<LoginController>(context, listen: false);
-                final colaboradorRepository = ColaboradorRepository();
-
-                try {
-                  final String colaboradorId =
-                      await colaboradorRepository.addPartner(
-                    newColaborador,
-                    loginProvider.token,
-                    passwordController.text,
-                  );
-                  _fetchColaboradores();
-                  Navigator.of(context).pop();
-                  _showFeedbackDialog(context, 'Colaborador adicionado com sucesso!', true);
-                  showEnderecoDialog(
-                      context, colaboradorId, _fetchColaboradores);
-                } catch (e) {
-                  _showFeedbackDialog(context, 'Erro ao adicionar colaborador: $e', false);
-                }
-              }
-            },
-            child: const Text('Próximo'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-  void _showFeedbackDialog(BuildContext context, String message, bool isSuccess) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text(isSuccess ? 'Sucesso' : 'Erro'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Fechar'),
-          ),
-        ],
-      );
-    },
-  );
-}
 
   void _filterColaboradores(String query) {
     final filteredColaboradores = _colaboradores.where((colaborador) {
@@ -325,7 +108,7 @@ void _showColaboradorDialog(BuildContext context) {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,
           onPressed: () {
-            _showColaboradorDialog(context);
+            showColaboradorDialog(context, _fetchColaboradores);
           },
           child: const Icon(Icons.add),
         ),

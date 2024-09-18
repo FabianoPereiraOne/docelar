@@ -76,7 +76,7 @@ Future<String> addPartner(Usuario partner, String token, String password) async 
         "Accept": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Authorization": "$token",
-        "Password": password // Adiciona a senha no cabeçalho
+        "Password": password
       }),
     );
 
@@ -103,7 +103,7 @@ Future<String> addPartner(Usuario partner, String token, String password) async 
   }
 }
 
-Future<void> updateColaborador(Usuario colaborador, String token) async {
+Future<void> updateColaborador(Usuario colaborador, String token, String? password) async {
   try {
     // Defina o endpoint da API
     String endpoint = '$url/collaborators';
@@ -124,7 +124,8 @@ Future<void> updateColaborador(Usuario colaborador, String token) async {
       options: Options(headers: {
         "Accept": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Authorization": "$token"
+        "Authorization": "$token",
+        "Password": password
       }),
     );
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -5,6 +7,8 @@ import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/home_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/endereco_dialog.dart';
+import 'package:doce_lar/view/widgets/detail_row.dart';
+import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
@@ -23,16 +27,16 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
             children: [
               Container(
                 color: Colors.white,
-                child: TabBar(
+                child: const TabBar(
                   tabs: [
-                    Tab(text: 'Detalhes'),
+                    const Tab(text: 'Detalhes'),
                     Tab(text: 'Lares'),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
+                child: SizedBox(
                   height: 300, // Ajuste a altura conforme necessário
                   child: TabBarView(
                     children: [
@@ -41,17 +45,22 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 20),
-                            _buildDetailRow('Nome', colaborador.name),
-                            _buildDetailRow('Email', colaborador.email),
-                            _buildDetailRow('Telefone', colaborador.phone),
-                            _buildDetailRow('Cargo', colaborador.type),
-                            _buildDetailRow(
-                                'Status',
-                                colaborador.statusAccount == true
+                            const SizedBox(height: 20),
+                            Center(
+                              child: Text(colaborador.name ?? 'N/A',
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            DetailRow(label: 'Email', value: colaborador.email),
+                            DetailRow(
+                                label: 'Telefone', value: colaborador.phone),
+                            DetailRow(label: 'Cargo', value: colaborador.type),
+                            DetailRow(
+                                label: 'Status',
+                                value: colaborador.statusAccount == true
                                     ? 'Ativo'
                                     : 'Inativo'),
-                            SizedBox(height: 50),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -62,18 +71,19 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                     _showEditColaboradorDialog(context,
                                         colaborador, onColaboradorUpdated);
                                   },
-                                  child: Text('Editar'),
+                                  child: const Text('Editar'),
                                 ),
-                                // ElevatedButton(
-                                //   onPressed: () {
-                                //     Navigator.of(context).pop(); // Fechar o diálogo
-                                //     _confirmDeleteColaborador(context, colaborador.id!,
-                                //         onColaboradorUpdated);
-                                //   },
-                                //   child: Text('Desativar'),
-                                //   style: TextButton.styleFrom(
-                                //       foregroundColor: Colors.red),
-                                // ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Fechar o diálogo
+                                    _confirmDeleteColaborador(context,
+                                        colaborador.id!, onColaboradorUpdated);
+                                  },
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red),
+                                  child: const Text('Desativar'),
+                                ),
                               ],
                             ),
                           ],
@@ -95,7 +105,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                         title: Text(home.address!),
                                         subtitle: Text(
                                             '${home.district}, ${home.number}'),
-                                        trailing: Icon(Icons.search,
+                                        trailing: const Icon(Icons.search,
                                             color: Colors.grey),
                                         onTap: () {
                                           showHomeDetailDialog(
@@ -114,7 +124,8 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                     },
                                   ),
                                 )
-                              : Center(child: Text('Nenhum lar encontrado')),
+                              : const Center(
+                                  child: Text('Nenhum lar encontrado')),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ElevatedButton(
@@ -123,7 +134,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                 showEnderecoDialog(context, colaborador.id!,
                                     onColaboradorUpdated);
                               },
-                              child: Text('Adicionar Novo Lar'),
+                              child: const Text('Adicionar Novo Lar'),
                             ),
                           ),
                         ],
@@ -140,7 +151,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                     onPressed: () {
                       Navigator.of(context).pop(); // Fechar o diálogo
                     },
-                    child: Text('Fechar'),
+                    child: const Text('Fechar'),
                   ),
                 ],
               ),
@@ -152,22 +163,22 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
   );
 }
 
-
-
-
-
 void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
     Function() onColaboradorUpdated) {
-
   final TextEditingController nameController =
       TextEditingController(text: colaborador.name ?? '');
-  
-  // Usando MaskedTextController para o campo de telefone
+
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
   phoneController.text = colaborador.phone ?? '';
 
   bool isActive = colaborador.statusAccount ?? true;
   String selectedRole = colaborador.type ?? 'USER'; // Cargo atual do usuário
+
+  // Controladores para senha
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  bool initialStatus = isActive; // Armazena o status inicial
 
   showDialog(
     context: context,
@@ -175,24 +186,35 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text('Editar Colaborador'),
+            title: const Text('Editar Colaborador'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    decoration: InputDecoration(labelText: 'Nome'),
+                    decoration: const InputDecoration(labelText: 'Nome'),
                     controller: nameController,
                   ),
                   TextField(
-                    decoration: InputDecoration(labelText: 'Telefone'),
+                    decoration: const InputDecoration(labelText: 'Telefone'),
                     controller: phoneController,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(15),
                     ],
                   ),
+                  TextField(
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'Nova Senha'),
+                    controller: passwordController,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: 'Confirmar Senha'),
+                    controller: confirmPasswordController,
+                  ),
                   DropdownButtonFormField<String>(
-                    decoration: InputDecoration(labelText: 'Cargo'),
+                    decoration: const InputDecoration(labelText: 'Cargo'),
                     value: selectedRole,
                     items: ['USER', 'ADMIN'].map((String role) {
                       return DropdownMenuItem<String>(
@@ -207,7 +229,7 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     },
                   ),
                   SwitchListTile(
-                    title: Text('Status'),
+                    title: const Text('Status'),
                     value: isActive,
                     onChanged: (value) {
                       setState(() {
@@ -215,18 +237,19 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                       });
                     },
                   ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
             actions: [
               TextButton(
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               ElevatedButton(
-                child: Text('Salvar'),
+                child: const Text('Salvar'),
                 onPressed: () async {
                   final loginProvider =
                       Provider.of<LoginController>(context, listen: false);
@@ -234,6 +257,21 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                   final homeRepository = HomeRepository();
 
                   try {
+                    // Validar e atualizar a senha se fornecida
+                    String? newPassword;
+                    if (passwordController.text.isNotEmpty) {
+                      if (passwordController.text == confirmPasswordController.text) {
+                        newPassword = passwordController.text;
+                      } else {
+                        TopSnackBar.show(
+                          context,
+                          'As senhas não coincidem',
+                          false,
+                        );
+                        return;
+                      }
+                    }
+
                     // Atualizando o colaborador
                     final updatedColaborador = Usuario(
                       id: colaborador.id,
@@ -244,38 +282,67 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     );
 
                     await colaboradorRepository.updateColaborador(
-                        updatedColaborador, loginProvider.token);
+                        updatedColaborador, loginProvider.token, newPassword);
 
-                    // Se o colaborador foi desativado, desativar também os lares associados
+                    bool statusChanged = initialStatus != isActive;
+                    
                     if (!isActive) {
-                      print(
+                      log(
                           'Colaborador desativado, iniciando desativação dos lares...');
 
                       final homes = colaborador.homes;
 
                       if (homes!.isNotEmpty) {
                         for (var homeData in homes) {
-                          // Convertendo o mapa para uma instância da classe Home
                           Home home = Home.fromMap(homeData);
-                          home.status = false; // Desativando lar
+                          home.status = false;
 
                           try {
                             await homeRepository.updateHome(
                                 home, loginProvider.token);
-                            print('Lar ${home.id} desativado com sucesso.');
+                            log('Lar ${home.id} desativado com sucesso.');
                           } catch (e) {
-                            print('Erro ao desativar o lar ${home.id}: $e');
+                            log('Erro ao desativar o lar ${home.id}: $e');
                           }
                         }
                       } else {
-                        print('Nenhum lar associado ao colaborador.');
+                        log('Nenhum lar associado ao colaborador.');
                       }
+
+                      if (statusChanged) {
+                        TopSnackBar.show(
+                          context,
+                          'Colaborador desativado',
+                          false,
+                        );
+                      }
+                    } else {
+                      if (statusChanged) {
+                        TopSnackBar.show(
+                          context,
+                          'Colaborador ativado',
+                          true,
+                        );
+                      }
+                    }
+
+                    if (!statusChanged) {
+                      TopSnackBar.show(
+                        context,
+                        'Colaborador atualizado com sucesso',
+                        true,
+                      );
                     }
 
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     print('Erro ao editar colaborador e lares: $e');
+                    TopSnackBar.show(
+                      context,
+                      'Erro ao atualizar colaborador',
+                      false,
+                    );
                   }
                 },
               ),
@@ -293,17 +360,16 @@ void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Confirmar Desativação'),
-      content: Text('Tem certeza que deseja desativar este colaborador?'),
+      title: const Text('Confirmar Desativação'),
+      content: const Text('Tem certeza que deseja desativar este colaborador?'),
       actions: [
         TextButton(
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
           onPressed: () {
             Navigator.of(context).pop(); // Fechar o diálogo de confirmação
           },
         ),
         ElevatedButton(
-          child: Text('Deletar'),
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           onPressed: () async {
             final loginProvider =
@@ -319,28 +385,7 @@ void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
               print('Erro ao excluir colaborador: $e');
             }
           },
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildDetailRow(String label, String? value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Flexible(
-          child: Text(
-            value ?? 'N/A',
-            style: TextStyle(color: Colors.grey[700]),
-            textAlign: TextAlign.right,
-          ),
+          child: const Text('Deletar'),
         ),
       ],
     ),

@@ -1,73 +1,87 @@
-// endereco_dialog.dart
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
+import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-
 void showEnderecoDialog(BuildContext context, String colaboradorId, Function() callback) {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _ruaController = TextEditingController();
-  final TextEditingController _cidadeController = TextEditingController();
-  final TextEditingController _estadoController = TextEditingController();
-  final TextEditingController _cepController = MaskedTextController(mask: '00000-000');
-  final TextEditingController _districtController = TextEditingController();
-  final TextEditingController _numeroController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController ruaController = TextEditingController();
+  final TextEditingController cidadeController = TextEditingController();
+  final TextEditingController estadoController = TextEditingController();
+  final TextEditingController cepController = MaskedTextController(mask: '00000-000');
+  final TextEditingController districtController = TextEditingController();
+  final TextEditingController numeroController = TextEditingController();
   final loginProvider = Provider.of<LoginController>(context, listen: false);
 
-  Future<void> _buscarCep(String cep) async {
+  Future<void> buscarCep(String cep) async {
     String cepSemHifen = cep.replaceAll('-', '');
-
     if (cepSemHifen.length == 8) {
-      final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
-      if (endereco != null) {
-        _ruaController.text = endereco['logradouro'] ?? '';
-        _cidadeController.text = endereco['localidade'] ?? '';
-        _estadoController.text = endereco['uf'] ?? '';
-        _districtController.text = endereco['bairro'] ?? '';
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('CEP inválido ou não encontrado')),
-        );
+      try {
+        final endereco = await CepService().buscarEnderecoPorCep(cepSemHifen);
+        if (endereco != null) {
+          ruaController.text = endereco['logradouro'] ?? '';
+          cidadeController.text = endereco['localidade'] ?? '';
+          estadoController.text = endereco['uf'] ?? '';
+          districtController.text = endereco['bairro'] ?? '';
+        } else {
+          TopSnackBar.show(context, 'CEP inválido ou não encontrado', false);
+        }
+      } catch (e) {
+        TopSnackBar.show(context, 'Erro ao buscar CEP', false);
       }
     }
   }
 
-  Future<void> _addEndereco() async {
-    if (_formKey.currentState?.validate() ?? false) {
+  Future<bool> addEndereco() async {
+    if (formKey.currentState?.validate() ?? false) {
       final newHome = Home(
-        cep: _cepController.text,
-        state: _estadoController.text,
-        city: _cidadeController.text,
-        district: _districtController.text,
-        address: _ruaController.text,
-        number: _numeroController.text,
+        cep: cepController.text,
+        state: estadoController.text,
+        city: cidadeController.text,
+        district: districtController.text,
+        address: ruaController.text,
+        number: numeroController.text,
         status: true,
         collaboratorId: colaboradorId,
       );
 
       final homeRepository = HomeRepository();
-      await homeRepository.addHome(newHome, loginProvider.token);
-      callback();
+      try {
+        await homeRepository.addHome(newHome, loginProvider.token);
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
+    return false;
+  }
+
+  void limparControladores() {
+    ruaController.clear();
+    cidadeController.clear();
+    estadoController.clear();
+    cepController.clear();
+    districtController.clear();
+    numeroController.clear();
   }
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Adicionar Endereço'),
+        title: const Text('Adicionar Endereço'),
         content: SingleChildScrollView(
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: _cepController,
+                  controller: cepController,
                   decoration: InputDecoration(
                     labelText: 'CEP',
                     border: OutlineInputBorder(
@@ -75,7 +89,7 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     ),
                   ),
                   keyboardType: TextInputType.number,
-                  onChanged: _buscarCep, // Chama a função ao digitar o CEP
+                  onChanged: buscarCep,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, insira um CEP';
@@ -85,9 +99,9 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextFormField(
-                  controller: _estadoController,
+                  controller: estadoController,
                   decoration: InputDecoration(
                     labelText: 'Estado',
                     border: OutlineInputBorder(
@@ -101,9 +115,9 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextFormField(
-                  controller: _cidadeController,
+                  controller: cidadeController,
                   decoration: InputDecoration(
                     labelText: 'Cidade',
                     border: OutlineInputBorder(
@@ -117,9 +131,9 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextFormField(
-                  controller: _districtController,
+                  controller: districtController,
                   decoration: InputDecoration(
                     labelText: 'Bairro',
                     border: OutlineInputBorder(
@@ -133,9 +147,9 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextFormField(
-                  controller: _ruaController,
+                  controller: ruaController,
                   decoration: InputDecoration(
                     labelText: 'Rua',
                     border: OutlineInputBorder(
@@ -149,9 +163,9 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextFormField(
-                  controller: _numeroController,
+                  controller: numeroController,
                   decoration: InputDecoration(
                     labelText: 'Número',
                     border: OutlineInputBorder(
@@ -171,11 +185,32 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
         ),
         actions: [
           TextButton(
-            onPressed: () async {
-              await _addEndereco();
-              Navigator.of(context).pop();
+            onPressed: () {
+              Navigator.of(context).pop(); 
+              limparControladores();
             },
-            child: Text('Concluir'),
+            child: const Text('Fechar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              bool isSuccess = await addEndereco();
+              if (isSuccess) {
+                TopSnackBar.show(
+                  context,
+                  'Endereço adicionado com sucesso para o colaborador',
+                  true,
+                );
+                callback();
+                Navigator.of(context).pop();
+              } else {
+                TopSnackBar.show(
+                  context,
+                  'Falha ao adicionar endereço',
+                  false,
+                );
+              }
+            },
+            child: const Text('Concluir'),
           ),
         ],
       );

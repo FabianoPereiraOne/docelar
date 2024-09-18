@@ -116,7 +116,7 @@ class AnimalRepository {
         'typeAnimal': animal.typeAnimal,
         'status': animal.status,
         'home': animal.home,
-        'dateExit': DateTime.now().toIso8601String(),
+        'dateExit': animal.dateExit,
       };
 
       log(DateTime.now().toIso8601String());
