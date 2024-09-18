@@ -1,9 +1,8 @@
-import { Role } from "@prisma/client"
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { OperationMiddleware } from "../../middlewares/operation"
 import { Schemas } from "../../schemas"
+import { deleteCollaborator } from "../../services/prisma/collaborators/delete"
 import { fetchCollaborator } from "../../services/prisma/collaborators/fetch"
-import { updateCollaborator } from "../../services/prisma/collaborators/update"
 import { CustomTypeDelete } from "../../types/request/general"
 import { statusCode } from "../../utils/statusCode"
 
@@ -25,8 +24,9 @@ export default async function DeleteCollaborators(server: FastifyInstance) {
           })
         }
 
-        const dataDelete = { id, statusAccount: false, type: Role.USER }
-        const data = await updateCollaborator(dataDelete)
+        // const dataDelete = { id, statusAccount: false, type: Role.USER }
+        // const data = await updateCollaborator(dataDelete)
+        const data = await deleteCollaborator(id)
         return reply.status(statusCode.success.status).send({
           data
         })
