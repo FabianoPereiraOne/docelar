@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
@@ -30,6 +29,7 @@ Future<void> showAddAnimalDialog(
 
   final descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool isLoading = false; // Adiciona a variável de estado de carregamento
 
   showDialog(
     context: context,
@@ -41,9 +41,8 @@ Future<void> showAddAnimalDialog(
               homes = colaborador.homes
                       ?.map((homeJson) => Home.fromMap(homeJson))
                       .where((home) => home.status == true)
-                      .toList() ??
-                  [];
-
+                      .toList() ?? [];
+              
               if (homes.isEmpty) {
                 selectedHome = null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,8 +53,7 @@ Future<void> showAddAnimalDialog(
                   );
                 });
               } else {
-                selectedHome =
-                    null; 
+                selectedHome = null;
               }
             } else {
               homes = [];
@@ -103,8 +101,7 @@ Future<void> showAddAnimalDialog(
                     ),
                     DropdownButtonFormField<Usuario>(
                       value: selectedColaborador,
-                      decoration: const InputDecoration(
-                          labelText: 'Selecione o Colaborador'),
+                      decoration: const InputDecoration(labelText: 'Selecione o Colaborador'),
                       items: colaboradores.map((colaborador) {
                         return DropdownMenuItem<Usuario>(
                           value: colaborador,
@@ -114,8 +111,7 @@ Future<void> showAddAnimalDialog(
                       onChanged: (value) {
                         setState(() {
                           selectedColaborador = value;
-                          updateHomes(
-                              selectedColaborador);
+                          updateHomes(selectedColaborador);
                         });
                       },
                       validator: (value) {
@@ -131,8 +127,7 @@ Future<void> showAddAnimalDialog(
                       items: homeItems,
                       onChanged: (value) {
                         setState(() {
-                          selectedHome =
-                              value;
+                          selectedHome = value;
                         });
                       },
                       validator: (value) {
@@ -155,7 +150,6 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           sex = value;
                         });
-                        log('Sexo selecionado: $value');
                       },
                       validator: (value) {
                         if (value == null) {
@@ -166,8 +160,7 @@ Future<void> showAddAnimalDialog(
                     ),
                     DropdownButtonFormField<AnimalType>(
                       value: selectedAnimalType,
-                      decoration:
-                          const InputDecoration(labelText: 'Tipo de Animal'),
+                      decoration: const InputDecoration(labelText: 'Tipo de Animal'),
                       items: animalTypes.map((type) {
                         return DropdownMenuItem<AnimalType>(
                           value: type,
@@ -178,8 +171,6 @@ Future<void> showAddAnimalDialog(
                         setState(() {
                           selectedAnimalType = value;
                         });
-
-                        log('Tipo de Animal selecionado: ${value?.type}');
                       },
                       validator: (value) {
                         if (value == null) {
@@ -238,47 +229,54 @@ Future<void> showAddAnimalDialog(
                   Navigator.of(context).pop();
                 },
               ),
-              ElevatedButton(
-                child: const Text('Adicionar'),
-                onPressed: () async {
-                  if (formKey.currentState?.validate() ?? false) {
-                    if (selectedHome == null) {
-                      TopSnackBar.show(
-                          context, 'Por favor, selecione um lar', false);
-                      return;
-                    }
+              isLoading 
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              if (formKey.currentState?.validate() ?? false) {
+                                if (selectedHome == null) {
+                                  TopSnackBar.show(context, 'Por favor, selecione um lar', false);
+                                  return;
+                                }
 
-                    final loginProvider =
-                        Provider.of<LoginController>(context, listen: false);
-                    final animalRepository = AnimalRepository();
+                                setState(() {
+                                  isLoading = true; // Ativa o carregamento
+                                });
 
-                    try {
-                      final newAnimal = Animal(
-                        name: name,
-                        description: descriptionController.text,
-                        sex: sex!,
-                        castrated: castrated,
-                        race: race,
-                        linkPhoto: linkPhoto,
-                        typeAnimalId: selectedAnimalType!.id,
-                        status: status,
-                        home: selectedHome,
-                      );
+                                final loginProvider = Provider.of<LoginController>(context, listen: false);
+                                final animalRepository = AnimalRepository();
 
-                      await animalRepository.addAnimal(
-                          newAnimal, loginProvider.token);
+                                try {
+                                  final newAnimal = Animal(
+                                    name: name,
+                                    description: descriptionController.text,
+                                    sex: sex!,
+                                    castrated: castrated,
+                                    race: race,
+                                    linkPhoto: linkPhoto,
+                                    typeAnimalId: selectedAnimalType!.id,
+                                    status: status,
+                                    home: selectedHome,
+                                  );
 
-                      Navigator.of(context).pop();
-                      onAnimalUpdated();
-                      TopSnackBar.show(
-                          context, 'Animal adicionado com sucesso', true);
-                    } catch (e) {
-                      TopSnackBar.show(
-                          context, 'Erro ao adicionar animal', false);
-                    }
-                  }
-                },
-              ),
+                                  await animalRepository.addAnimal(newAnimal, loginProvider.token);
+
+                                  Navigator.of(context).pop();
+                                  onAnimalUpdated();
+                                  TopSnackBar.show(context, 'Animal adicionado com sucesso', true);
+                                } catch (e) {
+                                  TopSnackBar.show(context, 'Erro ao adicionar animal', false);
+                                } finally {
+                                  setState(() {
+                                    isLoading = false; // Desativa o carregamento
+                                  });
+                                }
+                              }
+                            },
+                      child: const Text('Adicionar'),
+                    ),
             ],
           );
         },

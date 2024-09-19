@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
+import 'package:doce_lar/model/models/animal_type_model.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -17,7 +18,7 @@ import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showAnimalDetailDialog(BuildContext context, Animal animal,
+void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType> animalTypes,
     List<Usuario> colaboradores, Function() onAnimalUpdated) async {
   showDialog(
     context: context,
@@ -179,8 +180,8 @@ void showAnimalDetailDialog(BuildContext context, Animal animal,
                                       ElevatedButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
-                                          _showEditAnimalDialog(context, animal,
-                                              colaboradores, onAnimalUpdated);
+                                          _showEditAnimalDialog(context, animal, animalTypes,
+                                              colaboradores,  onAnimalUpdated);
                                         },
                                         child: const Text('Editar'),
                                       ),
@@ -349,8 +350,8 @@ Future<List<Service>> _fetchServicesWithProcedures(
   return services;
 }
 
-void _showEditAnimalDialog(BuildContext context, Animal animal,
-    List<Usuario> colaboradores, Function() onAnimalUpdated) {
+void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType> animalTypes,
+    List<Usuario> colaboradores,  Function() onAnimalUpdated) {
   final TextEditingController nameController =
       TextEditingController(text: animal.name ?? '');
   final TextEditingController descriptionController =
@@ -371,134 +372,173 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
   String? selectedCollaboratorId = currentCollaborator.id;
   String? selectedHomeId = animal.home?.id;
 
+  List<Home> homes = [];
   List<DropdownMenuItem<String>> homeItems = [];
+  
   if (selectedCollaboratorId != null) {
     final selectedCollaborator = colaboradores.firstWhere(
         (collaborator) => collaborator.id == selectedCollaboratorId,
         orElse: () => Usuario());
-    final homes =
-        selectedCollaborator.homes?.cast<Map<String, dynamic>>() ?? [];
-    final homeIds = <String>{};
-    homeItems = homes.where((home) {
-      final homeId = home['id'] as String;
-      return homeIds.add(homeId);
-    }).map((home) {
+    homes = selectedCollaborator.homes
+            ?.map((homeJson) => Home.fromMap(homeJson))
+            .where((home) => home.status == true)
+            .toList() ?? [];
+
+    homeItems = homes.map((home) {
       return DropdownMenuItem<String>(
-        value: home['id'] as String,
-        child: Text('${home['address']}, ${home['number']}'),
+        value: home.id,
+        child: Text('${home.address}, ${home.number}'),
       );
     }).toList();
   }
 
   bool initialStatus = status; // Armazena o status inicial
 
+  final sexOptions = {
+    'Macho': 'M',
+    'Fêmea': 'F',
+  };
+
+  AnimalType? selectedAnimalType = animalTypes.firstWhere(
+    (type) => type.id == selectedType?.id,
+    orElse: () => animalTypes.first,
+  );
+
+  final typeItems = animalTypes.map((type) {
+    return DropdownMenuItem<AnimalType>(
+      value: type,
+      child: Text(type.type ?? ''),
+    );
+  }).toList();
+
   showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
+          void updateHomes(Usuario? colaborador) {
+            if (colaborador != null) {
+              homes = colaborador.homes
+                      ?.map((homeJson) => Home.fromMap(homeJson))
+                      .where((home) => home.status == true)
+                      .toList() ?? [];
+              
+              if (homes.isEmpty) {
+                selectedHomeId = null;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  TopSnackBar.show(
+                    context,
+                    'O colaborador selecionado não possui lares cadastrados.',
+                    false,
+                  );
+                });
+              } else {
+                selectedHomeId = null;
+              }
+            } else {
+              homes = [];
+              selectedHomeId = null;
+            }
+          }
+
           return AlertDialog(
             title: const Text('Editar Animal'),
             content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(labelText: 'Nome'),
-                    controller: nameController,
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: sex,
-                    decoration: const InputDecoration(labelText: 'Sexo'),
-                    items: const [
-                      DropdownMenuItem(value: 'M', child: Text('Masculino')),
-                      DropdownMenuItem(value: 'F', child: Text('Feminino')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        sex = value!;
-                      });
-                    },
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(labelText: 'Raça'),
-                    controller: raceController,
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: selectedCollaboratorId,
-                    decoration: const InputDecoration(labelText: 'Colaborador'),
-                    items: colaboradores.map((collaborator) {
-                      return DropdownMenuItem<String>(
-                        value: collaborator.id,
-                        child: Text(collaborator.name ?? 'Desconhecido'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCollaboratorId = value;
-                        selectedHomeId = null;
-                        if (value != null) {
-                          final selectedCollaborator = colaboradores.firstWhere(
-                              (collaborator) => collaborator.id == value,
-                              orElse: () => Usuario());
-                          final homes = selectedCollaborator.homes
-                                  ?.cast<Map<String, dynamic>>() ?? 
-                              [];
-                          final homeIds = <String>{};
-                          homeItems = homes.where((home) {
-                            final homeId = home['id'] as String;
-                            return homeIds.add(homeId);
-                          }).map((home) {
-                            return DropdownMenuItem<String>(
-                              value: home['id'] as String,
-                              child: Text('${home['address']}, ${home['number']}'),
-                            );
-                          }).toList();
-                        }
-                      });
-                    },
-                  ),
-                  if (selectedCollaboratorId != null)
+              child: Form(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      decoration: const InputDecoration(labelText: 'Nome'),
+                      controller: nameController,
+                    ),
                     DropdownButtonFormField<String>(
-                      value: selectedHomeId,
-                      decoration: const InputDecoration(labelText: 'Endereço'),
-                      items: homeItems,
+                      value: sex,
+                      decoration: const InputDecoration(labelText: 'Sexo'),
+                      items: sexOptions.entries.map((entry) {
+                        return DropdownMenuItem<String>(
+                          value: entry.value,
+                          child: Text(entry.key),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          selectedHomeId = value;
+                          sex = value!;
                         });
                       },
                     ),
-                  SwitchListTile(
-                    title: const Text('Castrado'),
-                    value: castrated,
-                    onChanged: (value) {
-                      setState(() {
-                        castrated = value;
-                      });
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('Status'),
-                    value: status,
-                    onChanged: (value) {
-                      setState(() {
-                        status = value;
-                      });
-                    },
-                  ),
-                  TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
+                    TextField(
+                      decoration: const InputDecoration(labelText: 'Raça'),
+                      controller: raceController,
                     ),
-                    controller: descriptionController,
-                    maxLines: 5,
-                    minLines: 3,
-                    keyboardType: TextInputType.multiline,
-                  ),
-                ],
+                    DropdownButtonFormField<AnimalType>(
+                      value: selectedAnimalType,
+                      decoration: const InputDecoration(labelText: 'Tipo de Animal'),
+                      items: typeItems,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedAnimalType = value;
+                        });
+                      },
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: selectedCollaboratorId,
+                      decoration: const InputDecoration(labelText: 'Colaborador'),
+                      items: colaboradores.map((collaborator) {
+                        return DropdownMenuItem<String>(
+                          value: collaborator.id,
+                          child: Text(collaborator.name ?? 'Desconhecido'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCollaboratorId = value;
+                          updateHomes(colaboradores.firstWhere((collaborator) => collaborator.id == value, orElse: () => Usuario()));
+                        });
+                      },
+                    ),
+                    if (selectedCollaboratorId != null)
+                      DropdownButtonFormField<String>(
+                        value: selectedHomeId,
+                        decoration: const InputDecoration(labelText: 'Endereço'),
+                        items: homeItems,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedHomeId = value;
+                          });
+                        },
+                      ),
+                    SwitchListTile(
+                      title: const Text('Castrado'),
+                      value: castrated,
+                      onChanged: (value) {
+                        setState(() {
+                          castrated = value;
+                        });
+                      },
+                    ),
+                    SwitchListTile(
+                      title: const Text('Status'),
+                      value: status,
+                      onChanged: (value) {
+                        setState(() {
+                          status = value;
+                        });
+                      },
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Descrição',
+                        border: OutlineInputBorder(),
+                        alignLabelWithHint: true,
+                      ),
+                      controller: descriptionController,
+                      maxLines: 5,
+                      minLines: 3,
+                      keyboardType: TextInputType.multiline,
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [
@@ -524,7 +564,7 @@ void _showEditAnimalDialog(BuildContext context, Animal animal,
                       castrated: castrated,
                       race: raceController.text,
                       linkPhoto: 'linkPhoto',
-                      typeAnimal: selectedType,
+                      typeAnimalId: selectedAnimalType!.id,
                       status: status,
                       createdAt: animal.createdAt,
                       dateExit: status

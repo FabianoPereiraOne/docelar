@@ -1,10 +1,16 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
+import 'package:doce_lar/view/widgets/confirm_delete.dart';
+import 'package:doce_lar/view/widgets/detail_row.dart';
+import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showProcedureDetailDialog(BuildContext context, Procedure procedure, Function() onProcedureUpdated) async {
+void showProcedureDetailDialog(BuildContext context, Procedure procedure,
+    Function() onProcedureUpdated) async {
   showDialog(
     context: context,
     builder: (context) {
@@ -16,7 +22,7 @@ void showProcedureDetailDialog(BuildContext context, Procedure procedure, Functi
               children: [
                 Text(procedure.name ?? 'Detalhes do Procedimento'),
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
                     Navigator.of(context).pop(); // Fechar o diálogo
                   },
@@ -26,30 +32,33 @@ void showProcedureDetailDialog(BuildContext context, Procedure procedure, Functi
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start, // Alinha o conteúdo à esquerda
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Alinha o conteúdo à esquerda
                 children: [
-                  SizedBox(height: 20),
-                  _buildDetailRow('Nome', procedure.name),
-                  _buildDetailRow('Descrição', procedure.description),
-                  _buildDetailRow('Dosagem', procedure.dosage),
+                  const SizedBox(height: 20),
+                  DetailRow(label: 'Nome', value: procedure.name),
+                  DetailRow(label: 'Descrição', value: procedure.description),
+                  DetailRow(label: 'Dosagem', value: procedure.dosage),
                 ],
               ),
             ),
             actions: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _showEditProcedureDialog(context, procedure, onProcedureUpdated);
+                  Navigator.of(context).pop();
+                  _showEditProcedureDialog(
+                      context, procedure, onProcedureUpdated);
                 },
-                child: Text('Editar'),
+                child: const Text('Editar'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _confirmDeleteProcedure(context, procedure.id!, onProcedureUpdated);
+                  Navigator.of(context).pop();
+                  _showDeleteDialog(context, procedure.id!.toString(),
+                      'procedures', 'procedimento', onProcedureUpdated);
                 },
-                child: Text('Deletar'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Deletar'),
               ),
             ],
           );
@@ -59,66 +68,34 @@ void showProcedureDetailDialog(BuildContext context, Procedure procedure, Functi
   );
 }
 
-void _confirmDeleteProcedure(BuildContext context, int procedureId, Function() onProcedureDeleted) {
+void _showDeleteDialog(
+  BuildContext context,
+  String itemId,
+  String route,
+  String entityType,
+  Function() onDeleted,
+) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Confirmar Exclusão'),
-      content: Text('Tem certeza que deseja excluir este procedimento?'),
-      actions: [
-        TextButton(
-          child: Text('Cancelar'),
-          onPressed: () {
-            Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-          },
-        ),
-        ElevatedButton(
-          child: Text('Deletar'),
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          onPressed: () async {
-            final loginProvider = Provider.of<LoginController>(context, listen: false);
-            final procedureRepository = ProcedureRepository();
-
-            try {
-              await procedureRepository.deleteProcedure(procedureId, loginProvider.token);
-              Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-              onProcedureDeleted(); // Atualizar a tela principal
-            } catch (e) {
-              print('Erro ao excluir procedimento: $e');
-            }
-          },
-        ),
-      ],
-    ),
+    builder: (BuildContext context) {
+      return DeleteConfirmationDialog(
+        itemId: itemId,
+        route: route,
+        entityType: entityType,
+        onDeleted: onDeleted,
+      );
+    },
   );
 }
 
-Widget _buildDetailRow(String label, String? value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Flexible(
-          child: Text(
-            value ?? 'N/A',
-            style: TextStyle(color: Colors.grey[700]),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-void _showEditProcedureDialog(BuildContext context, Procedure procedure, Function() onProcedureUpdated) {
-  final TextEditingController nameController = TextEditingController(text: procedure.name ?? '');
-  final TextEditingController descriptionController = TextEditingController(text: procedure.description ?? '');
-  final TextEditingController dosageController = TextEditingController(text: procedure.dosage ?? '');
+void _showEditProcedureDialog(
+    BuildContext context, Procedure procedure, Function() onProcedureUpdated) {
+  final TextEditingController nameController =
+      TextEditingController(text: procedure.name ?? '');
+  final TextEditingController descriptionController =
+      TextEditingController(text: procedure.description ?? '');
+  final TextEditingController dosageController =
+      TextEditingController(text: procedure.dosage ?? '');
 
   showDialog(
     context: context,
@@ -126,21 +103,21 @@ void _showEditProcedureDialog(BuildContext context, Procedure procedure, Functio
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text('Editar Procedimento'),
+            title: const Text('Editar Procedimento'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    decoration: InputDecoration(labelText: 'Nome'),
+                    decoration: const InputDecoration(labelText: 'Nome'),
                     controller: nameController,
                   ),
                   TextField(
-                    decoration: InputDecoration(labelText: 'Descrição'),
+                    decoration: const InputDecoration(labelText: 'Descrição'),
                     controller: descriptionController,
                   ),
                   TextField(
-                    decoration: InputDecoration(labelText: 'Dosagem'),
+                    decoration: const InputDecoration(labelText: 'Dosagem'),
                     controller: dosageController,
                   ),
                 ],
@@ -148,15 +125,16 @@ void _showEditProcedureDialog(BuildContext context, Procedure procedure, Functio
             ),
             actions: [
               TextButton(
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               ElevatedButton(
-                child: Text('Salvar'),
+                child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider = Provider.of<LoginController>(context, listen: false);
+                  final loginProvider =
+                      Provider.of<LoginController>(context, listen: false);
                   final procedureRepository = ProcedureRepository();
 
                   try {
@@ -167,12 +145,22 @@ void _showEditProcedureDialog(BuildContext context, Procedure procedure, Functio
                       dosage: dosageController.text,
                     );
 
-                    await procedureRepository.updateProcedure(updatedProcedure, loginProvider.token);
-
+                    await procedureRepository.updateProcedure(
+                        updatedProcedure, loginProvider.token);
+                    TopSnackBar.show(
+                      context,
+                      'Procedimento atualizado com sucesso',
+                      true,
+                    );
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onProcedureUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    print('Erro ao editar procedimento: $e');
+                    TopSnackBar.show(
+                      context,
+                      'Erro ao atualizar procedimento',
+                      true,
+                    );
+                    log('Erro ao editar procedimento: $e');
                   }
                 },
               ),

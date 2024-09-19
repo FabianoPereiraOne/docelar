@@ -17,6 +17,8 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
   final TextEditingController numeroController = TextEditingController();
   final loginProvider = Provider.of<LoginController>(context, listen: false);
 
+  bool _isLoading = false; // Adiciona a variável de estado para o carregamento
+
   Future<void> buscarCep(String cep) async {
     String cepSemHifen = cep.replaceAll('-', '');
     if (cepSemHifen.length == 8) {
@@ -72,147 +74,162 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Adicionar Endereço'),
-        content: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: cepController,
-                  decoration: InputDecoration(
-                    labelText: 'CEP',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Adicionar Endereço'),
+            content: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: cepController,
+                      decoration: InputDecoration(
+                        labelText: 'CEP',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: buscarCep,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um CEP';
+                        } else if (value.length != 9) {
+                          return 'O CEP deve ter 8 dígitos';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: buscarCep,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira um CEP';
-                    } else if (value.length != 9) {
-                      return 'O CEP deve ter 8 dígitos';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: estadoController,
-                  decoration: InputDecoration(
-                    labelText: 'Estado',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: estadoController,
+                      decoration: InputDecoration(
+                        labelText: 'Estado',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um estado';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira um estado';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: cidadeController,
-                  decoration: InputDecoration(
-                    labelText: 'Cidade',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: cidadeController,
+                      decoration: InputDecoration(
+                        labelText: 'Cidade',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira uma cidade';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira uma cidade';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: districtController,
-                  decoration: InputDecoration(
-                    labelText: 'Bairro',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: districtController,
+                      decoration: InputDecoration(
+                        labelText: 'Bairro',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um bairro';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira um bairro';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: ruaController,
-                  decoration: InputDecoration(
-                    labelText: 'Rua',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: ruaController,
+                      decoration: InputDecoration(
+                        labelText: 'Rua',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira uma rua';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira uma rua';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: numeroController,
-                  decoration: InputDecoration(
-                    labelText: 'Número',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: numeroController,
+                      decoration: InputDecoration(
+                        labelText: 'Número',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira um número';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira um número';
-                    }
-                    return null;
-                  },
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); 
-              limparControladores();
-            },
-            child: const Text('Fechar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              bool isSuccess = await addEndereco();
-              if (isSuccess) {
-                TopSnackBar.show(
-                  context,
-                  'Endereço adicionado com sucesso para o colaborador',
-                  true,
-                );
-                callback();
-                Navigator.of(context).pop();
-              } else {
-                TopSnackBar.show(
-                  context,
-                  'Falha ao adicionar endereço',
-                  false,
-                );
-              }
-            },
-            child: const Text('Concluir'),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); 
+                  limparControladores();
+                },
+                child: const Text('Fechar'),
+              ),
+              _isLoading // Exibir o indicador de carregamento
+                  ? CircularProgressIndicator()
+                  : TextButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isLoading = true; // Iniciar o carregamento
+                        });
+                        
+                        bool isSuccess = await addEndereco();
+                        
+                        setState(() {
+                          _isLoading = false; // Finalizar o carregamento
+                        });
+                        
+                        if (isSuccess) {
+                          TopSnackBar.show(
+                            context,
+                            'Endereço adicionado com sucesso para o colaborador',
+                            true,
+                          );
+                          callback();
+                          Navigator.of(context).pop();
+                        } else {
+                          TopSnackBar.show(
+                            context,
+                            'Falha ao adicionar endereço',
+                            false,
+                          );
+                        }
+                      },
+                      child: const Text('Concluir'),
+                    ),
+            ],
+          );
+        },
       );
     },
   );

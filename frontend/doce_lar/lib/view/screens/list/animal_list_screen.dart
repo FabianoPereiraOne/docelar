@@ -260,7 +260,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                                 animal.sex ?? ''), 
                             onTap: () {
                               showAnimalDetailDialog(
-                                  context, animal, _colaboradores, _fetchData);
+                                  context, animal, _animalTypes, _colaboradores, _fetchData);
                             },
                           ),
                         );

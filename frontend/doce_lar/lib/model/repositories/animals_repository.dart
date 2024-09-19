@@ -113,7 +113,7 @@ class AnimalRepository {
         'castrated': animal.castrated,
         'race': animal.race,
         'linkPhoto': animal.linkPhoto,
-        'typeAnimal': animal.typeAnimal,
+        'typeAnimalId': animal.typeAnimalId,
         'status': animal.status,
         'home': animal.home,
         'dateExit': animal.dateExit,
