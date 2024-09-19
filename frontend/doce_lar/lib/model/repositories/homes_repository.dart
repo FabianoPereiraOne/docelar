@@ -1,32 +1,25 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart'; // Importando o CustomDio
 import 'package:doce_lar/model/models/homes_model.dart';
 
 class HomeRepository {
-  final String url = 'https://docelar-pearl.vercel.app';
-  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
-  final dio = Dio();
+  final CustomDio dio; // Usando o CustomDio
+
+  // O construtor agora recebe uma instância do CustomDio
+  HomeRepository(this.dio);
 
   // Método para buscar casas
-  Future<List<Home>> fetchHomes(String token) async {
+  Future<List<Home>> fetchHomes() async {
     try {
-      String endpoint = '$url/homes';
-      Response response = await dio.get(endpoint,
-          options: Options(headers: {
-            "Accept": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Authorization":
-                "$token" // Usando o formato correto de Bearer token
-          }));
+      String endpoint = '/homes';  // Não precisa da URL completa, pois o CustomDio já gerencia isso
+      Response response = await dio.get(endpoint);
 
       if (response.statusCode == 200) {
-        // Verificar se response.data é um Map
         if (response.data is Map<String, dynamic>) {
           Map<String, dynamic> data = response.data;
-          // log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
-            // Mapeia os dados para uma lista de casas
             return (data['data'] as List)
                 .map<Home>((e) => Home.fromMap(e as Map<String, dynamic>))
                 .toList();
@@ -40,37 +33,21 @@ class HomeRepository {
         throw Exception('Falha ao buscar casas: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro ao buscar casas: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
-   Future<Home> fetchHomeById(String homeId, String token) async {
+  Future<Home> fetchHomeById(String homeId) async {
     try {
-      String endpoint = '$url/homes/$homeId';
-     // log('Endpoint da solicitação: $endpoint'); // Log do endpoint
-
-      Response response = await dio.get(endpoint,
-          options: Options(headers: {
-            "Accept": "application/json",
-            "Authorization": "$token"
-          }));
-
-    //  log('Resposta do servidor ao buscar casa por ID: ${response.data}'); // Log da resposta
+      String endpoint = '/homes/$homeId';
+      Response response = await dio.get(endpoint);
 
       if (response.statusCode == 200) {
-        // Acesse o campo 'data' da resposta
         final data = response.data['data'];
-       // log('Dados recebidos: $data'); // Log dos dados recebidos
-
         if (data is Map<String, dynamic>) {
           return Home.fromMap(data);
         } else {
@@ -80,25 +57,17 @@ class HomeRepository {
         throw Exception('Falha ao buscar casa: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-       // log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-       // log('Resposta do servidor: ${e.response?.data}');
-      } else {
-      //  log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro ao buscar casa: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
-    Future<void> updateHome(Home home, String token) async {
-      log('Atualizando casa: ${home.id}');
+  Future<void> updateHome(Home home) async {
     try {
-      // Defina o endpoint da API
-      String endpoint = '$url/homes';
-
+      String endpoint = '/homes';
 
       Map<String, dynamic> homeData = {
         'id': home.id,
@@ -111,50 +80,30 @@ class HomeRepository {
         'status': home.status,
       };
 
-      // Faça a requisição PATCH para atualizar a casa
       Response response = await dio.patch(
         endpoint,
-        data: homeData, // Envie o mapa de dados como JSON
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
+        data: homeData,
       );
 
-      // Verifique a resposta da API
       if (response.statusCode == 200) {
         log('Casa atualizada com sucesso!');
       } else {
         throw Exception('Falha ao atualizar casa: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro ao atualizar casa: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
-  Future<void> deleteHome(String homeId, String token) async {
+  Future<void> deleteHome(String homeId) async {
     try {
-      // Inclua o homeId como um parâmetro de consulta na URL
-      String endpoint = '$url/homes?id=$homeId';
+      String endpoint = '/homes?id=$homeId';
 
-      Response response = await dio.delete(
-        endpoint,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+      Response response = await dio.delete(endpoint);
 
       if (response.statusCode == 200) {
         log('Casa excluída com sucesso!');
@@ -162,66 +111,42 @@ class HomeRepository {
         throw Exception('Falha ao excluir casa: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro ao excluir casa: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
-  Future<void> addHome(Home home, String token) async {
-  try {
-    // Defina o endpoint da API
-    String endpoint = '$url/homes';
+  Future<void> addHome(Home home) async {
+    try {
+      String endpoint = '/homes';
 
-    // Crie um mapa de dados com todos os campos necessários
-    Map<String, dynamic> homeData = {
-      'collaboratorId': home.collaboratorId,
-      'cep': home.cep,
-      'state': home.state,
-      'city': home.city,
-      'district': home.district,
-      'address': home.address,
-      'number': home.number,
-      'status': home.status,
-      
-    };
+      Map<String, dynamic> homeData = {
+        'collaboratorId': home.collaboratorId,
+        'cep': home.cep,
+        'state': home.state,
+        'city': home.city,
+        'district': home.district,
+        'address': home.address,
+        'number': home.number,
+        'status': home.status,
+      };
 
-    // Faça a requisição POST para adicionar o endereço
-    Response response = await dio.post(
-      endpoint,
-      data: homeData, // Envie o mapa de dados como JSON
-      options: Options(headers: {
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Authorization": "$token"
-      }),
-    );
+      Response response = await dio.post(endpoint, data: homeData);
 
-    // Verifique a resposta da API
-    if (response.statusCode == 201) {
-      log('Endereço adicionado com sucesso!');
-    } else {
-      throw Exception('Falha ao adicionar endereço: ${response.statusCode}');
+      if (response.statusCode == 201) {
+        log('Endereço adicionado com sucesso!');
+      } else {
+        throw Exception('Falha ao adicionar endereço: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      log('Erro ao adicionar endereço: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      rethrow;
     }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-      log('Resposta do servidor: ${e.response?.data}');
-    } else {
-      log('Erro na solicitação: ${e.message}');
-    }
-    throw e;
-  } catch (e, s) {
-    log(e.toString(), error: e, stackTrace: s);
-    throw e;
   }
-}
-
 }

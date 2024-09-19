@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/repositories/generic_delete_repository.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,10 @@ class DeleteConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loginProvider = Provider.of<LoginController>(context, listen: false);
+    final customDio = CustomDio(loginProvider, context);
+    final deleteRepository = DeleteRepository(customDio);
+
     return AlertDialog(
       title: const Text('Confirmar Exclusão'),
       content: Text('Tem certeza que deseja excluir este $entityType?'),
@@ -33,15 +38,10 @@ class DeleteConfirmationDialog extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           onPressed: () async {
-            final loginProvider =
-                Provider.of<LoginController>(context, listen: false);
-            final deleteRepository = DeleteRepository();
-
             try {
               await deleteRepository.deleteItem(
                 endpoint: route,
                 itemId: itemId,
-                token: loginProvider.token,
               );
               Navigator.of(context).pop();
               TopSnackBar.show(

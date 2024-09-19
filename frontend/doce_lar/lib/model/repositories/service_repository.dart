@@ -1,24 +1,19 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart'; // Importando o CustomDio
 import 'package:doce_lar/model/models/service_model.dart';
 
 class ServiceRepository {
-  final String url = 'https://docelar-pearl.vercel.app';
-  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
+  final CustomDio dio;
 
-  final dio = Dio();
+  // O construtor agora recebe uma instância do CustomDio
+  ServiceRepository(this.dio);
 
   // Método para buscar serviços
-  Future<List<Service>> fetchServices(String token) async {
+  Future<List<Service>> fetchServices() async {
     try {
-      String endpoint = '$url/services';
-      Response response = await dio.get(endpoint,
-          options: Options(headers: {
-            "Accept": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Authorization": "$token" 
-          })
-      );
+      String endpoint = '/services'; // URL simplificada
+      Response response = await dio.get(endpoint);
 
       if (response.statusCode == 200) {
         if (response.data is Map<String, dynamic>) {
@@ -38,76 +33,48 @@ class ServiceRepository {
         throw Exception('Falha ao buscar serviços: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        // log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        // log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        // log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
   // Método para adicionar um serviço
-  Future<void> addService(Service service, String token) async {
-  try {
-    String endpoint = '$url/services';
-    Map<String, dynamic> serviceData = {
-      'description': service.description,
-      'animalId': service.animal!.id, // Inclua o objeto Animal aqui
-      'doctors': service.doctors?.map((doc) => {'id': doc.id}).toList(),
-      'procedures': service.procedures?.map((proc) => {'id': proc.id}).toList(),
-    };
+  Future<void> addService(Service service) async {
+    try {
+      String endpoint = '/services';
+      Map<String, dynamic> serviceData = {
+        'description': service.description,
+        'animalId': service.animal!.id, // Inclua o objeto Animal aqui
+        'doctors': service.doctors?.map((doc) => {'id': doc.id}).toList(),
+        'procedures': service.procedures?.map((proc) => {'id': proc.id}).toList(),
+      };
 
-    Response response = await dio.post(
-      endpoint,
-      data: serviceData,
-      options: Options(headers: {
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Authorization": "$token"
-      }),
-    );
+      Response response = await dio.post(endpoint, data: serviceData);
 
-    if (response.statusCode == 201) {
-      log('Serviço adicionado com sucesso!');
-    } else {
-      throw Exception('Falha ao adicionar serviço: ${response.statusCode}');
-    }
-  } on DioException catch (e) {
-    if (e.response != null) {
+      if (response.statusCode == 201) {
+        log('Serviço adicionado com sucesso!');
+      } else {
+        throw Exception('Falha ao adicionar serviço: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
       log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-      log('Resposta do servidor: ${e.response?.data}');
-    } else {
-      log('Erro na solicitação: ${e.message}');
+      rethrow;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      rethrow;
     }
-    throw e;
-  } catch (e, s) {
-    log(e.toString(), error: e, stackTrace: s);
-    throw e;
   }
-}
-
-
 
   // Método para atualizar um serviço
-  Future<void> updateService(Service service, String token) async {
+  Future<void> updateService(Service service) async {
     try {
-      String endpoint = '$url/services';
+      String endpoint = '/services/${service.id}'; // Adicionando o ID do serviço ao endpoint
       Map<String, dynamic> serviceData = service.toMap();
 
-      Response response = await dio.patch(
-        endpoint,
-        data: serviceData,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+      Response response = await dio.patch(endpoint, data: serviceData);
 
       if (response.statusCode == 200) {
         log('Serviço atualizado com sucesso!');
@@ -115,32 +82,20 @@ class ServiceRepository {
         throw Exception('Falha ao atualizar serviço: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
   // Método para deletar um serviço
-  Future<void> deleteService(String serviceId, String token) async {
+  Future<void> deleteService(String serviceId) async {
     try {
-      String endpoint = '$url/services?id=$serviceId';
+      String endpoint = '/services/$serviceId'; // Usando serviceId no endpoint
 
-      Response response = await dio.delete(
-        endpoint,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+      Response response = await dio.delete(endpoint);
 
       if (response.statusCode == 200) {
         log('Serviço excluído com sucesso!');
@@ -148,30 +103,19 @@ class ServiceRepository {
         throw Exception('Falha ao excluir serviço: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 
-    Future<Service> getServiceById(String id, String token) async {
+  // Método para buscar serviço por ID
+  Future<Service> getServiceById(String id) async {
     try {
-      String endpoint = '$url/services/$id'; // Ajuste o endpoint conforme necessário
-      Response response = await dio.get(
-        endpoint,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+      String endpoint = '/services/$id'; // Ajuste o endpoint conforme necessário
+      Response response = await dio.get(endpoint);
 
       log('Resposta da API para serviço por ID: ${response.data}'); // Log adicional
 
@@ -187,16 +131,11 @@ class ServiceRepository {
         throw Exception('Falha ao buscar serviço: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        log('Resposta do servidor: ${e.response?.data}');
-      } else {
-        log('Erro na solicitação: ${e.message}');
-      }
-      throw e;
+      log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 }

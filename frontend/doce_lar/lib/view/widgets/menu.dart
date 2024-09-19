@@ -5,8 +5,7 @@ class Menu extends StatefulWidget {
   final void Function(int) onTabTapped;
   final int currentIndex;
 
-  Menu({Key? key, required this.onTabTapped, required this.currentIndex})
-      : super(key: key);
+  const Menu({super.key, required this.onTabTapped, required this.currentIndex});
 
   @override
   State<Menu> createState() => _MenuState();

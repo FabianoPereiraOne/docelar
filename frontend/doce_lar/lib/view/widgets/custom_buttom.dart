@@ -15,11 +15,11 @@ class CustomButtom extends StatelessWidget {
       ),
     );
 
-    final EdgeInsetsGeometry _padding =
-        const EdgeInsets.only(top: 24, left: 36, right: 36);
+    const EdgeInsetsGeometry padding =
+        EdgeInsets.only(top: 24, left: 36, right: 36);
 
     return Padding(
-      padding: _padding,
+      padding: padding,
       child: SizedBox(
         height: 40,
         width: MediaQuery.of(context).size.width,

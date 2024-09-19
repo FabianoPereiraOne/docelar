@@ -1,4 +1,5 @@
 import 'package:doce_lar/controller/cep.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
@@ -23,6 +24,10 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
   final TextEditingController openHoursController = TextEditingController();
+
+   final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final doctorRepository = DoctorRepository(customDio);
 
   bool isLoading = false; // Variável de estado para carregamento
 
@@ -155,9 +160,6 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
                                   isLoading = true; // Inicia o carregamento
                                 });
 
-                                final loginProvider = Provider.of<LoginController>(context, listen: false);
-                                final doctorRepository = DoctorRepository();
-
                                 final newDoctor = Doctor(
                                   name: nameController.text,
                                   crmv: crmvController.text,
@@ -175,7 +177,7 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
                                 );
 
                                 try {
-                                  await doctorRepository.addDoctor(newDoctor, loginProvider.token);
+                                  await doctorRepository.addDoctor(newDoctor);
                                   callback();
                                   Navigator.of(context).pop();
                                   TopSnackBar.show(context, 'Médico adicionado com sucesso!', true);

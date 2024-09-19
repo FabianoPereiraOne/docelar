@@ -9,11 +9,11 @@ class CustomInput extends StatelessWidget {
   final TextEditingController controller;
 
   const CustomInput({
-    Key? key,
+    super.key,
     required this.hintText,
     required this.icon,
     required this.controller, required this.validatorText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

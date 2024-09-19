@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
 import 'package:doce_lar/view/screens/dialog/add/procedure_dialog.dart';
@@ -8,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 
 class ProcedureListScreen extends StatefulWidget {
+  const ProcedureListScreen({super.key});
+
   @override
   _ProcedureListScreenState createState() => _ProcedureListScreenState();
 }
@@ -17,6 +20,8 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
   List<Procedure> _filteredProcedures = [];
   bool _isLoading = false; // Variável para rastrear o estado de carregamento
 
+  
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +30,8 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
 
   void _fetchProcedures() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final procedureRepository = ProcedureRepository();
+        final customDio = CustomDio(loginProvider, context);
+    final procedureRepository = ProcedureRepository(customDio);
 
     setState(() {
       _isLoading = true; // Inicia o carregamento
@@ -33,7 +39,7 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
 
     try {
       final procedures =
-          await procedureRepository.fetchProcedures(loginProvider.token);
+          await procedureRepository.fetchProcedures();
       setState(() {
         _procedures = procedures;
         _filteredProcedures = procedures;

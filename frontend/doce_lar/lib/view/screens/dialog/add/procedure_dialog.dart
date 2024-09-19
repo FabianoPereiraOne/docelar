@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
@@ -12,13 +13,17 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
   String dosage = '';
   bool isLoading = false;
 
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final procedureRepository = ProcedureRepository(customDio);
+
   showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text('Adicionar Novo Procedimento'),
+            title: const Text('Adicionar Novo Procedimento'),
             content: SingleChildScrollView(
               child: Form(
                 key: formKey,
@@ -26,7 +31,8 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Nome do Procedimento'),
+                      decoration:
+                          const InputDecoration(labelText: 'Nome do Procedimento'),
                       onChanged: (value) {
                         name = value;
                       },
@@ -38,7 +44,7 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Descrição'),
+                      decoration: const InputDecoration(labelText: 'Descrição'),
                       onChanged: (value) {
                         description = value;
                       },
@@ -50,7 +56,7 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                       },
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'Dosagem'),
+                      decoration: const InputDecoration(labelText: 'Dosagem'),
                       onChanged: (value) {
                         dosage = value;
                       },
@@ -67,23 +73,20 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
             ),
             actions: [
               TextButton(
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               isLoading
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      child: Text('Adicionar'),
+                      child: const Text('Adicionar'),
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
                           setState(() {
                             isLoading = true;
                           });
-
-                          final loginProvider = Provider.of<LoginController>(context, listen: false);
-                          final procedureRepository = ProcedureRepository();
 
                           try {
                             final newProcedure = Procedure(
@@ -93,15 +96,18 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                             );
 
                             // Adiciona o novo procedimento
-                            await procedureRepository.addProcedure(newProcedure, loginProvider.token);
+                            await procedureRepository
+                                .addProcedure(newProcedure);
 
                             // Atualiza a lista de procedimentos
                             callback();
 
                             Navigator.of(context).pop();
-                            TopSnackBar.show(context, 'Procedimento adicionado com sucesso!', true);
+                            TopSnackBar.show(context,
+                                'Procedimento adicionado com sucesso!', true);
                           } catch (e) {
-                            TopSnackBar.show(context, 'Erro ao adicionar procedimento:', false);
+                            TopSnackBar.show(context,
+                                'Erro ao adicionar procedimento:', false);
                           } finally {
                             setState(() {
                               isLoading = false;

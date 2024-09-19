@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
@@ -17,7 +18,8 @@ import 'package:provider/provider.dart';
 void showServiceDetailsDialog(
     BuildContext context, String serviceId, Function() onServiceUpdated) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final serviceRepository = ServiceRepository();
+  final customDio = CustomDio(loginProvider, context);
+  final serviceRepository = ServiceRepository(customDio);
   Service? service;
 
   showDialog(
@@ -26,8 +28,7 @@ void showServiceDetailsDialog(
   );
 
   try {
-    service =
-        await serviceRepository.getServiceById(serviceId, loginProvider.token);
+    service = await serviceRepository.getServiceById(serviceId);
     Navigator.of(context).pop();
   } catch (e) {
     Navigator.of(context).pop();
@@ -183,13 +184,14 @@ void _showEditServiceDialog(
   Doctor? selectedDoctor;
   Procedure? selectedProcedure;
   final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final doctorRepository = DoctorRepository(customDio);
+  final procedureRepository = ProcedureRepository(customDio);
+  final serviceRepository = ServiceRepository(customDio);
 
   Future<void> loadOptions() async {
-    final doctorRepository = DoctorRepository();
-    final procedureRepository = ProcedureRepository();
-
-    doctors = await doctorRepository.fetchDoctors(loginProvider.token);
-    procedures = await procedureRepository.fetchProcedures(loginProvider.token);
+    doctors = await doctorRepository.fetchDoctors();
+    procedures = await procedureRepository.fetchProcedures();
     selectedDoctor = doctors.firstWhere(
         (doc) => doc.id == service.doctors!.first.id,
         orElse: () => doctors.first);
@@ -211,8 +213,7 @@ void _showEditServiceDialog(
       procedures: [selectedProcedure!],
     );
 
-    final serviceRepository = ServiceRepository();
-    await serviceRepository.updateService(updatedService, loginProvider.token);
+    await serviceRepository.updateService(updatedService);
     TopSnackBar.show(
       dialogContext,
       'Serviço atualizado com sucesso',

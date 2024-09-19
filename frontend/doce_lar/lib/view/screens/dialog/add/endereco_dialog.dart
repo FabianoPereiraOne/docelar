@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
@@ -7,17 +8,21 @@ import 'package:doce_lar/controller/login_controller.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showEnderecoDialog(BuildContext context, String colaboradorId, Function() callback) {
+void showEnderecoDialog(
+    BuildContext context, String colaboradorId, Function() callback) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController ruaController = TextEditingController();
   final TextEditingController cidadeController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
-  final TextEditingController cepController = MaskedTextController(mask: '00000-000');
+  final TextEditingController cepController =
+      MaskedTextController(mask: '00000-000');
   final TextEditingController districtController = TextEditingController();
   final TextEditingController numeroController = TextEditingController();
   final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final homeRepository = HomeRepository(customDio);
 
-  bool _isLoading = false; // Adiciona a variável de estado para o carregamento
+  bool isLoading = false;
 
   Future<void> buscarCep(String cep) async {
     String cepSemHifen = cep.replaceAll('-', '');
@@ -51,9 +56,8 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
         collaboratorId: colaboradorId,
       );
 
-      final homeRepository = HomeRepository();
       try {
-        await homeRepository.addHome(newHome, loginProvider.token);
+        await homeRepository.addHome(newHome);
         return true;
       } catch (e) {
         return false;
@@ -190,25 +194,25 @@ void showEnderecoDialog(BuildContext context, String colaboradorId, Function() c
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); 
+                  Navigator.of(context).pop();
                   limparControladores();
                 },
                 child: const Text('Fechar'),
               ),
-              _isLoading // Exibir o indicador de carregamento
-                  ? CircularProgressIndicator()
+              isLoading // Exibir o indicador de carregamento
+                  ? const CircularProgressIndicator()
                   : TextButton(
                       onPressed: () async {
                         setState(() {
-                          _isLoading = true; // Iniciar o carregamento
+                          isLoading = true; // Iniciar o carregamento
                         });
-                        
+
                         bool isSuccess = await addEndereco();
-                        
+
                         setState(() {
-                          _isLoading = false; // Finalizar o carregamento
+                          isLoading = false; // Finalizar o carregamento
                         });
-                        
+
                         if (isSuccess) {
                           TopSnackBar.show(
                             context,

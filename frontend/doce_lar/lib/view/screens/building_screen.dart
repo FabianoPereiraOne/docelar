@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class EmDesenvolvimentoScreen extends StatelessWidget {
+  const EmDesenvolvimentoScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Em Desenvolvimento'),
+        title: const Text('Em Desenvolvimento'),
       ),
       body: const Center(
         child: Column(

@@ -32,7 +32,7 @@ Future<void> showAddAnimalDialog(
   bool isLoading = false; // Adiciona a variável de estado de carregamento
 
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final customDio = CustomDio(loginProvider);
+  final customDio = CustomDio(loginProvider, context);
   final animalRepository = AnimalRepository(customDio);
 
   showDialog(

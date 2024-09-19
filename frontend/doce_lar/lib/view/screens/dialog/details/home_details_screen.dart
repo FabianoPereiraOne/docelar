@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:doce_lar/controller/cep.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
@@ -126,6 +127,10 @@ void _showEditHomeDialog(
 
   bool initialStatus = home.status ?? true;
   bool status = initialStatus;
+  
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final homeRepository = HomeRepository(customDio);
 
   // Adicione o listener para buscar o CEP automaticamente
   cepController.addListener(() async {
@@ -193,10 +198,6 @@ void _showEditHomeDialog(
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
-                  final homeRepository = HomeRepository();
-
                   try {
                     final updatedHome = Home(
                       id: home.id,
@@ -209,8 +210,7 @@ void _showEditHomeDialog(
                       status: status,
                     );
 
-                    await homeRepository.updateHome(
-                        updatedHome, loginProvider.token);
+                    await homeRepository.updateHome(updatedHome);
 
                     // Exibindo mensagem com base na alteração do status
                     if (initialStatus != status) {
@@ -274,6 +274,6 @@ Future<void> _buscarCep(
       } else {}
     }
   } catch (e) {
-    print('Erro ao buscar CEP: $e');
+    log('Erro ao buscar CEP: $e');
   }
 }

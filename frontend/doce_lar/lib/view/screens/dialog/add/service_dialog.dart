@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
@@ -17,6 +18,10 @@ void showServiceDialog(
   final TextEditingController descriptionController = TextEditingController();
 
   final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final doctorRepository = DoctorRepository(customDio);
+  final procedureRepository = ProcedureRepository(customDio);
+  final serviceRepository = ServiceRepository(customDio);
 
   Doctor? selectedDoctor;
   Procedure? selectedProcedure;
@@ -24,23 +29,21 @@ void showServiceDialog(
   List<Doctor> doctors = [];
   List<Procedure> procedures = [];
 
-  bool _isLoading = false; // Variável de estado para carregamento
+  bool isLoading = false; // Variável de estado para carregamento
 
   Future<void> loadOptions() async {
-    final doctorRepository = DoctorRepository();
-    final procedureRepository = ProcedureRepository();
-
-    doctors = await doctorRepository.fetchDoctors(loginProvider.token);
+    doctors = await doctorRepository.fetchDoctors();
     doctors = doctors.where((doctor) => doctor.status == true).toList();
 
-    procedures = await procedureRepository.fetchProcedures(loginProvider.token);
+    procedures = await procedureRepository.fetchProcedures();
     log(procedures.toString());
   }
 
-  Future<void> saveService(BuildContext dialogContext, Function(void Function()) setState) async {
+  Future<void> saveService(
+      BuildContext dialogContext, Function(void Function()) setState) async {
     if (formKey.currentState?.validate() ?? false) {
       setState(() {
-        _isLoading = true; // Ativando estado de carregamento
+        isLoading = true; // Ativando estado de carregamento
       });
 
       final String? doctorId = selectedDoctor?.id;
@@ -49,7 +52,8 @@ void showServiceDialog(
       if (doctorId == null || procedureId == null) {
         log('Erro: Médico ou Procedimento não selecionado corretamente');
         setState(() {
-          _isLoading = false; // Desativando estado de carregamento em caso de erro
+          isLoading =
+              false; // Desativando estado de carregamento em caso de erro
         });
         return;
       }
@@ -60,10 +64,8 @@ void showServiceDialog(
         doctors: [Doctor(id: doctorId)],
         procedures: [Procedure(id: procedureId)],
       );
-
-      final serviceRepository = ServiceRepository();
       try {
-        await serviceRepository.addService(newService, loginProvider.token);
+        await serviceRepository.addService(newService);
         TopSnackBar.show(dialogContext, 'Serviço adicionado com sucesso', true);
         callback();
         Navigator.of(dialogContext).pop();
@@ -71,7 +73,8 @@ void showServiceDialog(
         TopSnackBar.show(dialogContext, 'Erro ao adicionar serviço', false);
       } finally {
         setState(() {
-          _isLoading = false; // Desativando estado de carregamento após a operação
+          isLoading =
+              false; // Desativando estado de carregamento após a operação
         });
       }
     } else {
@@ -138,7 +141,8 @@ void showServiceDialog(
                           items: procedures.map((procedure) {
                             return DropdownMenuItem<Procedure>(
                               value: procedure,
-                              child: Text(procedure.name ?? 'Procedimento ${procedure.id}'),
+                              child: Text(procedure.name ??
+                                  'Procedimento ${procedure.id}'),
                             );
                           }).toList(),
                           onChanged: (value) {
@@ -181,13 +185,14 @@ void showServiceDialog(
                     },
                     child: const Text('Cancelar'),
                   ),
-                  _isLoading // Indicador de carregamento
+                  isLoading // Indicador de carregamento
                       ? const CircularProgressIndicator() // Exibe indicador enquanto carrega
                       : TextButton(
-                          onPressed: _isLoading
+                          onPressed: isLoading
                               ? null // Desabilita o botão enquanto carrega
                               : () async {
-                                  if (formKey.currentState?.validate() ?? false) {
+                                  if (formKey.currentState?.validate() ??
+                                      false) {
                                     await saveService(context, setState);
                                   } else {
                                     log('Formulário inválido');

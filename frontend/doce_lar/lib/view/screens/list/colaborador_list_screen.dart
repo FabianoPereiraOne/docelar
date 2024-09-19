@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/view/screens/dialog/add/colaborador_dialog.dart';
@@ -28,7 +29,8 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
 
   void _fetchColaboradores() async {
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final colaboradorRepository = ColaboradorRepository();
+    final customDio = CustomDio(loginProvider, context);
+    final colaboradorRepository = ColaboradorRepository(customDio);
 
     setState(() {
       _isLoading = true;
@@ -36,7 +38,7 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
 
     try {
       final colaboradores =
-          await colaboradorRepository.fetchColaboradores(loginProvider.token);
+          await colaboradorRepository.fetchColaboradores();
       setState(() {
         _colaboradores = colaboradores;
         _activeColaboradores = colaboradores

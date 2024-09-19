@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
@@ -97,6 +98,10 @@ void _showEditProcedureDialog(
   final TextEditingController dosageController =
       TextEditingController(text: procedure.dosage ?? '');
 
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final procedureRepository = ProcedureRepository(customDio);
+
   showDialog(
     context: context,
     builder: (context) {
@@ -133,10 +138,6 @@ void _showEditProcedureDialog(
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
-                  final procedureRepository = ProcedureRepository();
-
                   try {
                     final updatedProcedure = Procedure(
                       id: procedure.id,
@@ -145,8 +146,7 @@ void _showEditProcedureDialog(
                       dosage: dosageController.text,
                     );
 
-                    await procedureRepository.updateProcedure(
-                        updatedProcedure, loginProvider.token);
+                    await procedureRepository.updateProcedure(updatedProcedure);
                     TopSnackBar.show(
                       context,
                       'Procedimento atualizado com sucesso',

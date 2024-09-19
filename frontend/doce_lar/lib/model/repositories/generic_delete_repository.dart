@@ -1,30 +1,23 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart'; // Importando o CustomDio
 
 class DeleteRepository {
-  final String url = 'https://docelar-pearl.vercel.app';
-  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
-  final dio = Dio();
+  final CustomDio dio;
 
+  // O construtor agora recebe uma instância do CustomDio
+  DeleteRepository(this.dio);
 
   Future<void> deleteItem({
     required String endpoint,  
     required String itemId,    
-    required String token,    
   }) async {
     try {
       // Monta a URL com o itemId
-      String fullEndpoint = '$url/$endpoint?id=$itemId';
+      String fullEndpoint = '/$endpoint?id=$itemId';
 
       // Faz a requisição DELETE
-      Response response = await dio.delete(
-        fullEndpoint,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
-      );
+      Response response = await dio.delete(fullEndpoint);
 
       if (response.statusCode == 200) {
         log('$endpoint excluído com sucesso!');
@@ -38,11 +31,10 @@ class DeleteRepository {
       } else {
         log('Erro na solicitação: ${e.message}');
       }
-      throw e;
+      rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
-
 }

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -29,7 +30,7 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                 color: Colors.white,
                 child: const TabBar(
                   tabs: [
-                    const Tab(text: 'Detalhes'),
+                    Tab(text: 'Detalhes'),
                     Tab(text: 'Lares'),
                   ],
                 ),
@@ -72,17 +73,6 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                         colaborador, onColaboradorUpdated);
                                   },
                                   child: const Text('Editar'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Fechar o diálogo
-                                    _confirmDeleteColaborador(context,
-                                        colaborador.id!, onColaboradorUpdated);
-                                  },
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red),
-                                  child: const Text('Desativar'),
                                 ),
                               ],
                             ),
@@ -176,8 +166,13 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
 
   // Controladores para senha
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final colaboradorRepository = ColaboradorRepository(customDio);
+  final homeRepository = HomeRepository(customDio);
   bool initialStatus = isActive; // Armazena o status inicial
 
   showDialog(
@@ -210,7 +205,8 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                   const SizedBox(height: 10),
                   TextField(
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Confirmar Senha'),
+                    decoration:
+                        const InputDecoration(labelText: 'Confirmar Senha'),
                     controller: confirmPasswordController,
                   ),
                   DropdownButtonFormField<String>(
@@ -251,16 +247,12 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
-                  final colaboradorRepository = ColaboradorRepository();
-                  final homeRepository = HomeRepository();
-
                   try {
                     // Validar e atualizar a senha se fornecida
                     String? newPassword;
                     if (passwordController.text.isNotEmpty) {
-                      if (passwordController.text == confirmPasswordController.text) {
+                      if (passwordController.text ==
+                          confirmPasswordController.text) {
                         newPassword = passwordController.text;
                       } else {
                         TopSnackBar.show(
@@ -282,13 +274,12 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     );
 
                     await colaboradorRepository.updateColaborador(
-                        updatedColaborador, loginProvider.token, newPassword);
+                        updatedColaborador, newPassword);
 
                     bool statusChanged = initialStatus != isActive;
-                    
+
                     if (!isActive) {
-                      log(
-                          'Colaborador desativado, iniciando desativação dos lares...');
+                      log('Colaborador desativado, iniciando desativação dos lares...');
 
                       final homes = colaborador.homes;
 
@@ -298,8 +289,7 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                           home.status = false;
 
                           try {
-                            await homeRepository.updateHome(
-                                home, loginProvider.token);
+                            await homeRepository.updateHome(home);
                             log('Lar ${home.id} desativado com sucesso.');
                           } catch (e) {
                             log('Erro ao desativar o lar ${home.id}: $e');
@@ -337,7 +327,7 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    print('Erro ao editar colaborador e lares: $e');
+                    log('Erro ao editar colaborador e lares: $e');
                     TopSnackBar.show(
                       context,
                       'Erro ao atualizar colaborador',
@@ -351,43 +341,5 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
         },
       );
     },
-  );
-}
-
-
-void _confirmDeleteColaborador(BuildContext context, String colaboradorId,
-    Function() onColaboradorDeleted) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Confirmar Desativação'),
-      content: const Text('Tem certeza que deseja desativar este colaborador?'),
-      actions: [
-        TextButton(
-          child: const Text('Cancelar'),
-          onPressed: () {
-            Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-          },
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          onPressed: () async {
-            final loginProvider =
-                Provider.of<LoginController>(context, listen: false);
-            final colaboradorRepository = ColaboradorRepository();
-
-            try {
-              await colaboradorRepository.deleteColaborador(
-                  colaboradorId, loginProvider.token);
-              Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-              onColaboradorDeleted(); // Atualizar a tela principal
-            } catch (e) {
-              print('Erro ao excluir colaborador: $e');
-            }
-          },
-          child: const Text('Deletar'),
-        ),
-      ],
-    ),
   );
 }

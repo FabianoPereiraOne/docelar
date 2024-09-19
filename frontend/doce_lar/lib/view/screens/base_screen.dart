@@ -16,7 +16,7 @@ class _BaseScreenState extends State<BaseScreen> {
   int _indiceAtual = 0;
   final List<Widget> _telas = [
     const HomeScreen(),
-    EmDesenvolvimentoScreen()
+    const EmDesenvolvimentoScreen()
   ];
 
 

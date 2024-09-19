@@ -41,7 +41,7 @@ class UsuarioRepository {
       // Supondo que o token esteja na resposta como um campo 'token'
     } on DioException catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 }

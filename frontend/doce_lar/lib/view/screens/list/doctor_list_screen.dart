@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/view/screens/dialog/add/doctor_dialog.dart';
 import 'package:doce_lar/view/screens/dialog/details/doctor_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:doce_lar/view/widgets/custom_card.dart';
 
 
 class DoctorListScreen extends StatefulWidget {
+  const DoctorListScreen({super.key});
+
   @override
   _DoctorListScreenState createState() => _DoctorListScreenState();
 }
@@ -26,15 +29,16 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
   }
 
   void _fetchDoctors() async {
-    final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final doctorRepository = DoctorRepository();
+ final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final doctorRepository = DoctorRepository(customDio);
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final doctors = await doctorRepository.fetchDoctors(loginProvider.token);
+      final doctors = await doctorRepository.fetchDoctors();
       setState(() {
         _doctors = doctors;
         _activeDoctors = doctors.where((doctor) => doctor.status!).toList();
@@ -72,7 +76,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Pesquisar médico...',
-              prefixIcon: Icon(Icons.search, color: Colors.green),
+              prefixIcon: const Icon(Icons.search, color: Colors.green),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -84,9 +88,9 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
         ),
         Expanded(
           child: _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : doctors.isEmpty
-                  ? Center(child: Text('Nenhum médico encontrado'))
+                  ? const Center(child: Text('Nenhum médico encontrado'))
                   : ListView.builder(
                       itemCount: doctors.length,
                       itemBuilder: (context, index) {
@@ -116,14 +120,14 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Médicos'),
+          title: const Text('Médicos'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pushReplacementNamed('/home');
             },
           ),
-          bottom: TabBar(
+          bottom: const TabBar(
             tabs: [
               Tab(text: 'Ativos'),
               Tab(text: 'Inativos'),
@@ -141,7 +145,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
             showAddDoctorDialog(context, _fetchDoctors);
           },
           backgroundColor: Colors.green,
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
     );

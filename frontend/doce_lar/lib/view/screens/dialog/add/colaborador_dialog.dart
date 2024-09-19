@@ -1,3 +1,4 @@
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
@@ -19,14 +20,17 @@ Future<void> showColaboradorDialog(
   final TextEditingController confirmPasswordController =
       TextEditingController();
   String selectedUserType = 'USER';
-  bool _isLoading = false;
+  bool isLoading = false;
 
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
+     final loginProvider = Provider.of<LoginController>(context, listen: false);
+    final customDio = CustomDio(loginProvider, context);
+    final colaboradorRepository = ColaboradorRepository(customDio);
 
   Future<bool> isEmailInUse(String email) async {
-    final colaboradorRepository = ColaboradorRepository();
+    
+    
     try {
-      final colaboradores = await colaboradorRepository.fetchColaboradores(loginProvider.token);
+      final colaboradores = await colaboradorRepository.fetchColaboradores();
       return colaboradores.any((colaborador) => colaborador.email == email);
     } catch (e) {
       TopSnackBar.show(context, 'Erro ao verificar e-mail', false);
@@ -53,15 +57,13 @@ Future<void> showColaboradorDialog(
         type: selectedUserType,
         statusAccount: true,
       );
-      final colaboradorRepository = ColaboradorRepository();
 
       try {
         // Inicia o carregamento
-        _isLoading = true;
+        isLoading = true;
 
         final String colaboradorId = await colaboradorRepository.addPartner(
           newColaborador,
-          loginProvider.token,
           passwordController.text,
         );
         
@@ -76,7 +78,7 @@ Future<void> showColaboradorDialog(
         TopSnackBar.show(context, 'Erro ao adicionar colaborador', false);
       } finally {
         // Finaliza o carregamento
-        _isLoading = false;
+        isLoading = false;
       }
     }
   }
@@ -224,17 +226,17 @@ Future<void> showColaboradorDialog(
                 },
                 child: const Text('Cancelar'),
               ),
-              if (_isLoading)
+              if (isLoading)
                 const CircularProgressIndicator()
               else
                 TextButton(
                   onPressed: () async {
                     setState(() {
-                      _isLoading = true;
+                      isLoading = true;
                     });
                     await handleSubmit();
                     setState(() {
-                      _isLoading = false;
+                      isLoading = false;
                     });
                   },
                   child: const Text('Próximo'),

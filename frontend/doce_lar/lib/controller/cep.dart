@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 class CepService {
@@ -18,7 +20,7 @@ class CepService {
       }
       return null;
     } catch (e) {
-      print('Erro ao buscar CEP: $e');
+      log('Erro ao buscar CEP: $e');
       return null;
     }
   }

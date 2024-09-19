@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:doce_lar/controller/cep.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
@@ -16,8 +17,6 @@ import 'package:provider/provider.dart';
 
 void showDoctorDetailDialog(
     BuildContext context, Doctor doctor, Function() onDoctorUpdated) async {
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
-
   showDialog(
     context: context,
     builder: (context) {
@@ -38,7 +37,7 @@ void showDoctorDetailDialog(
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
+                child: SizedBox(
                   height: 500,
                   child: TabBarView(
                     children: [
@@ -105,16 +104,6 @@ void showDoctorDetailDialog(
                                   },
                                   child: const Text('Editar'),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    _confirmDeleteDoctor(
-                                        context, doctor.id!, onDoctorUpdated);
-                                  },
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red),
-                                  child: const Text('Deletar'),
-                                ),
                               ],
                             ),
                           ],
@@ -124,11 +113,12 @@ void showDoctorDetailDialog(
                         future: _fetchServicesForDoctor(
                             doctor.services?.map((s) => s.id ?? '').toList() ??
                                 [],
-                            loginProvider.token),
+                            context),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
 
                           if (snapshot.hasError) {
@@ -149,20 +139,20 @@ void showDoctorDetailDialog(
                                           return Column(
                                             children: [
                                               ListTile(
-                                                title: Text(
-                                                    formatDate(service.createdAt)),
+                                                title: Text(formatDate(
+                                                    service.createdAt)),
                                                 subtitle: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(service.animal!.name!),
-                                                    if (service.procedures != null)
+                                                    if (service.procedures !=
+                                                        null)
                                                       ...service.procedures!
                                                           .map(
-                                                            (procedure) => Text(
-                                                                '${procedure.name}'),
-                                                          )
-                                                          .toList(),
+                                                        (procedure) => Text(
+                                                            '${procedure.name}'),
+                                                      ),
                                                   ],
                                                 ),
                                                 onTap: () {
@@ -215,57 +205,22 @@ void showDoctorDetailDialog(
 }
 
 Future<List<Service>> _fetchServicesForDoctor(
-    List<String> serviceIds, String token) async {
-  final serviceRepository = ServiceRepository();
+    List<String> serviceIds, BuildContext context) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final serviceRepository = ServiceRepository(customDio);
   final services = <Service>[];
 
   for (String serviceId in serviceIds) {
     try {
-      final service = await serviceRepository.getServiceById(serviceId, token);
+      final service = await serviceRepository.getServiceById(serviceId);
       services.add(service);
     } catch (e) {
-      print('Erro ao carregar serviço: $e');
+      log('Erro ao carregar serviço: $e');
     }
   }
 
   return services;
-}
-
-void _confirmDeleteDoctor(
-    BuildContext context, String doctorId, Function() onDoctorDeleted) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Confirmar Exclusão'),
-      content: const Text('Tem certeza que deseja excluir este médico?'),
-      actions: [
-        TextButton(
-          child: const Text('Cancelar'),
-          onPressed: () {
-            Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-          },
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          onPressed: () async {
-            final loginProvider =
-                Provider.of<LoginController>(context, listen: false);
-            final doctorRepository = DoctorRepository();
-
-            try {
-              await doctorRepository.deleteDoctor(
-                  doctorId, loginProvider.token);
-              Navigator.of(context).pop(); // Fechar o diálogo de confirmação
-              onDoctorDeleted(); // Atualizar a tela principal
-            } catch (e) {
-              print('Erro ao excluir médico: $e');
-            }
-          },
-          child: const Text('Deletar'),
-        ),
-      ],
-    ),
-  );
 }
 
 Future<Map<String, String>?> _buscarCep(String cep) async {
@@ -321,6 +276,10 @@ void _showEditDoctorDialog(
   bool status = doctor.status!;
   bool initialStatus = status;
 
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final doctorRepository = DoctorRepository(customDio);
+
   showDialog(
     context: context,
     builder: (context) {
@@ -358,7 +317,8 @@ void _showEditDoctorDialog(
                     controller: crmvController,
                   ),
                   TextField(
-                    decoration: const InputDecoration(labelText: 'Especialidade'),
+                    decoration:
+                        const InputDecoration(labelText: 'Especialidade'),
                     controller: expertiseController,
                   ),
                   TextField(
@@ -366,7 +326,8 @@ void _showEditDoctorDialog(
                     controller: phoneController,
                   ),
                   TextField(
-                    decoration: const InputDecoration(labelText: 'Razão Social'),
+                    decoration:
+                        const InputDecoration(labelText: 'Razão Social'),
                     controller: socialReasonController,
                   ),
                   TextField(
@@ -394,8 +355,8 @@ void _showEditDoctorDialog(
                     controller: numberController,
                   ),
                   TextField(
-                    decoration:
-                        const InputDecoration(labelText: 'Horário de Funcionamento'),
+                    decoration: const InputDecoration(
+                        labelText: 'Horário de Funcionamento'),
                     controller: openHoursController,
                   ),
                   SwitchListTile(
@@ -420,10 +381,6 @@ void _showEditDoctorDialog(
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
-                  final doctorRepository = DoctorRepository();
-
                   try {
                     final updatedDoctor = Doctor(
                       id: doctor.id,
@@ -442,8 +399,7 @@ void _showEditDoctorDialog(
                       status: status,
                     );
 
-                    await doctorRepository.updateDoctor(
-                        updatedDoctor, loginProvider.token);
+                    await doctorRepository.updateDoctor(updatedDoctor);
                     if (initialStatus != status) {
                       TopSnackBar.show(
                         context,
@@ -460,7 +416,8 @@ void _showEditDoctorDialog(
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onDoctorUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    TopSnackBar.show(context, 'Erro ao atualizar médico', false);
+                    TopSnackBar.show(
+                        context, 'Erro ao atualizar médico', false);
                     log('Erro ao editar médico: $e');
                   }
                 },

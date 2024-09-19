@@ -39,17 +39,17 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     });
 
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final customDio = CustomDio(loginProvider);
+    final customDio = CustomDio(loginProvider, context);
     final animalRepository = AnimalRepository(customDio);
-    final animalTypeRepository = AnimalTypeRepository();
-    final colaboradorRepository = ColaboradorRepository();
+    final animalTypeRepository = AnimalTypeRepository(customDio);
+    final colaboradorRepository = ColaboradorRepository(customDio);
 
     try {
       final animaisFuture = animalRepository.fetchAnimais();
       final typesFuture =
-          animalTypeRepository.fetchAnimalTypes(loginProvider.token);
+          animalTypeRepository.fetchAnimalTypes();
       final colaboradoresFuture =
-          colaboradorRepository.fetchColaboradores(loginProvider.token);
+          colaboradorRepository.fetchColaboradores();
 
       final animais = await animaisFuture;
       final types = await typesFuture;

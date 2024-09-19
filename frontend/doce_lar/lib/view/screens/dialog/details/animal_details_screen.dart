@@ -12,7 +12,6 @@ import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/service_dialog.dart';
-import 'package:doce_lar/view/widgets/confirm_delete.dart';
 import 'package:doce_lar/view/widgets/detail_row.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
@@ -29,14 +28,14 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
     },
   );
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final colaboradorRepository = ColaboradorRepository();
+    final customDio = CustomDio(loginProvider, context);
+  final colaboradorRepository = ColaboradorRepository(customDio);
   String colaboradorName = 'N/A';
 
   if (animal.home?.collaboratorId != null) {
     try {
       final colaborador = await colaboradorRepository.fetchColaboradorById(
         animal.home!.collaboratorId!,
-        loginProvider.token,
       );
       colaboradorName = colaborador.name ?? 'N/A';
     } catch (e) {
@@ -186,21 +185,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                         },
                                         child: const Text('Editar'),
                                       ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          _showDeleteDialog(
-                                            context,
-                                            animal.id!,
-                                            'animals',
-                                            'animal',
-                                            onAnimalUpdated,
-                                          );
-                                        },
-                                        style: TextButton.styleFrom(
-                                            foregroundColor: Colors.red),
-                                        child: const Text('Deletar'),
-                                      ),
+                                     
                                     ],
                                   ),
                                 ],
@@ -213,7 +198,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                         ?.map((s) => s.id ?? '')
                                         .toList() ??
                                     [],
-                                loginProvider.token),
+                                context),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -317,34 +302,17 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
   );
 }
 
-void _showDeleteDialog(
-  BuildContext context,
-  String itemId,
-  String route,
-  String entityType,
-  Function() onDeleted,
-) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return DeleteConfirmationDialog(
-        itemId: itemId,
-        route: route,
-        entityType: entityType,
-        onDeleted: onDeleted,
-      );
-    },
-  );
-}
 
 Future<List<Service>> _fetchServicesWithProcedures(
-    List<String> serviceIds, String token) async {
-  final serviceRepository = ServiceRepository();
+    List<String> serviceIds, BuildContext context) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final serviceRepository = ServiceRepository(customDio);
   final services = <Service>[];
 
   for (String serviceId in serviceIds) {
     try {
-      final service = await serviceRepository.getServiceById(serviceId, token);
+      final service = await serviceRepository.getServiceById(serviceId);
       services.add(service);
     } catch (e) {
       log('Erro ao carregar serviço: $e');
@@ -370,7 +338,7 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType>
   bool castrated = animal.castrated ?? false;
   bool status = animal.status ?? true;
      final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final customDio = CustomDio(loginProvider);
+  final customDio = CustomDio(loginProvider, context);
 final animalRepository = AnimalRepository(customDio);
 
   Usuario? currentCollaborator = colaboradores.firstWhere(

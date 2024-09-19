@@ -42,7 +42,7 @@ class LoginController extends ChangeNotifier {
       log('voltou para controller');
       usuario = response;
       token = response.authorization!;
-      log('$token');
+      // log('$token');
       updateState(hasData: true);
     } catch (e) {
       updateState(hasError: true, errorMessage: e.toString(), hasData: false);
