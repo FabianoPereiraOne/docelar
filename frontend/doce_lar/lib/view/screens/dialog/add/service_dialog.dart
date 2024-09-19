@@ -24,25 +24,33 @@ void showServiceDialog(
   List<Doctor> doctors = [];
   List<Procedure> procedures = [];
 
+  bool _isLoading = false; // Variável de estado para carregamento
+
   Future<void> loadOptions() async {
     final doctorRepository = DoctorRepository();
     final procedureRepository = ProcedureRepository();
 
     doctors = await doctorRepository.fetchDoctors(loginProvider.token);
-
     doctors = doctors.where((doctor) => doctor.status == true).toList();
 
     procedures = await procedureRepository.fetchProcedures(loginProvider.token);
     log(procedures.toString());
   }
 
-  Future<void> saveService(BuildContext dialogContext) async {
+  Future<void> saveService(BuildContext dialogContext, Function(void Function()) setState) async {
     if (formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _isLoading = true; // Ativando estado de carregamento
+      });
+
       final String? doctorId = selectedDoctor?.id;
       final int? procedureId = selectedProcedure?.id;
 
       if (doctorId == null || procedureId == null) {
         log('Erro: Médico ou Procedimento não selecionado corretamente');
+        setState(() {
+          _isLoading = false; // Desativando estado de carregamento em caso de erro
+        });
         return;
       }
 
@@ -54,13 +62,18 @@ void showServiceDialog(
       );
 
       final serviceRepository = ServiceRepository();
-      await serviceRepository.addService(newService, loginProvider.token);
-
-      TopSnackBar.show(dialogContext, 'Serviço adicionado com sucesso', true);
-
-      Navigator.of(dialogContext).pop();
-
-      callback();
+      try {
+        await serviceRepository.addService(newService, loginProvider.token);
+        TopSnackBar.show(dialogContext, 'Serviço adicionado com sucesso', true);
+        callback();
+        Navigator.of(dialogContext).pop();
+      } catch (e) {
+        TopSnackBar.show(dialogContext, 'Erro ao adicionar serviço', false);
+      } finally {
+        setState(() {
+          _isLoading = false; // Desativando estado de carregamento após a operação
+        });
+      }
     } else {
       TopSnackBar.show(context, 'Erro ao adicionar serviço', false);
     }
@@ -69,115 +82,122 @@ void showServiceDialog(
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return FutureBuilder(
-        future: loadOptions(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const AlertDialog(
-              title: Text('Carregando'),
-              content: CircularProgressIndicator(),
-            );
-          }
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return FutureBuilder(
+            future: loadOptions(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const AlertDialog(
+                  title: Text('Carregando'),
+                  content: CircularProgressIndicator(),
+                );
+              }
 
-          return AlertDialog(
-            title: const Text('Adicionar Serviço'),
-            content: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DropdownButtonFormField<Doctor>(
-                      value: selectedDoctor,
-                      decoration: InputDecoration(
-                        labelText: 'Selecionar Médico',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
+              return AlertDialog(
+                title: const Text('Adicionar Serviço'),
+                content: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<Doctor>(
+                          value: selectedDoctor,
+                          decoration: InputDecoration(
+                            labelText: 'Selecionar Médico',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
+                          items: doctors.map((doctor) {
+                            return DropdownMenuItem<Doctor>(
+                              value: doctor,
+                              child: Text(doctor.name ?? 'Médico ${doctor.id}'),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            selectedDoctor = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Por favor, selecione um médico';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                      items: doctors.map((doctor) {
-                        return DropdownMenuItem<Doctor>(
-                          value: doctor,
-                          child: Text(doctor.name ?? 'Médico ${doctor.id}'),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        selectedDoctor = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Por favor, selecione um médico';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<Procedure>(
-                      value: selectedProcedure,
-                      decoration: InputDecoration(
-                        labelText: 'Selecionar Procedimento',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<Procedure>(
+                          value: selectedProcedure,
+                          decoration: InputDecoration(
+                            labelText: 'Selecionar Procedimento',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
+                          items: procedures.map((procedure) {
+                            return DropdownMenuItem<Procedure>(
+                              value: procedure,
+                              child: Text(procedure.name ?? 'Procedimento ${procedure.id}'),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            selectedProcedure = value;
+                            log(selectedProcedure!.name!);
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Por favor, selecione um procedimento';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                      items: procedures.map((procedure) {
-                        return DropdownMenuItem<Procedure>(
-                          value: procedure,
-                          child: Text(
-                              procedure.name ?? 'Procedimento ${procedure.id}'),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        selectedProcedure = value;
-                        log(selectedProcedure!.name!);
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Por favor, selecione um procedimento';
-                        }
-                        return null;
-                      },
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: descriptionController,
+                          maxLines: 5,
+                          minLines: 3,
+                          keyboardType: TextInputType.multiline,
+                          decoration: const InputDecoration(
+                            labelText: 'Descrição',
+                            border: OutlineInputBorder(),
+                            alignLabelWithHint: true,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, insira uma descrição';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: descriptionController,
-                      maxLines: 5,
-                      minLines: 3,
-                      keyboardType: TextInputType.multiline,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                        border: OutlineInputBorder(),
-                        alignLabelWithHint: true,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira uma descrição';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  if (formKey.currentState?.validate() ?? false) {
-                    await saveService(context);
-                  } else {
-                    log('Formulário inválido');
-                  }
-                },
-                child: const Text('Salvar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancelar'),
-              ),
-            ],
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancelar'),
+                  ),
+                  _isLoading // Indicador de carregamento
+                      ? const CircularProgressIndicator() // Exibe indicador enquanto carrega
+                      : TextButton(
+                          onPressed: _isLoading
+                              ? null // Desabilita o botão enquanto carrega
+                              : () async {
+                                  if (formKey.currentState?.validate() ?? false) {
+                                    await saveService(context, setState);
+                                  } else {
+                                    log('Formulário inválido');
+                                  }
+                                },
+                          child: const Text('Salvar'),
+                        ),
+                ],
+              );
+            },
           );
         },
       );

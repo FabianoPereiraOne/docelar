@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/models/animal_type_model.dart';
@@ -235,29 +236,34 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                             itemCount: services.length,
                                             itemBuilder: (context, index) {
                                               final service = services[index];
-                                              return ListTile(
-                                                title: Text(formatDate(
-                                                    service.createdAt)),
-                                                subtitle: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    if (service.procedures !=
-                                                        null)
-                                                      ...service.procedures!
-                                                          .map(
-                                                        (procedure) => Text(
-                                                            '${procedure.name}'),
-                                                      ),
-                                                  ],
-                                                ),
-                                                onTap: () {
-                                                  showServiceDetailsDialog(
-                                                      context, service.id!, () {
-                                                    Navigator.of(context).pop();
-                                                    onAnimalUpdated();
-                                                  });
-                                                },
+                                              return Column(
+                                                children: [
+                                                  ListTile(
+                                                    title: Text(formatDate(
+                                                        service.createdAt)),
+                                                    subtitle: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        if (service.procedures !=
+                                                            null)
+                                                          ...service.procedures!
+                                                              .map(
+                                                            (procedure) => Text(
+                                                                '${procedure.name}'),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    onTap: () {
+                                                      showServiceDetailsDialog(
+                                                          context, service.id!, () {
+                                                        Navigator.of(context).pop();
+                                                        onAnimalUpdated();
+                                                      });
+                                                    },
+                                                  ),
+                                                  const Divider(),
+                                                ],
                                               );
                                             },
                                           ),
@@ -363,6 +369,9 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType>
   String sex = animal.sex ?? 'M';
   bool castrated = animal.castrated ?? false;
   bool status = animal.status ?? true;
+     final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider);
+final animalRepository = AnimalRepository(customDio);
 
   Usuario? currentCollaborator = colaboradores.firstWhere(
     (collaborator) => collaborator.id == animal.home?.collaboratorId,
@@ -551,9 +560,7 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType>
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  final loginProvider =
-                      Provider.of<LoginController>(context, listen: false);
-                  final animalRepository = AnimalRepository();
+                  
 
                   try {
                     final updatedAnimal = Animal(
@@ -576,7 +583,7 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType>
                     );
 
                     await animalRepository.updateAnimal(
-                        updatedAnimal, loginProvider.token);
+                        updatedAnimal);
 
                     if (initialStatus != status) {
                       TopSnackBar.show(

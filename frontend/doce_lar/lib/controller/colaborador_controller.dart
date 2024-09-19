@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -30,14 +30,5 @@ class ColaboradoresController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchColaboradores(String token) async {
-    log('Fetching colaboradores');
-    updateState(isLoading: true);
-    try {
-      colaboradores = await repository.fetchColaboradores(token);
-      updateState(hasData: true);
-    } catch (e) {
-      updateState(hasError: true, errorMessage: e.toString(), hasData: false);
-    }
-  }
+
 }

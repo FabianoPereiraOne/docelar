@@ -4,6 +4,7 @@ import 'package:doce_lar/model/models/homes_model.dart';
 
 class HomeRepository {
   final String url = 'https://docelar-pearl.vercel.app';
+  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
   final dio = Dio();
 
   // Método para buscar casas

@@ -4,6 +4,7 @@ import 'package:doce_lar/model/models/user_model.dart';
 
 class ColaboradorRepository {
   final String url = 'https://docelar-pearl.vercel.app';
+  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
 
   final dio = Dio();
 

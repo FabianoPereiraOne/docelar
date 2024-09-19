@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
@@ -38,12 +39,13 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     });
 
     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final animalRepository = AnimalRepository();
+    final customDio = CustomDio(loginProvider);
+    final animalRepository = AnimalRepository(customDio);
     final animalTypeRepository = AnimalTypeRepository();
     final colaboradorRepository = ColaboradorRepository();
 
     try {
-      final animaisFuture = animalRepository.fetchAnimais(loginProvider.token);
+      final animaisFuture = animalRepository.fetchAnimais();
       final typesFuture =
           animalTypeRepository.fetchAnimalTypes(loginProvider.token);
       final colaboradoresFuture =
@@ -246,21 +248,18 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                       itemCount: _filteredAnimais.length,
                       itemBuilder: (context, index) {
                         if (index >= _filteredAnimais.length) {
-                          return const SizedBox
-                              .shrink(); 
+                          return const SizedBox.shrink();
                         }
                         final animal = _filteredAnimais[index];
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CustomCard(
                             title: animal.name.toString(),
-                            info1: getAnimalTypeName(
-                                animal.typeAnimal), 
-                            info2: getSexDescription(
-                                animal.sex ?? ''), 
+                            info1: getAnimalTypeName(animal.typeAnimal),
+                            info2: getSexDescription(animal.sex ?? ''),
                             onTap: () {
-                              showAnimalDetailDialog(
-                                  context, animal, _animalTypes, _colaboradores, _fetchData);
+                              showAnimalDetailDialog(context, animal,
+                                  _animalTypes, _colaboradores, _fetchData);
                             },
                           ),
                         );

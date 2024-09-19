@@ -1,4 +1,4 @@
-
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:flutter/material.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -31,6 +31,10 @@ Future<void> showAddAnimalDialog(
   final formKey = GlobalKey<FormState>();
   bool isLoading = false; // Adiciona a variável de estado de carregamento
 
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider);
+  final animalRepository = AnimalRepository(customDio);
+
   showDialog(
     context: context,
     builder: (context) {
@@ -41,8 +45,9 @@ Future<void> showAddAnimalDialog(
               homes = colaborador.homes
                       ?.map((homeJson) => Home.fromMap(homeJson))
                       .where((home) => home.status == true)
-                      .toList() ?? [];
-              
+                      .toList() ??
+                  [];
+
               if (homes.isEmpty) {
                 selectedHome = null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,7 +106,8 @@ Future<void> showAddAnimalDialog(
                     ),
                     DropdownButtonFormField<Usuario>(
                       value: selectedColaborador,
-                      decoration: const InputDecoration(labelText: 'Selecione o Colaborador'),
+                      decoration: const InputDecoration(
+                          labelText: 'Selecione o Colaborador'),
                       items: colaboradores.map((colaborador) {
                         return DropdownMenuItem<Usuario>(
                           value: colaborador,
@@ -160,7 +166,8 @@ Future<void> showAddAnimalDialog(
                     ),
                     DropdownButtonFormField<AnimalType>(
                       value: selectedAnimalType,
-                      decoration: const InputDecoration(labelText: 'Tipo de Animal'),
+                      decoration:
+                          const InputDecoration(labelText: 'Tipo de Animal'),
                       items: animalTypes.map((type) {
                         return DropdownMenuItem<AnimalType>(
                           value: type,
@@ -229,7 +236,7 @@ Future<void> showAddAnimalDialog(
                   Navigator.of(context).pop();
                 },
               ),
-              isLoading 
+              isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: isLoading
@@ -237,16 +244,14 @@ Future<void> showAddAnimalDialog(
                           : () async {
                               if (formKey.currentState?.validate() ?? false) {
                                 if (selectedHome == null) {
-                                  TopSnackBar.show(context, 'Por favor, selecione um lar', false);
+                                  TopSnackBar.show(context,
+                                      'Por favor, selecione um lar', false);
                                   return;
                                 }
 
                                 setState(() {
                                   isLoading = true; // Ativa o carregamento
                                 });
-
-                                final loginProvider = Provider.of<LoginController>(context, listen: false);
-                                final animalRepository = AnimalRepository();
 
                                 try {
                                   final newAnimal = Animal(
@@ -261,16 +266,19 @@ Future<void> showAddAnimalDialog(
                                     home: selectedHome,
                                   );
 
-                                  await animalRepository.addAnimal(newAnimal, loginProvider.token);
+                                  await animalRepository.addAnimal(newAnimal);
 
                                   Navigator.of(context).pop();
                                   onAnimalUpdated();
-                                  TopSnackBar.show(context, 'Animal adicionado com sucesso', true);
+                                  TopSnackBar.show(context,
+                                      'Animal adicionado com sucesso', true);
                                 } catch (e) {
-                                  TopSnackBar.show(context, 'Erro ao adicionar animal', false);
+                                  TopSnackBar.show(context,
+                                      'Erro ao adicionar animal', false);
                                 } finally {
                                   setState(() {
-                                    isLoading = false; // Desativa o carregamento
+                                    isLoading =
+                                        false; // Desativa o carregamento
                                   });
                                 }
                               }

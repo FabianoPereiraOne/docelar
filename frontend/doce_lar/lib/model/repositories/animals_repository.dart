@@ -1,31 +1,24 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 
 class AnimalRepository {
-  final String url = 'https://docelar-pearl.vercel.app';
+  final CustomDio dio;
 
-  final dio = Dio();
+  AnimalRepository(this.dio); // Aceitando o CustomDio no construtor
 
-  // Novo método para buscar animais
-  Future<List<Animal>> fetchAnimais(String token) async {
+  // Método para buscar animais
+  Future<List<Animal>> fetchAnimais() async {
     try {
-      String endpoint = '$url/animals';
-      Response response = await dio.get(endpoint,
-          options: Options(headers: {
-            "Accept": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Authorization": "$token"
-          }));
+      String endpoint = 'animals'; // Endpoint relativo
+      Response response = await dio.get(endpoint);
 
       if (response.statusCode == 200) {
-        // Verificar se response.data é um Map
         if (response.data is Map<String, dynamic>) {
           Map<String, dynamic> data = response.data;
-          //log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
-            // Mapeia os dados para uma lista de animais
             return (data['data'] as List)
                 .map<Animal>((e) => Animal.fromMap(e as Map<String, dynamic>))
                 .toList();
@@ -40,10 +33,10 @@ class AnimalRepository {
       }
     } on DioException catch (e) {
       if (e.response != null) {
-        // log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
-        //  log('Resposta do servidor: ${e.response?.data}');
+        log('Erro na solicitação: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+        log('Resposta do servidor: ${e.response?.data}');
       } else {
-        // log('Erro na solicitação: ${e.message}');
+        log('Erro na solicitação: ${e.message}');
       }
       throw e;
     } catch (e, s) {
@@ -52,34 +45,25 @@ class AnimalRepository {
     }
   }
 
-  Future<void> addAnimal(Animal animal, String token) async {
+  // Método para adicionar um animal
+  Future<void> addAnimal(Animal animal) async {
     try {
-      // Defina o endpoint da API
-      String endpoint = '$url/animals';
+      String endpoint = 'animals'; // Endpoint relativo
+      Map<String, dynamic> animalData = {
+        'name': animal.name,
+        'description': animal.description,
+        'sex': animal.sex,
+        'castrated': animal.castrated,
+        'race': animal.race,
+        'typeAnimalId': animal.typeAnimalId,
+        'homeId': animal.home?.id, // Certifique-se de que este ID é válido
+      };
 
-      // Crie um mapa de dados com todos os campos necessários, incluindo homeId
-    Map<String, dynamic> animalData = {
-      'name': animal.name,
-      'description': animal.description,
-      'sex': animal.sex,
-      'castrated': animal.castrated,
-      'race': animal.race,
-      'typeAnimalId': animal.typeAnimalId,
-      'homeId': animal.home?.id, // Certifique-se de que este ID é válido
-    };
-
-      // Faça a requisição POST para adicionar o animal
       Response response = await dio.post(
         endpoint,
-        data: animalData, // Envie o mapa de dados como JSON
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
+        data: animalData,
       );
 
-      // Verifique a resposta da API
       if (response.statusCode == 201) {
         log('Animal adicionado com sucesso!');
       } else {
@@ -99,12 +83,10 @@ class AnimalRepository {
     }
   }
 
-  Future<void> updateAnimal(Animal animal, String token) async {
+  // Método para atualizar um animal
+  Future<void> updateAnimal(Animal animal) async {
     try {
-      // Defina o endpoint da API
-      String endpoint = '$url/animals';
-
-      // Crie um mapa de dados com todos os campos necessários, incluindo o ID
+      String endpoint = 'animals'; // Endpoint relativo
       Map<String, dynamic> animalData = {
         'id': animal.id,
         'name': animal.name,
@@ -119,20 +101,11 @@ class AnimalRepository {
         'dateExit': animal.dateExit,
       };
 
-      log(DateTime.now().toIso8601String());
-
-      // Faça a requisição PATCH para atualizar o animal
       Response response = await dio.patch(
         endpoint,
-        data: animalData, // Envie o mapa de dados como JSON
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
+        data: animalData,
       );
 
-      // Verifique a resposta da API
       if (response.statusCode == 200) {
         log('Animal atualizado com sucesso!');
       } else {
@@ -152,18 +125,13 @@ class AnimalRepository {
     }
   }
 
-  Future<void> deleteAnimal(String animalId, String token) async {
+  // Método para excluir um animal
+  Future<void> deleteAnimal(String animalId) async {
     try {
-      // Inclua o animalId como um parâmetro de consulta na URL
-      String endpoint = '$url/animals?id=$animalId';
+      String endpoint = 'animals?id=$animalId'; // Endpoint relativo
 
       Response response = await dio.delete(
         endpoint,
-        options: Options(headers: {
-          "Accept": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Authorization": "$token"
-        }),
       );
 
       if (response.statusCode == 200) {

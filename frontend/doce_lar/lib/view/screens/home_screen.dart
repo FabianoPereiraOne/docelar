@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height,
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('images/home.png'), // caminho da imagem
                 fit: BoxFit.cover, // ajusta a imagem para cobrir o fundo
@@ -23,34 +23,27 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Container(
                   height: MediaQuery.of(context).size.height * 0.40,
-                  // decoration: BoxDecoration(
-                  //   boxShadow: [
-                  //     BoxShadow(
-                  //       color: Colors.black.withOpacity(0.5),
-                  //       spreadRadius: 5,
-                  //       blurRadius: 10,
-                  //       offset: Offset(0, 5),
-                  //     ),
-                  //   ],
-                  //   // color: Color.fromARGB(255, 146, 194, 147),
-                  //   borderRadius: BorderRadius.only(
-                  //     bottomLeft: Radius.circular(50),
-                  //     bottomRight: Radius.circular(50),
-                  //   ),
-                  // ),
                 ),
-                CustomButtom(onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/colaboradores');
-                }, text: "COLABORADORES"),
-                CustomButtom(onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/animais');
-                }, text: "ANIMAIS"),
-                CustomButtom(onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/procedures');
-                }, text: "PROCEDIMENTOS"),
-                CustomButtom(onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/doctors');
-                }, text: "MÉDICOS"),
+                CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/colaboradores');
+                    },
+                    text: "COLABORADORES"),
+                CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/animais');
+                    },
+                    text: "ANIMAIS"),
+                CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/procedures');
+                    },
+                    text: "PROCEDIMENTOS"),
+                CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/doctors');
+                    },
+                    text: "MÉDICOS"),
               ],
             ),
           ),

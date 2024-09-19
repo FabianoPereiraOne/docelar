@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 class DeleteRepository {
   final String url = 'https://docelar-pearl.vercel.app';
+  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
   final dio = Dio();
 
 
