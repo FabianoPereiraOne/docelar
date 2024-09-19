@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DeleteAnimals;
 const operation_1 = require("../../middlewares/operation");
 const schemas_1 = require("../../schemas");
-const delete_1 = require("../../services/prisma/animals/delete");
 const fetch_1 = require("../../services/prisma/animals/fetch");
+const update_1 = require("../../services/prisma/animals/update");
 const statusCode_1 = require("../../utils/statusCode");
 async function DeleteAnimals(server) {
     server.delete("/animals", {
@@ -21,7 +21,7 @@ async function DeleteAnimals(server) {
                     description: "We were unable to locate the animal"
                 });
             }
-            const data = await (0, delete_1.deleteAnimal)(id);
+            const data = await (0, update_1.updateAnimal)({ id, status: false });
             return reply.status(statusCode_1.statusCode.success.status).send({
                 data
             });
