@@ -41,5 +41,9 @@ exports.statusCode = {
     serverError: {
         status: 500,
         error: "Internal Server Error"
+    },
+    tokenExpired: {
+        status: 498,
+        error: "Token Expired"
     }
 };

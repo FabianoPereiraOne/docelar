@@ -18,7 +18,7 @@ export const OperationMiddleware = async (
   }
 
   try {
-    const collaborator = await useVerifyToken(token!)
+    const collaborator = await useVerifyToken(token!, reply)
     const isValidToken = !!collaborator
 
     if (!isValidToken) {

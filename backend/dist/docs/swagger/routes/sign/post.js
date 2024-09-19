@@ -125,6 +125,10 @@ exports.PostConfigSign = {
             description: "headers or body must have required property \nbody/property must match pattern",
             error: "Bad Request"
         },
+        "498": {
+            description: "The token has expired. Please refresh your token",
+            error: "Token Expired"
+        },
         "500": {
             description: "Something unexpected happened during processing on the server",
             error: "Internal Server Error"

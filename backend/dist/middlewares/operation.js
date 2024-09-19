@@ -14,7 +14,7 @@ const OperationMiddleware = async (request, reply) => {
         });
     }
     try {
-        const collaborator = await (0, useVerifyToken_1.useVerifyToken)(token);
+        const collaborator = await (0, useVerifyToken_1.useVerifyToken)(token, reply);
         const isValidToken = !!collaborator;
         if (!isValidToken) {
             return reply.status(statusCode_1.statusCode.unprocessableEntity.status).send({

@@ -58,6 +58,10 @@ export const PatchConfigTypesAnimals = {
       description: "This token is not valid",
       error: "Unprocessable Entity"
     },
+    "498": {
+      description: "The token has expired. Please refresh your token",
+      error: "Token Expired"
+    },
     "500": {
       description:
         "Something unexpected happened during processing on the server",
