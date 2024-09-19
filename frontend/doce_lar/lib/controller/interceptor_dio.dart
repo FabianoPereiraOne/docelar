@@ -33,14 +33,21 @@ class CustomDio extends DioForNative {
         return handler.next(response);
       },
        onError: (DioException error, handler) async {
-        if (error.response != null && error.response!.statusCode == 498) {
-          loginController.token = '';
-          log('token inválido pelo interceptor');
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-          TopSnackBar.show(context, 'Sessão expirada, faça login novamente', false);
-        }
-        return handler.next(error);
-      },
+  if (error.response != null && error.response!.statusCode == 498) {
+    // loginController.token = '';
+    log('token inválido pelo interceptor');
+    // Adiar a navegação para garantir que o contexto esteja disponível
+    Future.delayed(Duration.zero, () {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
+    });
+    TopSnackBar.show(context, 'Sessão expirada, faça login novamente', false);
+  }
+  return handler.next(error);
+},
     ));
   }
 }

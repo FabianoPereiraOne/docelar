@@ -18,7 +18,7 @@ class ProcedureRepository {
       if (response.statusCode == 200) {
         if (response.data is Map<String, dynamic>) {
           Map<String, dynamic> data = response.data;
-          log(data.toString());
+          // log(data.toString());
 
           if (data.containsKey('data') && data['data'] is List) {
             // Mapeia os dados para uma lista de procedimentos
