@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DeleteDoctors;
 const operation_1 = require("../../middlewares/operation");
 const schemas_1 = require("../../schemas");
-const delete_1 = require("../../services/prisma/doctors/delete");
 const fetch_1 = require("../../services/prisma/doctors/fetch");
+const update_1 = require("../../services/prisma/doctors/update");
 const statusCode_1 = require("../../utils/statusCode");
 async function DeleteDoctors(server) {
     server.delete("/doctors", {
@@ -21,7 +21,7 @@ async function DeleteDoctors(server) {
                     description: "We were unable to locate the doctor"
                 });
             }
-            const data = await (0, delete_1.deleteDoctor)(id);
+            const data = await (0, update_1.updateDoctor)({ id, status: false });
             return reply.status(statusCode_1.statusCode.success.status).send({
                 data
             });
