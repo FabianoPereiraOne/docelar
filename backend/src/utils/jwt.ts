@@ -28,5 +28,5 @@ export async function verify(authorization: string, reply: FastifyReply) {
 }
 
 export async function sign(payload: PayloadType) {
-  return jwt.sign(payload, secret, { algorithm: "HS256", expiresIn: "1m" })
+  return jwt.sign(payload, secret, { algorithm: "HS256", expiresIn: "2h" })
 }

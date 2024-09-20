@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { OperationMiddleware } from "../../middlewares/operation"
 import { Schemas } from "../../schemas"
-import { deleteAnimal } from "../../services/prisma/animals/delete"
 import { fetchAnimal } from "../../services/prisma/animals/fetch"
+import { updateAnimal } from "../../services/prisma/animals/update"
 import { CustomTypeDelete } from "../../types/request/general"
 import { statusCode } from "../../utils/statusCode"
 
@@ -26,8 +26,7 @@ export default async function DeleteAnimals(server: FastifyInstance) {
           })
         }
 
-        //const data = await updateAnimal({ id, status: false })
-        const data = await deleteAnimal(id)
+        const data = await updateAnimal({ id, status: false })
         return reply.status(statusCode.success.status).send({
           data
         })
