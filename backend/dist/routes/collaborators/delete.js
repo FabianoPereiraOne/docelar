@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DeleteCollaborators;
+const client_1 = require("@prisma/client");
 const operation_1 = require("../../middlewares/operation");
 const schemas_1 = require("../../schemas");
-const delete_1 = require("../../services/prisma/collaborators/delete");
 const fetch_1 = require("../../services/prisma/collaborators/fetch");
+const update_1 = require("../../services/prisma/collaborators/update");
 const statusCode_1 = require("../../utils/statusCode");
 async function DeleteCollaborators(server) {
     server.delete("/collaborators", { preHandler: operation_1.OperationMiddleware, schema: schemas_1.Schemas.general.delete }, async (request, reply) => {
@@ -18,9 +19,8 @@ async function DeleteCollaborators(server) {
                     description: "We were unable to locate the collaborator"
                 });
             }
-            // const dataDelete = { id, statusAccount: false, type: Role.USER }
-            // const data = await updateCollaborator(dataDelete)
-            const data = await (0, delete_1.deleteCollaborator)(id);
+            const dataDelete = { id, statusAccount: false, type: client_1.Role.USER };
+            const data = await (0, update_1.updateCollaborator)(dataDelete);
             return reply.status(statusCode_1.statusCode.success.status).send({
                 data
             });
