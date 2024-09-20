@@ -8,7 +8,6 @@ import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
 
-
 class DoctorListScreen extends StatefulWidget {
   const DoctorListScreen({super.key});
 
@@ -29,9 +28,9 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
   }
 
   void _fetchDoctors() async {
- final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final customDio = CustomDio(loginProvider, context);
-  final doctorRepository = DoctorRepository(customDio);
+    final loginProvider = Provider.of<LoginController>(context, listen: false);
+    final customDio = CustomDio(loginProvider, context);
+    final doctorRepository = DoctorRepository(customDio);
 
     setState(() {
       _isLoading = true;
@@ -101,8 +100,8 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
                             title: doctor.name.toString(),
                             info1: doctor.expertise.toString(),
                             info2: doctor.phone.toString(),
-                            onTap: () {
-                              showDoctorDetailDialog(
+                            onTap: () async {
+                              await showDoctorDetailDialog(
                                   context, doctor, _fetchDoctors);
                             },
                           ),

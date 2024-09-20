@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 
 class UsuarioRepository {
-  final String url = 'https://docelar-pearl.vercel.app';
-  // final String url = 'https://docelar-git-backstage-fabianopereiraones-projects.vercel.app/';
+  final String url = 'http://patrick.vps-kinghost.net:7001';
+
   final dio = Dio();
 
 
@@ -32,11 +32,7 @@ class UsuarioRepository {
         data: jsonEncode(body), // Codifica o corpo como JSON
         options: options, // Adiciona o cabeçalho com a senha
       );
-      //log('$response');
-      //log("${response.statusCode}");
-      // Retorna o token de autorização
-      //log('${response.data}');
-      //return response.data;
+
       return Usuario.fromMap(response.data);
       // Supondo que o token esteja na resposta como um campo 'token'
     } on DioException catch (e, s) {

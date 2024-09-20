@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
@@ -62,15 +63,15 @@ Future<void> showHomeDetailDialog(
             ),
             actions: [
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showDeleteDialog(
+                onPressed: () async {
+                  await showDeleteDialog(
                     context,
                     home.id!,
                     'homes',
                     'lar',
                     onHomeUpdated,
                   );
+                  Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Deletar'),
@@ -90,14 +91,14 @@ Future<void> showHomeDetailDialog(
   );
 }
 
-void showDeleteDialog(
+Future<void> showDeleteDialog(
   BuildContext context,
   String itemId,
   String route,
   String entityType,
   Function() onDeleted,
-) {
-  showDialog(
+) async {
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return DeleteConfirmationDialog(
@@ -127,7 +128,7 @@ Future<void> _showEditHomeDialog(
 
   bool initialStatus = home.status ?? true;
   bool status = initialStatus;
-  
+
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final homeRepository = HomeRepository(customDio);
@@ -238,7 +239,12 @@ Future<void> _showEditHomeDialog(
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onHomeUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    log('Erro ao editar Lar: $e');
+                    if (e is DioException && e.response!.statusCode != 498) {
+                      log(e.toString());
+                      TopSnackBar.show(context, 'Erro ao atualizar lar', false);
+                    } else {
+                      rethrow;
+                    }
                   }
                 },
               ),

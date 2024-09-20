@@ -78,9 +78,11 @@ class ProcedureRepository {
   // Método para atualizar um procedimento
   Future<void> updateProcedure(Procedure procedure) async {
     try {
-      String endpoint = '/procedures/${procedure.id}';
+      String endpoint = '/procedures';
+
 
       Map<String, dynamic> procedureData = {
+        'id': procedure.id,
         'name': procedure.name,
         'description': procedure.description,
         'dosage': procedure.dosage,

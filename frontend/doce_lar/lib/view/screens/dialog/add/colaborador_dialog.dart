@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -13,7 +14,6 @@ import 'package:provider/provider.dart';
 
 Future<void> showColaboradorDialog(
     BuildContext context, Function() onColaboradorUpdate) async {
-      
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -25,18 +25,21 @@ Future<void> showColaboradorDialog(
   String selectedUserType = 'USER';
   bool isLoading = false;
 
-     final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final customDio = CustomDio(loginProvider, context);
-    final colaboradorRepository = ColaboradorRepository(customDio);
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final colaboradorRepository = ColaboradorRepository(customDio);
 
   Future<bool> isEmailInUse(String email) async {
-    
-    
     try {
       final colaboradores = await colaboradorRepository.fetchColaboradores();
       return colaboradores.any((colaborador) => colaborador.email == email);
     } catch (e) {
-      log(e.toString());
+      if (e is DioException && e.response!.statusCode != 498) {
+        log(e.toString());
+        TopSnackBar.show(context, 'Erro ao verificar e-mail', false);
+      } else {
+        rethrow;
+      }
       return false;
     }
   }
@@ -69,17 +72,22 @@ Future<void> showColaboradorDialog(
           newColaborador,
           passwordController.text,
         );
-        
+
         // Atualiza a lista e fecha o diálogo
         onColaboradorUpdate();
-        
+
         TopSnackBar.show(context, 'Colaborador adicionado com sucesso!', true);
-        
+
         // Exibe o diálogo de adicionar endereço
         await showEnderecoDialog(context, colaboradorId, onColaboradorUpdate);
         Navigator.of(context).pop();
       } catch (e) {
-       log(e.toString());
+        if (e is DioException && e.response!.statusCode != 498) {
+          log(e.toString());
+          TopSnackBar.show(context, 'Erro ao adicionar colaborador', false);
+        } else {
+          rethrow;
+        }
       } finally {
         // Finaliza o carregamento
         isLoading = false;
@@ -87,7 +95,7 @@ Future<void> showColaboradorDialog(
     }
   }
 
- await showDialog(
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
@@ -102,7 +110,8 @@ Future<void> showColaboradorDialog(
                   children: [
                     TextFormField(
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[a-zA-Z\s]')),
                       ],
                       controller: nameController,
                       decoration: InputDecoration(

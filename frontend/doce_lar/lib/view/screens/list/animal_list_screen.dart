@@ -107,8 +107,8 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     });
   }
 
-  void _showAddAnimalDialog() {
-    showAddAnimalDialog(
+  void _showAddAnimalDialog() async {
+    await showAddAnimalDialog(
       context,
       _colaboradores,
       _animalTypes,
@@ -257,8 +257,8 @@ class _AnimalListScreenState extends State<AnimalListScreen>
                             title: animal.name.toString(),
                             info1: getAnimalTypeName(animal.typeAnimal),
                             info2: getSexDescription(animal.sex ?? ''),
-                            onTap: () {
-                              showAnimalDetailDialog(context, animal,
+                            onTap: () async {
+                              await showAnimalDetailDialog(context, animal,
                                   _animalTypes, _colaboradores, _fetchData);
                             },
                           ),

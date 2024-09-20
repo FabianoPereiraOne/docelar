@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
@@ -15,9 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showDoctorDetailDialog(
+Future<void> showDoctorDetailDialog(
     BuildContext context, Doctor doctor, Function() onDoctorUpdated) async {
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return Dialog(
@@ -97,10 +98,10 @@ void showDoctorDetailDialog(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    _showEditDoctorDialog(
+                                  onPressed: () async {
+                                    await _showEditDoctorDialog(
                                         context, doctor, onDoctorUpdated);
+                                    Navigator.of(context).pop();
                                   },
                                   child: const Text('Editar'),
                                 ),
@@ -155,9 +156,8 @@ void showDoctorDetailDialog(
                                                       ),
                                                   ],
                                                 ),
-                                                onTap: () {
-                                                  // Exibir detalhes do serviço ao clicar
-                                                  showServiceDetailsDialog(
+                                                onTap: () async {
+                                                  await showServiceDetailsDialog(
                                                       context, service.id!, () {
                                                     Navigator.of(context).pop();
                                                     onDoctorUpdated();
@@ -246,8 +246,8 @@ Future<Map<String, String>?> _buscarCep(String cep) async {
   return null;
 }
 
-void _showEditDoctorDialog(
-    BuildContext context, Doctor doctor, Function() onDoctorUpdated) {
+Future<void> _showEditDoctorDialog(
+    BuildContext context, Doctor doctor, Function() onDoctorUpdated) async {
   final TextEditingController nameController =
       TextEditingController(text: doctor.name ?? '');
   final TextEditingController crmvController =
@@ -280,7 +280,7 @@ void _showEditDoctorDialog(
   final customDio = CustomDio(loginProvider, context);
   final doctorRepository = DoctorRepository(customDio);
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -416,9 +416,13 @@ void _showEditDoctorDialog(
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onDoctorUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    TopSnackBar.show(
-                        context, 'Erro ao atualizar médico', false);
-                    log('Erro ao editar médico: $e');
+                    if (e is DioException && e.response!.statusCode != 498) {
+                      log(e.toString());
+                      TopSnackBar.show(
+                          context, 'Erro ao atualizar médico', false);
+                    } else {
+                      rethrow;
+                    }
                   }
                 },
               ),

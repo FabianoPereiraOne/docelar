@@ -112,8 +112,8 @@ class _ProcedureListScreenState extends State<ProcedureListScreen> {
                               title: procedure.name.toString(),
                               info1: procedure.description.toString(),
                               info2: procedure.dosage.toString(),
-                              onTap: () {
-                                showProcedureDetailDialog(
+                              onTap: () async {
+                                await showProcedureDetailDialog(
                                     context, procedure, _fetchProcedures);
                               },
                             ),

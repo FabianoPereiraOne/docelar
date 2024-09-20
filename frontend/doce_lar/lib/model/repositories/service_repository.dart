@@ -71,7 +71,7 @@ class ServiceRepository {
   // Método para atualizar um serviço
   Future<void> updateService(Service service) async {
     try {
-      String endpoint = '/services/${service.id}'; // Adicionando o ID do serviço ao endpoint
+      String endpoint = '/services'; // Adicionando o ID do serviço ao endpoint
       Map<String, dynamic> serviceData = service.toMap();
 
       Response response = await dio.patch(endpoint, data: serviceData);
@@ -117,7 +117,7 @@ class ServiceRepository {
       String endpoint = '/services/$id'; // Ajuste o endpoint conforme necessário
       Response response = await dio.get(endpoint);
 
-      log('Resposta da API para serviço por ID: ${response.data}'); // Log adicional
+      // log('Resposta da API para serviço por ID: ${response.data}'); // Log adicional
 
       if (response.statusCode == 200) {
         final responseData = response.data;

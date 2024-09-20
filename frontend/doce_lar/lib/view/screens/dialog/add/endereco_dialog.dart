@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
@@ -62,7 +63,12 @@ Future<void> showEnderecoDialog(
         await homeRepository.addHome(newHome);
         return true;
       } catch (e) {
-        return false;
+        if (e is DioException && e.response!.statusCode != 498) {
+          log(e.toString());
+          TopSnackBar.show(context, 'Erro ao adicionar endereço', false);
+        } else {
+          rethrow;
+        }
       }
     }
     return false;

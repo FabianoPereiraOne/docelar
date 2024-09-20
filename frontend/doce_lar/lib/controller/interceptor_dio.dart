@@ -10,7 +10,7 @@ class CustomDio extends DioForNative {
   final LoginController loginController;
 
   CustomDio(this.loginController, BuildContext context) {
-    options.baseUrl = "https://docelar-pearl.vercel.app";
+    options.baseUrl = "http://patrick.vps-kinghost.net:7001";
 
     options.connectTimeout = const Duration(seconds: 30);
     options.receiveTimeout = const Duration(seconds: 30);
@@ -34,7 +34,7 @@ class CustomDio extends DioForNative {
       },
        onError: (DioException error, handler) async {
   if (error.response != null && error.response!.statusCode == 498) {
-    // loginController.token = '';
+    loginController.token = '';
     log('token inválido pelo interceptor');
     // Adiar a navegação para garantir que o contexto esteja disponível
     Future.delayed(Duration.zero, () {

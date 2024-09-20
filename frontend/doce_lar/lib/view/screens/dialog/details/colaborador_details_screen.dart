@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
@@ -15,9 +16,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
-    Function() onColaboradorUpdated) {
-  showDialog(
+Future<void> showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
+    Function() onColaboradorUpdated) async {
+  await showDialog(
     context: context,
     builder: (context) {
       return Dialog(
@@ -326,7 +327,13 @@ Future<void> _showEditColaboradorDialog(BuildContext context,
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    log('Erro ao editar colaborador e lares: $e');
+                    if (e is DioException && e.response!.statusCode != 498) {
+                      log(e.toString());
+                      TopSnackBar.show(
+                          context, 'Erro ao atualizar colaborador', false);
+                    } else {
+                      rethrow;
+                    }
                   }
                 },
               ),

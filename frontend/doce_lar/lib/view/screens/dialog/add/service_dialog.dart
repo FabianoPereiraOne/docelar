@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
@@ -70,7 +71,12 @@ Future<void> showServiceDialog(
         callback();
         Navigator.of(dialogContext).pop();
       } catch (e) {
-        log('Erro ao adicionar serviço: $e');
+        if (e is DioException && e.response!.statusCode != 498) {
+          log(e.toString());
+          TopSnackBar.show(context, 'Erro ao adicionar serviço', false);
+        } else {
+          rethrow;
+        }
       } finally {
         setState(() {
           isLoading =

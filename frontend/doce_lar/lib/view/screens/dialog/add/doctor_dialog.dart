@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
@@ -190,8 +191,14 @@ Future<void> showAddDoctorDialog(BuildContext context, Function() callback) asyn
                                   callback();
                                   Navigator.of(context).pop();
                                   TopSnackBar.show(context, 'Médico adicionado com sucesso!', true);
-                                } catch (e) {
-                                  log(e.toString());
+                               } catch (e) {
+                                  if (e is DioException && e.response!.statusCode != 498) {
+                                    log(e.toString());
+                                    TopSnackBar.show(context,
+                                        'Erro ao adicionar médico', false);
+                                  } else {
+                                    rethrow;
+                                  }
                                 } finally {
                                   setState(() {
                                     isLoading = false; // Finaliza o carregamento

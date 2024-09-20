@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
@@ -18,7 +19,7 @@ import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showAnimalDetailDialog(
+Future<void> showAnimalDetailDialog(
     BuildContext context,
     Animal animal,
     List<AnimalType> animalTypes,
@@ -47,7 +48,7 @@ void showAnimalDetailDialog(
     }
   }
   Navigator.of(context).pop();
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return Dialog(
@@ -182,14 +183,14 @@ void showAnimalDetailDialog(
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          _showEditAnimalDialog(
+                                        onPressed: () async {
+                                          await _showEditAnimalDialog(
                                               context,
                                               animal,
                                               animalTypes,
                                               colaboradores,
                                               onAnimalUpdated);
+                                          Navigator.of(context).pop();
                                         },
                                         child: const Text('Editar'),
                                       ),
@@ -248,8 +249,8 @@ void showAnimalDetailDialog(
                                                           ),
                                                       ],
                                                     ),
-                                                    onTap: () {
-                                                      showServiceDetailsDialog(
+                                                    onTap: () async {
+                                                      await showServiceDetailsDialog(
                                                           context, service.id!,
                                                           () {
                                                         Navigator.of(context)
@@ -334,12 +335,12 @@ Future<List<Service>> _fetchServicesWithProcedures(
   return services;
 }
 
-void _showEditAnimalDialog(
+Future<void> _showEditAnimalDialog(
     BuildContext context,
     Animal animal,
     List<AnimalType> animalTypes,
     List<Usuario> colaboradores,
-    Function() onAnimalUpdated) {
+    Function() onAnimalUpdated) async {
   final TextEditingController nameController =
       TextEditingController(text: animal.name ?? '');
   final TextEditingController descriptionController =
@@ -403,7 +404,7 @@ void _showEditAnimalDialog(
     );
   }).toList();
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -588,7 +589,13 @@ void _showEditAnimalDialog(
                     Navigator.of(context).pop();
                     onAnimalUpdated();
                   } catch (e) {
-                    TopSnackBar.show(context, 'Erro ao editar animal', false);
+                    if (e is DioException && e.response!.statusCode != 498) {
+                      log(e.toString());
+                      TopSnackBar.show(
+                          context, 'Erro ao atualizar animal', false);
+                    } else {
+                      rethrow;
+                    }
                   }
                 },
               ),

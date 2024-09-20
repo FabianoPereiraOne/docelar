@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
@@ -15,7 +16,7 @@ import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showServiceDetailsDialog(
+Future<void> showServiceDetailsDialog(
     BuildContext context, String serviceId, Function() onServiceUpdated) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
@@ -55,7 +56,7 @@ void showServiceDetailsDialog(
         : items.map((item) => getName(item)).join(', ');
   }
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -132,18 +133,20 @@ void showServiceDetailsDialog(
             ),
             actions: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  await showDeleteDialog(context, serviceId, 'services',
+                      'Serviço', onServiceUpdated);
+
                   Navigator.of(context).pop();
-                  showDeleteDialog(context, serviceId, 'services', 'Serviço',
-                      onServiceUpdated);
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Deletar'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  await _showEditServiceDialog(
+                      context, service!, onServiceUpdated);
                   Navigator.of(context).pop();
-                  _showEditServiceDialog(context, service!, onServiceUpdated);
                 },
                 child: const Text('Editar'),
               ),
@@ -155,14 +158,14 @@ void showServiceDetailsDialog(
   );
 }
 
-void showDeleteDialog(
+Future<void> showDeleteDialog(
   BuildContext context,
   String itemId,
   String route,
   String entityType,
   Function() onDeleted,
-) {
-  showDialog(
+) async {
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return DeleteConfirmationDialog(
@@ -175,8 +178,8 @@ void showDeleteDialog(
   );
 }
 
-void _showEditServiceDialog(
-    BuildContext context, Service service, Function() onServiceUpdated) {
+Future<void> _showEditServiceDialog(
+    BuildContext context, Service service, Function() onServiceUpdated) async {
   final TextEditingController descriptionController =
       TextEditingController(text: service.description ?? '');
   List<Doctor> doctors = [];
@@ -205,25 +208,33 @@ void _showEditServiceDialog(
       log('Erro: Médico ou Procedimento não selecionado corretamente');
       return;
     }
+    try {
+      final updatedService = Service(
+        id: service.id,
+        description: descriptionController.text,
+        doctors: [selectedDoctor!],
+        procedures: [selectedProcedure!],
+      );
 
-    final updatedService = Service(
-      id: service.id,
-      description: descriptionController.text,
-      doctors: [selectedDoctor!],
-      procedures: [selectedProcedure!],
-    );
-
-    await serviceRepository.updateService(updatedService);
-    TopSnackBar.show(
-      dialogContext,
-      'Serviço atualizado com sucesso',
-      true,
-    );
-    Navigator.of(dialogContext).pop();
-    onServiceUpdated();
+      await serviceRepository.updateService(updatedService);
+      TopSnackBar.show(
+        dialogContext,
+        'Serviço atualizado com sucesso',
+        true,
+      );
+      Navigator.of(dialogContext).pop();
+      onServiceUpdated();
+    } catch (e) {
+      if (e is DioException && e.response!.statusCode != 498) {
+        log(e.toString());
+        TopSnackBar.show(dialogContext, 'Erro ao atualizar serviço', false);
+      } else {
+        rethrow;
+      }
+    }
   }
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return FutureBuilder(

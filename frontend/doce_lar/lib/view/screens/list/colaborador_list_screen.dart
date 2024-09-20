@@ -106,8 +106,8 @@ class _ColaboradorListScreenState extends State<ColaboradorListScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,
-          onPressed: () {
-            showColaboradorDialog(context, _fetchColaboradores);
+          onPressed: () async {
+            await showColaboradorDialog(context, _fetchColaboradores);
           },
           child: const Icon(Icons.add),
         ),

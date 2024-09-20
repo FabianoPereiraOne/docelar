@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
@@ -31,8 +34,8 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
-                      decoration:
-                          const InputDecoration(labelText: 'Nome do Procedimento'),
+                      decoration: const InputDecoration(
+                          labelText: 'Nome do Procedimento'),
                       onChanged: (value) {
                         name = value;
                       },
@@ -106,8 +109,14 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                             TopSnackBar.show(context,
                                 'Procedimento adicionado com sucesso!', true);
                           } catch (e) {
-                            TopSnackBar.show(context,
-                                'Erro ao adicionar procedimento:', false);
+                            if (e is DioException &&
+                                e.response!.statusCode != 498) {
+                              log(e.toString());
+                              TopSnackBar.show(
+                                  context, 'Erro ao adicionar procedimento', false);
+                            } else {
+                              rethrow;
+                            }
                           } finally {
                             setState(() {
                               isLoading = false;

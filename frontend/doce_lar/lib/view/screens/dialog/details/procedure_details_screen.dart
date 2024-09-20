@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
@@ -10,9 +11,9 @@ import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showProcedureDetailDialog(BuildContext context, Procedure procedure,
-    Function() onProcedureUpdated) async {
-  showDialog(
+Future<void> showProcedureDetailDialog(BuildContext context,
+    Procedure procedure, Function() onProcedureUpdated) async {
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -45,21 +46,21 @@ void showProcedureDetailDialog(BuildContext context, Procedure procedure,
             ),
             actions: [
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _showEditProcedureDialog(
-                      context, procedure, onProcedureUpdated);
-                },
-                child: const Text('Editar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _showDeleteDialog(context, procedure.id!.toString(),
+                onPressed: () async {
+                  await _showDeleteDialog(context, procedure.id!.toString(),
                       'procedures', 'procedimento', onProcedureUpdated);
+                  Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Deletar'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _showEditProcedureDialog(
+                      context, procedure, onProcedureUpdated);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Editar'),
               ),
             ],
           );
@@ -69,14 +70,14 @@ void showProcedureDetailDialog(BuildContext context, Procedure procedure,
   );
 }
 
-void _showDeleteDialog(
+Future<void> _showDeleteDialog(
   BuildContext context,
   String itemId,
   String route,
   String entityType,
   Function() onDeleted,
-) {
-  showDialog(
+) async {
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return DeleteConfirmationDialog(
@@ -89,8 +90,8 @@ void _showDeleteDialog(
   );
 }
 
-void _showEditProcedureDialog(
-    BuildContext context, Procedure procedure, Function() onProcedureUpdated) {
+Future<void> _showEditProcedureDialog(BuildContext context, Procedure procedure,
+    Function() onProcedureUpdated) async {
   final TextEditingController nameController =
       TextEditingController(text: procedure.name ?? '');
   final TextEditingController descriptionController =
@@ -102,7 +103,7 @@ void _showEditProcedureDialog(
   final customDio = CustomDio(loginProvider, context);
   final procedureRepository = ProcedureRepository(customDio);
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -155,12 +156,13 @@ void _showEditProcedureDialog(
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
                     onProcedureUpdated(); // Atualizar a tela principal
                   } catch (e) {
-                    TopSnackBar.show(
-                      context,
-                      'Erro ao atualizar procedimento',
-                      true,
-                    );
-                    log('Erro ao editar procedimento: $e');
+                    if (e is DioException && e.response!.statusCode != 498) {
+                      log(e.toString());
+                      TopSnackBar.show(
+                          context, 'Erro ao atualizar procedimento', false);
+                    } else {
+                      rethrow;
+                    }
                   }
                 },
               ),
