@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showHomeDetailDialog(
+Future<void> showHomeDetailDialog(
     BuildContext context, Home home, Function() onHomeUpdated) async {
   showDialog(
     context: context,
@@ -76,9 +76,9 @@ void showHomeDetailDialog(
                 child: const Text('Deletar'),
               ),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Fechar o diálogo
-                  _showEditHomeDialog(context, home, onHomeUpdated);
+                onPressed: () async {
+                  await _showEditHomeDialog(context, home, onHomeUpdated);
+                  Navigator.of(context).pop();
                 },
                 child: const Text('Editar'),
               ),
@@ -110,8 +110,8 @@ void showDeleteDialog(
   );
 }
 
-void _showEditHomeDialog(
-    BuildContext context, Home home, Function() onHomeUpdated) {
+Future<void> _showEditHomeDialog(
+    BuildContext context, Home home, Function() onHomeUpdated) async {
   final TextEditingController cepController =
       MaskedTextController(mask: '00000-000', text: home.cep ?? '');
   final TextEditingController stateController =
@@ -141,7 +141,7 @@ void _showEditHomeDialog(
     }
   });
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -239,11 +239,6 @@ void _showEditHomeDialog(
                     onHomeUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     log('Erro ao editar Lar: $e');
-                    TopSnackBar.show(
-                      context,
-                      'Erro ao atualizar Lar',
-                      false,
-                    );
                   }
                 },
               ),

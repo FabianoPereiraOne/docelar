@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/repositories/homes_repository.dart';
@@ -8,8 +10,8 @@ import 'package:doce_lar/controller/login_controller.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showEnderecoDialog(
-    BuildContext context, String colaboradorId, Function() callback) {
+Future<void> showEnderecoDialog(
+    BuildContext context, String colaboradorId, Function() callback) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController ruaController = TextEditingController();
   final TextEditingController cidadeController = TextEditingController();
@@ -75,7 +77,7 @@ void showEnderecoDialog(
     numeroController.clear();
   }
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
@@ -222,11 +224,7 @@ void showEnderecoDialog(
                           callback();
                           Navigator.of(context).pop();
                         } else {
-                          TopSnackBar.show(
-                            context,
-                            'Falha ao adicionar endereço',
-                            false,
-                          );
+                          log('Erro ao adicionar endereço');
                         }
                       },
                       child: const Text('Concluir'),

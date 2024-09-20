@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:validatorless/validatorless.dart';
 
 
 class CustomInput extends StatelessWidget {
   final String hintText;
-  final String validatorText;
   final IconData icon;
   final TextEditingController controller;
 
@@ -12,7 +10,7 @@ class CustomInput extends StatelessWidget {
     super.key,
     required this.hintText,
     required this.icon,
-    required this.controller, required this.validatorText,
+    required this.controller,
   });
 
   @override
@@ -43,8 +41,6 @@ class CustomInput extends StatelessWidget {
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.only(left: 60, bottom: 10),
               ),
-              validator: Validatorless.multiple(
-                    [Validatorless.required('Informe um usuario')]),
             ),
           ),
           Positioned(

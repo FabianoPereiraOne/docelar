@@ -66,11 +66,10 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Fechar o diálogo
-                                    _showEditColaboradorDialog(context,
+                                  onPressed: () async {
+                                    await _showEditColaboradorDialog(context,
                                         colaborador, onColaboradorUpdated);
+                                    Navigator.of(context).pop();
                                   },
                                   child: const Text('Editar'),
                                 ),
@@ -97,8 +96,8 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                                             '${home.district}, ${home.number}'),
                                         trailing: const Icon(Icons.search,
                                             color: Colors.grey),
-                                        onTap: () {
-                                          showHomeDetailDialog(
+                                        onTap: () async {
+                                          await showHomeDetailDialog(
                                             context,
                                             home,
                                             () {
@@ -119,10 +118,10 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Fechar o diálogo
-                                showEnderecoDialog(context, colaborador.id!,
+                              onPressed: () async {
+                                await showEnderecoDialog(context, colaborador.id!,
                                     onColaboradorUpdated);
+                                Navigator.of(context).pop();
                               },
                               child: const Text('Adicionar Novo Lar'),
                             ),
@@ -153,8 +152,8 @@ void showColaboradorDetailDialog(BuildContext context, Usuario colaborador,
   );
 }
 
-void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
-    Function() onColaboradorUpdated) {
+Future<void> _showEditColaboradorDialog(BuildContext context,
+    Usuario colaborador, Function() onColaboradorUpdated) async {
   final TextEditingController nameController =
       TextEditingController(text: colaborador.name ?? '');
 
@@ -175,7 +174,7 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
   final homeRepository = HomeRepository(customDio);
   bool initialStatus = isActive; // Armazena o status inicial
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -328,11 +327,6 @@ void _showEditColaboradorDialog(BuildContext context, Usuario colaborador,
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     log('Erro ao editar colaborador e lares: $e');
-                    TopSnackBar.show(
-                      context,
-                      'Erro ao atualizar colaborador',
-                      false,
-                    );
                   }
                 },
               ),

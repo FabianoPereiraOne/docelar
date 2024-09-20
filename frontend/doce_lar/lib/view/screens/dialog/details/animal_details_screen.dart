@@ -18,8 +18,12 @@ import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType> animalTypes,
-    List<Usuario> colaboradores, Function() onAnimalUpdated) async {
+void showAnimalDetailDialog(
+    BuildContext context,
+    Animal animal,
+    List<AnimalType> animalTypes,
+    List<Usuario> colaboradores,
+    Function() onAnimalUpdated) async {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -28,7 +32,7 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
     },
   );
   final loginProvider = Provider.of<LoginController>(context, listen: false);
-    final customDio = CustomDio(loginProvider, context);
+  final customDio = CustomDio(loginProvider, context);
   final colaboradorRepository = ColaboradorRepository(customDio);
   String colaboradorName = 'N/A';
 
@@ -180,12 +184,15 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                       ElevatedButton(
                                         onPressed: () {
                                           Navigator.of(context).pop();
-                                          _showEditAnimalDialog(context, animal, animalTypes,
-                                              colaboradores,  onAnimalUpdated);
+                                          _showEditAnimalDialog(
+                                              context,
+                                              animal,
+                                              animalTypes,
+                                              colaboradores,
+                                              onAnimalUpdated);
                                         },
                                         child: const Text('Editar'),
                                       ),
-                                     
                                     ],
                                   ),
                                 ],
@@ -228,9 +235,11 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                                         service.createdAt)),
                                                     subtitle: Column(
                                                       crossAxisAlignment:
-                                                          CrossAxisAlignment.start,
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        if (service.procedures !=
+                                                        if (service
+                                                                .procedures !=
                                                             null)
                                                           ...service.procedures!
                                                               .map(
@@ -241,8 +250,10 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                                     ),
                                                     onTap: () {
                                                       showServiceDetailsDialog(
-                                                          context, service.id!, () {
-                                                        Navigator.of(context).pop();
+                                                          context, service.id!,
+                                                          () {
+                                                        Navigator.of(context)
+                                                            .pop();
                                                         onAnimalUpdated();
                                                       });
                                                     },
@@ -261,10 +272,10 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       ElevatedButton(
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          await showServiceDialog(context,
+                                              animal.id!, onAnimalUpdated);
                                           Navigator.of(context).pop();
-                                          showServiceDialog(context, animal.id!,
-                                              onAnimalUpdated);
                                         },
                                         child: const Text('Adicionar Serviço'),
                                       ),
@@ -302,7 +313,6 @@ void showAnimalDetailDialog(BuildContext context, Animal animal, List<AnimalType
   );
 }
 
-
 Future<List<Service>> _fetchServicesWithProcedures(
     List<String> serviceIds, BuildContext context) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
@@ -324,8 +334,12 @@ Future<List<Service>> _fetchServicesWithProcedures(
   return services;
 }
 
-void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType> animalTypes,
-    List<Usuario> colaboradores,  Function() onAnimalUpdated) {
+void _showEditAnimalDialog(
+    BuildContext context,
+    Animal animal,
+    List<AnimalType> animalTypes,
+    List<Usuario> colaboradores,
+    Function() onAnimalUpdated) {
   final TextEditingController nameController =
       TextEditingController(text: animal.name ?? '');
   final TextEditingController descriptionController =
@@ -337,9 +351,9 @@ void _showEditAnimalDialog(BuildContext context, Animal animal, List<AnimalType>
   String sex = animal.sex ?? 'M';
   bool castrated = animal.castrated ?? false;
   bool status = animal.status ?? true;
-     final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
-final animalRepository = AnimalRepository(customDio);
+  final animalRepository = AnimalRepository(customDio);
 
   Usuario? currentCollaborator = colaboradores.firstWhere(
     (collaborator) => collaborator.id == animal.home?.collaboratorId,
@@ -351,7 +365,7 @@ final animalRepository = AnimalRepository(customDio);
 
   List<Home> homes = [];
   List<DropdownMenuItem<String>> homeItems = [];
-  
+
   if (selectedCollaboratorId != null) {
     final selectedCollaborator = colaboradores.firstWhere(
         (collaborator) => collaborator.id == selectedCollaboratorId,
@@ -359,7 +373,8 @@ final animalRepository = AnimalRepository(customDio);
     homes = selectedCollaborator.homes
             ?.map((homeJson) => Home.fromMap(homeJson))
             .where((home) => home.status == true)
-            .toList() ?? [];
+            .toList() ??
+        [];
 
     homeItems = homes.map((home) {
       return DropdownMenuItem<String>(
@@ -398,8 +413,9 @@ final animalRepository = AnimalRepository(customDio);
               homes = colaborador.homes
                       ?.map((homeJson) => Home.fromMap(homeJson))
                       .where((home) => home.status == true)
-                      .toList() ?? [];
-              
+                      .toList() ??
+                  [];
+
               if (homes.isEmpty) {
                 selectedHomeId = null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -450,7 +466,8 @@ final animalRepository = AnimalRepository(customDio);
                     ),
                     DropdownButtonFormField<AnimalType>(
                       value: selectedAnimalType,
-                      decoration: const InputDecoration(labelText: 'Tipo de Animal'),
+                      decoration:
+                          const InputDecoration(labelText: 'Tipo de Animal'),
                       items: typeItems,
                       onChanged: (value) {
                         setState(() {
@@ -460,7 +477,8 @@ final animalRepository = AnimalRepository(customDio);
                     ),
                     DropdownButtonFormField<String>(
                       value: selectedCollaboratorId,
-                      decoration: const InputDecoration(labelText: 'Colaborador'),
+                      decoration:
+                          const InputDecoration(labelText: 'Colaborador'),
                       items: colaboradores.map((collaborator) {
                         return DropdownMenuItem<String>(
                           value: collaborator.id,
@@ -470,14 +488,17 @@ final animalRepository = AnimalRepository(customDio);
                       onChanged: (value) {
                         setState(() {
                           selectedCollaboratorId = value;
-                          updateHomes(colaboradores.firstWhere((collaborator) => collaborator.id == value, orElse: () => Usuario()));
+                          updateHomes(colaboradores.firstWhere(
+                              (collaborator) => collaborator.id == value,
+                              orElse: () => Usuario()));
                         });
                       },
                     ),
                     if (selectedCollaboratorId != null)
                       DropdownButtonFormField<String>(
                         value: selectedHomeId,
-                        decoration: const InputDecoration(labelText: 'Endereço'),
+                        decoration:
+                            const InputDecoration(labelText: 'Endereço'),
                         items: homeItems,
                         onChanged: (value) {
                           setState(() {
@@ -528,8 +549,6 @@ final animalRepository = AnimalRepository(customDio);
               ElevatedButton(
                 child: const Text('Salvar'),
                 onPressed: () async {
-                  
-
                   try {
                     final updatedAnimal = Animal(
                       id: animal.id,
@@ -550,8 +569,7 @@ final animalRepository = AnimalRepository(customDio);
                           : null,
                     );
 
-                    await animalRepository.updateAnimal(
-                        updatedAnimal);
+                    await animalRepository.updateAnimal(updatedAnimal);
 
                     if (initialStatus != status) {
                       TopSnackBar.show(
@@ -566,7 +584,7 @@ final animalRepository = AnimalRepository(customDio);
                         true,
                       );
                     }
-                    
+
                     Navigator.of(context).pop();
                     onAnimalUpdated();
                   } catch (e) {
@@ -581,4 +599,3 @@ final animalRepository = AnimalRepository(customDio);
     },
   );
 }
-

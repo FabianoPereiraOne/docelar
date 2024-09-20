@@ -12,8 +12,8 @@ import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 
-void showServiceDialog(
-    BuildContext context, String animalId, Function() callback) {
+Future<void> showServiceDialog(
+    BuildContext context, String animalId, Function() callback) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController descriptionController = TextEditingController();
 
@@ -70,7 +70,7 @@ void showServiceDialog(
         callback();
         Navigator.of(dialogContext).pop();
       } catch (e) {
-        TopSnackBar.show(dialogContext, 'Erro ao adicionar serviço', false);
+        log('Erro ao adicionar serviço: $e');
       } finally {
         setState(() {
           isLoading =
@@ -82,7 +82,7 @@ void showServiceDialog(
     }
   }
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(

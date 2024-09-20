@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/cep.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
@@ -5,10 +7,11 @@ import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:provider/provider.dart';
 
-void showAddDoctorDialog(BuildContext context, Function() callback) {
+Future<void> showAddDoctorDialog(BuildContext context, Function() callback) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController crmvController = TextEditingController();
@@ -49,7 +52,7 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
     }
   }
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -66,6 +69,9 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(labelText: 'Nome do Médico'),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                      ],
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
@@ -78,6 +84,9 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
                     TextFormField(
                       controller: expertiseController,
                       decoration: const InputDecoration(labelText: 'Especialidade'),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                      ],
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
@@ -182,7 +191,7 @@ void showAddDoctorDialog(BuildContext context, Function() callback) {
                                   Navigator.of(context).pop();
                                   TopSnackBar.show(context, 'Médico adicionado com sucesso!', true);
                                 } catch (e) {
-                                  TopSnackBar.show(context, 'Erro ao adicionar médico', false);
+                                  log(e.toString());
                                 } finally {
                                   setState(() {
                                     isLoading = false; // Finaliza o carregamento

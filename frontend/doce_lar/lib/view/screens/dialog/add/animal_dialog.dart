@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:flutter/material.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
@@ -35,7 +37,7 @@ Future<void> showAddAnimalDialog(
   final customDio = CustomDio(loginProvider, context);
   final animalRepository = AnimalRepository(customDio);
 
-  showDialog(
+  await showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -273,8 +275,7 @@ Future<void> showAddAnimalDialog(
                                   TopSnackBar.show(context,
                                       'Animal adicionado com sucesso', true);
                                 } catch (e) {
-                                  TopSnackBar.show(context,
-                                      'Erro ao adicionar animal', false);
+                                  log(e.toString());
                                 } finally {
                                   setState(() {
                                     isLoading =

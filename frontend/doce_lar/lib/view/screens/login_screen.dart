@@ -15,9 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> formKey = GlobalKey();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool isObscure = true;
   bool _isLoading = false;
-  String? _errorMessage; 
+  String? _errorMessage;
   final EdgeInsetsGeometry _padding =
       const EdgeInsets.only(top: 24, left: 36, right: 36);
 
@@ -41,18 +40,18 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         log('Tentando login');
         await loginProvider.autenticaUsuario(
-            _usernameController.text.trim(), _passwordController.text.trim());
-        
+          _usernameController.text.trim(),
+          _passwordController.text.trim(),
+        );
+
         if (loginProvider.hasData) {
           Navigator.of(context).pushReplacementNamed('/home');
         } else {
-          // Definir a mensagem de erro em caso de falha de login
           setState(() {
             _errorMessage = 'Usuário ou senha inválidos';
           });
         }
       } catch (e) {
-        // Definir a mensagem de erro em caso de exceção
         setState(() {
           _errorMessage = 'Falha na conexão ou servidor indisponível';
         });
@@ -74,8 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/login.png'), // imagem de fundo
-                  fit: BoxFit.cover, // ajusta a imagem para cobrir o fundo
+                  image: AssetImage('images/login.png'), // Imagem de fundo
+                  fit: BoxFit.cover, // Ajusta a imagem para cobrir o fundo
                 ),
               ),
               child: Column(
@@ -100,19 +99,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               Padding(
                                 padding: _padding,
                                 child: CustomInput(
-                                  validatorText: 'Informe o usuário',
                                   hintText: 'Usuário',
                                   icon: Icons.person_outlined,
                                   controller: _usernameController,
+
                                 ),
                               ),
                               Padding(
                                 padding: _padding,
                                 child: CustomInput(
-                                  validatorText: 'Informe a senha',
                                   hintText: 'Senha',
                                   icon: Icons.lock_outline,
                                   controller: _passwordController,
+
                                 ),
                               ),
                               Padding(
@@ -122,7 +121,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 40,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      if (formKey.currentState != null &&
+                                      // Verifica se os campos foram preenchidos
+                                      if (_usernameController.text.isEmpty ||
+                                          _passwordController.text.isEmpty) {
+                                        setState(() {
+                                          _errorMessage =
+                                              'Informe usuário e senha';
+                                        });
+                                      } else if (formKey.currentState != null &&
                                           formKey.currentState!.validate()) {
                                         login();
                                         log(loginProvider.token);

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/user_model.dart';
@@ -11,6 +13,7 @@ import 'package:provider/provider.dart';
 
 Future<void> showColaboradorDialog(
     BuildContext context, Function() onColaboradorUpdate) async {
+      
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -33,7 +36,7 @@ Future<void> showColaboradorDialog(
       final colaboradores = await colaboradorRepository.fetchColaboradores();
       return colaboradores.any((colaborador) => colaborador.email == email);
     } catch (e) {
-      TopSnackBar.show(context, 'Erro ao verificar e-mail', false);
+      log(e.toString());
       return false;
     }
   }
@@ -69,13 +72,14 @@ Future<void> showColaboradorDialog(
         
         // Atualiza a lista e fecha o diálogo
         onColaboradorUpdate();
-        Navigator.of(context).pop();
+        
         TopSnackBar.show(context, 'Colaborador adicionado com sucesso!', true);
         
         // Exibe o diálogo de adicionar endereço
-        showEnderecoDialog(context, colaboradorId, onColaboradorUpdate);
+        await showEnderecoDialog(context, colaboradorId, onColaboradorUpdate);
+        Navigator.of(context).pop();
       } catch (e) {
-        TopSnackBar.show(context, 'Erro ao adicionar colaborador', false);
+       log(e.toString());
       } finally {
         // Finaliza o carregamento
         isLoading = false;
@@ -83,7 +87,7 @@ Future<void> showColaboradorDialog(
     }
   }
 
-  showDialog(
+ await showDialog(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
