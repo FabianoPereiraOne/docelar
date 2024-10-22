@@ -44,6 +44,12 @@ class HomeScreen extends StatelessWidget {
                       Navigator.of(context).pushNamed('/doctors');
                     },
                     text: "MÉDICOS"),
+                CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/teste');
+                    },
+                    text: "UPLOAD"),
+                    
               ],
             ),
           ),

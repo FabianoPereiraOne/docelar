@@ -1,5 +1,6 @@
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/repositories/login_repository.dart';
+import 'package:doce_lar/view/screens/dialog/add/teste.dart';
 import 'package:doce_lar/view/screens/list/animal_list_screen.dart';
 import 'package:doce_lar/view/screens/base_screen.dart';
 import 'package:doce_lar/view/screens/list/colaborador_list_screen.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         // '/building': (context) => EmDesenvolvimentoScreen(),
         '/colaboradores': (context) => const ColaboradorListScreen(),
         '/animais': (context) => const AnimalListScreen(),
+        '/teste': (context) => UploadScreen(),
       },
     );
   }
