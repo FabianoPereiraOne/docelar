@@ -77,7 +77,7 @@ class ColaboradorRepository {
         'id': colaborador.id,
         'name': colaborador.name,
         'phone': colaborador.phone,
-        'role': colaborador.type,
+        'type': colaborador.type,
         'statusAccount': colaborador.statusAccount,
       };
 
