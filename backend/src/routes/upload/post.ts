@@ -14,16 +14,16 @@ export default async function PostUpload(server: FastifyInstance) {
       preHandler: OperationMiddleware
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const data = await request.file()
-
-      if (!data) {
-        return reply.status(statusCode.badRequest.status).send({
-          error: statusCode.badRequest.error,
-          description: "File is required"
-        })
-      }
-
       try {
+        const data = await request.file()
+
+        if (!data) {
+          return reply.status(statusCode.badRequest.status).send({
+            error: statusCode.badRequest.error,
+            description: "File is required"
+          })
+        }
+
         const timestamp = Date.now()
         const originalFileName = clearString(data?.filename)
         const fileExtension = path.extname(originalFileName)
@@ -50,7 +50,7 @@ export default async function PostUpload(server: FastifyInstance) {
         })
       } catch (error) {
         return reply.status(statusCode.serverError.status).send({
-          error: statusCode.serverError.error,
+          error,
           description:
             "Something unexpected happened during processing on the server"
         })
