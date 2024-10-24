@@ -12,7 +12,6 @@ export const deleteAnimal = async (id: string) => {
       sex: true,
       castrated: true,
       race: true,
-      linkPhoto: true,
       dateExit: true,
       status: true,
       createdAt: true,

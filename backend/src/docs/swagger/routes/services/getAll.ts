@@ -56,9 +56,6 @@ export const GetAllConfigServices = {
                     race: {
                       type: "string"
                     },
-                    linkPhoto: {
-                      type: "string"
-                    },
                     dateExit: {
                       type: "string"
                     },

@@ -4,9 +4,14 @@ export const patchProperties = {
     required: ["id"],
     properties: {
       id: { type: "number" },
-      type: {
-        type: "string",
-        pattern: "\\S"
+      key: {
+        type: "string"
+      },
+      animalId: {
+        type: "string"
+      },
+      serviceId: {
+        type: "string"
       }
     }
   }

@@ -34,6 +34,23 @@ export const postProperties = {
           }
         },
         minItems: 1
+      },
+      documents: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            animalId: {
+              type: "string"
+            },
+            serviceId: {
+              type: "string"
+            },
+            key: {
+              type: "string"
+            }
+          }
+        }
       }
     }
   }

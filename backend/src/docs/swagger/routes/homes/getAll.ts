@@ -76,9 +76,6 @@ export const GetAllConfigHomes = {
                       race: {
                         type: "string"
                       },
-                      linkPhoto: {
-                        type: "string"
-                      },
                       dateExit: {
                         type: "string"
                       },

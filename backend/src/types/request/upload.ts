@@ -3,3 +3,10 @@ export type CustomTypeDelete = {
     key: string
   }
 }
+
+export type CustomTypePost = {
+  Body: {
+    animalId?: string
+    serviceId?: string
+  }
+}

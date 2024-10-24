@@ -1,12 +1,14 @@
 import { schemaAnimals } from "./animals"
 import { schemaCollaborators } from "./collaborators"
 import { schemaTypesDoctors } from "./doctors"
+import { schemaDocuments } from "./documents"
 import { schemaGeneral } from "./general"
 import { schemaHomes } from "./homes"
 import { schemaProcedures } from "./procedures"
 import { schemaServices } from "./services"
 import { schemaSign } from "./sign"
 import { schemaTypesAnimals } from "./typesAnimals"
+import { schemaUpload } from "./upload"
 
 export const Schemas = {
   collaborators: schemaCollaborators,
@@ -17,5 +19,7 @@ export const Schemas = {
   typesAnimals: schemaTypesAnimals,
   doctors: schemaTypesDoctors,
   procedures: schemaProcedures,
-  services: schemaServices
+  services: schemaServices,
+  documents: schemaDocuments,
+  upload: schemaUpload
 }

@@ -55,9 +55,6 @@ export const GetAllConfigTypesAnimals = {
                       race: {
                         type: "string"
                       },
-                      linkPhoto: {
-                        type: "string"
-                      },
                       dateExit: {
                         type: "string"
                       },

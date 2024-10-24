@@ -40,9 +40,6 @@ export const TypeService = {
             race: {
               type: "string"
             },
-            linkPhoto: {
-              type: "string"
-            },
             dateExit: {
               type: "string"
             },

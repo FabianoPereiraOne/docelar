@@ -18,7 +18,6 @@ export const createTypeAnimal = async (type: string) => {
           sex: true,
           castrated: true,
           race: true,
-          linkPhoto: true,
           dateExit: true,
           status: true,
           createdAt: true,

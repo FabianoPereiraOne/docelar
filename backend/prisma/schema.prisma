@@ -47,7 +47,6 @@ model Animal {
   sex          String
   castrated    Boolean
   race         String
-  linkPhoto    String?
   dateExit     DateTime?
   status       Boolean     @default(true)
   createdAt    DateTime    @default(now())
@@ -57,6 +56,7 @@ model Animal {
   typeAnimal   TypeAnimal? @relation(fields: [typeAnimalId], references: [id], onDelete: SetNull)
   typeAnimalId Int?
   services     Service[]
+  documents    Document[]
 
   @@map("animals")
 }
@@ -81,6 +81,7 @@ model Service {
   animalId    String?
   procedures  Procedure[] @relation("proceduresOnServices")
   doctors     Doctor[]    @relation("doctorsOnServices")
+  documents   Document[]
 
   @@map("services")
 }
@@ -117,6 +118,17 @@ model Procedure {
   services    Service[] @relation("proceduresOnServices")
 
   @@map("procedures")
+}
+
+model Document {
+  id        Int      @id @default(autoincrement())
+  key       String
+  animalId  String?
+  serviceId String?
+  animal    Animal?  @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
 }
 
 enum Role {

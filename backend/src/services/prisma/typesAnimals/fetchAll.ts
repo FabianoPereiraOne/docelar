@@ -15,7 +15,6 @@ export const fetchAllTypesAnimals = async () => {
           sex: true,
           castrated: true,
           race: true,
-          linkPhoto: true,
           dateExit: true,
           status: true,
           createdAt: true,

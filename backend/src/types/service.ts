@@ -9,6 +9,7 @@ export type ServicePostParams = {
   listProcedures: {
     id: number
   }[]
+  documents?: []
 }
 
 export type ServicePatchParams = {
@@ -28,4 +29,5 @@ export type ServicePatchParams = {
     | []
   listDoctorsOld: string[]
   listProceduresOld: number[]
+  documents?: Document[]
 }
