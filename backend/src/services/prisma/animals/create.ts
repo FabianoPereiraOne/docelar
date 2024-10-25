@@ -64,7 +64,8 @@ export const createAnimal = async ({
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
   return result

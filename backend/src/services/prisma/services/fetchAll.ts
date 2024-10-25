@@ -10,7 +10,8 @@ export const fetchAllServices = async () => {
       updatedAt: true,
       animal: true,
       doctors: true,
-      procedures: true
+      procedures: true,
+      documents: true
     }
   })
 

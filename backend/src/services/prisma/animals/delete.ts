@@ -37,7 +37,8 @@ export const deleteAnimal = async (id: string) => {
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
 

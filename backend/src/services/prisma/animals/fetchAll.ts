@@ -34,7 +34,8 @@ export const fetchAllAnimals = async () => {
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
   return result

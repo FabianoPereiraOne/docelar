@@ -17,8 +17,8 @@ export default async function PostDocuments(server: FastifyInstance) {
 
       try {
         if (!key || key?.length <= 0) {
-          return reply.status(statusCode.unprocessableEntity.status).send({
-            error: statusCode.unprocessableEntity.error,
+          return reply.status(statusCode.badRequest.status).send({
+            error: statusCode.badRequest.error,
             description: "Key document is required."
           })
         }

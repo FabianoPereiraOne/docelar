@@ -76,7 +76,8 @@ export const updateAnimal = async ({
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
 

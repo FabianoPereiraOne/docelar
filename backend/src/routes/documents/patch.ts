@@ -37,14 +37,6 @@ export default async function PatchDocuments(server: FastifyInstance) {
           animalId,
           key,
           serviceId
-        }).then(async data => {
-          if (!key || key?.length <= 0) return data
-
-          await fetch(`/upload?key=${key}`, {
-            method: "DELETE"
-          })
-
-          return data
         })
 
         return reply.status(statusCode.success.status).send({
