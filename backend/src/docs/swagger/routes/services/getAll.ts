@@ -157,6 +157,32 @@ export const GetAllConfigServices = {
                       }
                     }
                   }
+                },
+                documents: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "number"
+                      },
+                      key: {
+                        type: "string"
+                      },
+                      animalId: {
+                        type: "string"
+                      },
+                      serviceId: {
+                        type: "string"
+                      },
+                      createdAt: {
+                        type: "string"
+                      },
+                      updateAt: {
+                        type: "string"
+                      }
+                    }
+                  }
                 }
               }
             }
