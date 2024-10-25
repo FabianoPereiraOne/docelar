@@ -27,13 +27,8 @@ export default async function DeleteDocuments(server: FastifyInstance) {
           })
         }
 
-        const data = await deleteDocument({ id }).then(async data => {
-          await fetch(`/upload?key=${document?.key}`, {
-            method: "DELETE"
-          })
+        const data = await deleteDocument({ id })
 
-          return data
-        })
         return reply.status(statusCode.success.status).send({
           data
         })
