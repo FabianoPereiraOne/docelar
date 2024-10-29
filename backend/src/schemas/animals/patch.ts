@@ -25,9 +25,26 @@ export const patchProperties = {
       typeAnimalId: {
         type: "number"
       },
-      linkPhoto: {
-        type: "string",
-        pattern: "\\S"
+      documents: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["id"],
+          properties: {
+            id: {
+              type: "number"
+            },
+            animalId: {
+              type: "string"
+            },
+            serviceId: {
+              type: "string"
+            },
+            key: {
+              type: "string"
+            }
+          }
+        }
       },
       dateExit: {
         type: "string",

@@ -23,7 +23,6 @@ export default async function PostAnimals(server: FastifyInstance) {
         sex,
         typeAnimalId,
         dateExit,
-        linkPhoto,
         homeId
       } = request.body
 
@@ -59,8 +58,7 @@ export default async function PostAnimals(server: FastifyInstance) {
           race,
           sex,
           typeAnimalId,
-          dateExit,
-          linkPhoto
+          dateExit
         }
 
         const data = await createAnimal(animal)

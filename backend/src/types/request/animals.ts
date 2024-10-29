@@ -1,3 +1,5 @@
+import { Document } from "@prisma/client"
+
 export type CustomTypePost = {
   Body: {
     homeId: string
@@ -6,7 +8,7 @@ export type CustomTypePost = {
     sex: string
     castrated: boolean
     race: string
-    linkPhoto?: string
+    documents?: Document[]
     dateExit?: Date
     typeAnimalId: number
   }
@@ -20,7 +22,7 @@ export type CustomTypePatch = {
     sex?: string
     castrated?: boolean
     race?: string
-    linkPhoto?: string
+    documents?: Document[]
     dateExit?: Date
     typeAnimalId?: number
     status?: boolean

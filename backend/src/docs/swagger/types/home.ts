@@ -60,9 +60,6 @@ export const TypeHome = {
               race: {
                 type: "string"
               },
-              linkPhoto: {
-                type: "string"
-              },
               dateExit: {
                 type: "string"
               },

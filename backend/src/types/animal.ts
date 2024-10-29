@@ -1,3 +1,5 @@
+import { Document } from "@prisma/client"
+
 export type createAnimalParams = {
   homeId: string
   name: string
@@ -7,7 +9,7 @@ export type createAnimalParams = {
   sex: string
   typeAnimalId: number
   dateExit?: Date
-  linkPhoto?: string
+  documents?: Document[]
 }
 
 export type updateAnimalParams = {
@@ -20,6 +22,6 @@ export type updateAnimalParams = {
   sex?: string
   typeAnimalId?: number
   dateExit?: Date
-  linkPhoto?: string
+  documents?: Document[]
   status?: boolean
 }

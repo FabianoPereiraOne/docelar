@@ -12,7 +12,6 @@ export const fetchAnimal = async (id: string) => {
       sex: true,
       castrated: true,
       race: true,
-      linkPhoto: true,
       dateExit: true,
       status: true,
       createdAt: true,
@@ -38,7 +37,8 @@ export const fetchAnimal = async (id: string) => {
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
 

@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify"
 import Animals from "./animals"
 import Collaborators from "./collaborators"
 import Doctors from "./doctors"
+import Documents from "./documents"
 import Homes from "./homes"
 import Procedures from "./procedures"
 import Services from "./services"
@@ -19,4 +20,5 @@ export default async function RoutesInitController(server: FastifyInstance) {
   Procedures(server)
   Services(server)
   Upload(server)
+  Documents(server)
 }

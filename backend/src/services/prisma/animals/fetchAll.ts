@@ -9,7 +9,6 @@ export const fetchAllAnimals = async () => {
       sex: true,
       castrated: true,
       race: true,
-      linkPhoto: true,
       dateExit: true,
       status: true,
       createdAt: true,
@@ -35,7 +34,8 @@ export const fetchAllAnimals = async () => {
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
   return result

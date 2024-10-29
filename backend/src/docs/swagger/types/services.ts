@@ -40,9 +40,6 @@ export const TypeService = {
             race: {
               type: "string"
             },
-            linkPhoto: {
-              type: "string"
-            },
             dateExit: {
               type: "string"
             },
@@ -134,6 +131,32 @@ export const TypeService = {
                 type: "string"
               },
               dosage: {
+                type: "string"
+              },
+              createdAt: {
+                type: "string"
+              },
+              updateAt: {
+                type: "string"
+              }
+            }
+          }
+        },
+        documents: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: {
+                type: "number"
+              },
+              key: {
+                type: "string"
+              },
+              animalId: {
+                type: "string"
+              },
+              serviceId: {
                 type: "string"
               },
               createdAt: {

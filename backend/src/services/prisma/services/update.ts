@@ -58,7 +58,8 @@ export const updateService = async ({
       updatedAt: true,
       animal: true,
       doctors: true,
-      procedures: true
+      procedures: true,
+      documents: true
     }
   })
 

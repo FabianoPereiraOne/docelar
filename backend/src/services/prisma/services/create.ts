@@ -30,7 +30,8 @@ export const createService = async ({
       updatedAt: true,
       animal: true,
       doctors: true,
-      procedures: true
+      procedures: true,
+      documents: true
     }
   })
 

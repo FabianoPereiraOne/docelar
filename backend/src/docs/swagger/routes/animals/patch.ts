@@ -46,11 +46,6 @@ export const PatchConfigAnimals = {
             type: "boolean",
             example: false
           },
-          linkPhoto: {
-            type: "string",
-            example:
-              "https://unsplash.com/fotografias/labrador-retriever-amarelo-mordendo-flor-amarela-da-tulipa-Sg3XwuEpybU"
-          },
           dateExit: {
             type: "string",
             example: "20/06/2024 14:36:23"

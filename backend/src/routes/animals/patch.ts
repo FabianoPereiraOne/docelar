@@ -22,7 +22,6 @@ export default async function PatchAnimals(server: FastifyInstance) {
         castrated,
         dateExit,
         homeId,
-        linkPhoto,
         race,
         sex,
         status,
@@ -75,7 +74,6 @@ export default async function PatchAnimals(server: FastifyInstance) {
           sex,
           typeAnimalId,
           dateExit,
-          linkPhoto,
           status
         }
         const data = await updateAnimal(animal)

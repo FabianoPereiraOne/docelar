@@ -38,9 +38,6 @@ export const GetAllConfigAnimals = {
                 race: {
                   type: "string"
                 },
-                linkPhoto: {
-                  type: "string"
-                },
                 dateExit: {
                   type: "string"
                 },
@@ -136,6 +133,32 @@ export const GetAllConfigAnimals = {
                         items: {
                           type: "object"
                         }
+                      }
+                    }
+                  }
+                },
+                documents: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "number"
+                      },
+                      key: {
+                        type: "string"
+                      },
+                      animalId: {
+                        type: "string"
+                      },
+                      serviceId: {
+                        type: "string"
+                      },
+                      createdAt: {
+                        type: "string"
+                      },
+                      updateAt: {
+                        type: "string"
                       }
                     }
                   }

@@ -39,9 +39,6 @@ export const TypesAnimal = {
               race: {
                 type: "string"
               },
-              linkPhoto: {
-                type: "string"
-              },
               dateExit: {
                 type: "string"
               },

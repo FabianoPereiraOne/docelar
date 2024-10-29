@@ -40,6 +40,27 @@ export const patchProperties = {
           }
         },
         minItems: 1
+      },
+      documents: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["id"],
+          properties: {
+            id: {
+              type: "number"
+            },
+            animalId: {
+              type: "string"
+            },
+            serviceId: {
+              type: "string"
+            },
+            key: {
+              type: "string"
+            }
+          }
+        }
       }
     }
   }

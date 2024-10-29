@@ -1,3 +1,5 @@
+import { Document } from "@prisma/client"
+
 export type CustomTypePost = {
   Body: {
     animalId: string
@@ -8,6 +10,7 @@ export type CustomTypePost = {
     doctors?: {
       id: string
     }[]
+    documents?: Document[]
   }
 }
 
@@ -23,5 +26,6 @@ export type CustomTypePatch = {
     doctors?: {
       id: string
     }[]
+    documents?: Document[]
   }
 }

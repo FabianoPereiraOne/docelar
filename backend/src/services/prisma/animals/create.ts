@@ -7,7 +7,6 @@ export const createAnimal = async ({
   dateExit,
   description,
   homeId,
-  linkPhoto,
   race,
   sex,
   typeAnimalId
@@ -20,7 +19,6 @@ export const createAnimal = async ({
       description,
       castrated,
       dateExit,
-      linkPhoto,
       race,
       sex,
       home: {
@@ -41,7 +39,6 @@ export const createAnimal = async ({
       sex: true,
       castrated: true,
       race: true,
-      linkPhoto: true,
       dateExit: true,
       status: true,
       createdAt: true,
@@ -67,7 +64,8 @@ export const createAnimal = async ({
           type: true
         }
       },
-      services: true
+      services: true,
+      documents: true
     }
   })
   return result

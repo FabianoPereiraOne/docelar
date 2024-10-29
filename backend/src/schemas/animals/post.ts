@@ -33,9 +33,22 @@ export const postProperties = {
       typeAnimalId: {
         type: "number"
       },
-      linkPhoto: {
-        type: "string",
-        pattern: "\\S"
+      documents: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            animalId: {
+              type: "string"
+            },
+            serviceId: {
+              type: "string"
+            },
+            key: {
+              type: "string"
+            }
+          }
+        }
       },
       dateExit: {
         type: "string",
