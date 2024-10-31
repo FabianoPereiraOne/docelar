@@ -13,15 +13,13 @@ export const PostConfigDocuments = {
     {
       name: "body",
       in: "body",
-      required: true,
+      required: false,
       description: "Enter the data for registration",
       schema: {
         type: "object",
+        required: ["file"],
         properties: {
-          key: {
-            type: "string",
-            example: "/uploads/name-file.jpg"
-          },
+          file: { type: "string", format: "binary" },
           animalId: {
             type: "string",
             example: "Enter animalID (Optional)"
@@ -43,7 +41,7 @@ export const PostConfigDocuments = {
     },
     "400": {
       description:
-        "body must have required property 'id' \nbody/property must match pattern \n Key document is required.",
+        "body must have required property 'id' \nbody/property must match pattern \n File is required.",
       error: "Bad Request"
     },
     "401": {

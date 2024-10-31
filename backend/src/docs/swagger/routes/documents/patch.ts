@@ -17,15 +17,13 @@ export const PatchConfigDocuments = {
       description: "Enter the data for update",
       schema: {
         type: "object",
+        required: ["id"],
         properties: {
           id: {
             type: "number",
             example: 1
           },
-          key: {
-            type: "string",
-            example: "/upload/name-file.jpg"
-          },
+          file: { type: "string", format: "binary" },
           animalId: {
             type: "string"
           },
