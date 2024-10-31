@@ -4,9 +4,6 @@ export const patchProperties = {
     required: ["id"],
     properties: {
       id: { type: "number" },
-      key: {
-        type: "string"
-      },
       animalId: {
         type: "string"
       },

@@ -1,4 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
+import { unlink } from "fs/promises"
+import path from "path"
 import { OperationMiddleware } from "../../middlewares/operation"
 import { Schemas } from "../../schemas"
 import { deleteDocument } from "../../services/prisma/documents/delete"
@@ -18,6 +20,7 @@ export default async function DeleteDocuments(server: FastifyInstance) {
 
       try {
         const document = await fetchDocument({ id })
+        const key = document?.key
 
         const hasDocument = !!document
         if (!hasDocument) {
@@ -28,6 +31,18 @@ export default async function DeleteDocuments(server: FastifyInstance) {
         }
 
         const data = await deleteDocument({ id })
+
+        if (key) {
+          const replacePaste = new RegExp(`^/uploads/`)
+          const filePath = path.resolve(
+            process.cwd(),
+            "public",
+            "uploads",
+            key.replace(replacePaste, "")
+          )
+
+          await unlink(filePath)
+        }
 
         return reply.status(statusCode.success.status).send({
           data

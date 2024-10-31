@@ -8,7 +8,6 @@ import Procedures from "./procedures"
 import Services from "./services"
 import Sign from "./sign"
 import TypesAnimals from "./typesAnimals"
-import Upload from "./upload"
 
 export default async function RoutesInitController(server: FastifyInstance) {
   Collaborators(server)
@@ -19,6 +18,5 @@ export default async function RoutesInitController(server: FastifyInstance) {
   Doctors(server)
   Procedures(server)
   Services(server)
-  Upload(server)
   Documents(server)
 }
