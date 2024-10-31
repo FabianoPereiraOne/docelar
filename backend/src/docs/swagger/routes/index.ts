@@ -15,7 +15,6 @@ import { GetConfigServices } from "./services/get"
 import { PathSign } from "./sign"
 import { PathTypesAnimals } from "./typesAnimals"
 import { GetConfigTypesAnimals } from "./typesAnimals/get"
-import { PathUpload } from "./upload"
 
 export const SwaggerRoutes = {
   "/sign": PathSign,
@@ -26,7 +25,6 @@ export const SwaggerRoutes = {
   "/doctors": PathDoctors,
   "/procedures": PathProcedure,
   "/services": PathServices,
-  "/upload": PathUpload,
   "/documents": PathDocuments,
 
   "/collaborators/{id}": { get: GetConfigCollaborators },
