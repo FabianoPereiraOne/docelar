@@ -12,8 +12,9 @@ import RoutesInitController from "./routes"
 const server: FastifyInstance = fastify()
 server.register(fastifyMultipart, {
   limits: {
-    fileSize: 20 * 1024 * 1024
-  }
+    fileSize: 40 * 1024 * 1024
+  },
+  attachFieldsToBody: true
 })
 
 server.register(fastifyStatic, {

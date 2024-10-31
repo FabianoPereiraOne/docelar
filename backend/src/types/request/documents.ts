@@ -1,17 +1,17 @@
 export type CustomTypePost = {
   Body: {
-    key: string
-    animalId?: string
-    serviceId?: string
+    animalId?: any
+    serviceId?: any
+    file: any
   }
 }
 
 export type CustomTypePatch = {
   Body: {
-    id: number
-    key?: string
-    animalId?: string
-    serviceId?: string
+    id: any
+    animalId?: any
+    serviceId?: any
+    file?: any
   }
 }
 

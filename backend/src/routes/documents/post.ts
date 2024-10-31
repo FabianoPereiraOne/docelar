@@ -1,6 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
+import { createWriteStream } from "fs"
+import { mkdir } from "fs/promises"
+import path from "path"
+import useClearString from "../../hooks/useClearString"
 import { OperationMiddleware } from "../../middlewares/operation"
-import { Schemas } from "../../schemas"
 import { createDocument } from "../../services/prisma/documents/create"
 import { CustomTypePost } from "../../types/request/documents"
 import { statusCode } from "../../utils/statusCode"
@@ -9,25 +12,62 @@ export default async function PostDocuments(server: FastifyInstance) {
   server.post<CustomTypePost>(
     "/documents",
     {
-      preHandler: OperationMiddleware,
-      schema: Schemas.documents.post
+      preHandler: OperationMiddleware
     },
     async (request: FastifyRequest<CustomTypePost>, reply: FastifyReply) => {
-      const { key, animalId, serviceId } = request.body
+      const { clearString } = useClearString()
 
       try {
-        if (!key || key?.length <= 0) {
+        const body = request.body
+        const animalId: any = body?.animalId?.value ?? undefined
+        const serviceId = body?.serviceId?.value ?? undefined
+        const files = body?.file
+
+        if (!files) {
           return reply.status(statusCode.badRequest.status).send({
             error: statusCode.badRequest.error,
-            description: "Key document is required."
+            description: "File is required"
           })
         }
 
-        const data = await createDocument({ key, animalId, serviceId })
+        const timestamp = Date.now()
+        const originalFileName = clearString(files?.filename)
+        const fileExtension = path.extname(originalFileName)
+        const fileBaseName = path.basename(originalFileName, fileExtension)
+        const newFileName = `${fileBaseName}-${timestamp}${fileExtension}`
+        const filePath = path.resolve(
+          process.cwd(),
+          "public",
+          "uploads",
+          newFileName
+        )
+
+        const dir = path.dirname(filePath)
+        await mkdir(dir, { recursive: true })
+
+        const fileStream = await files.toBuffer()
+        const key = `/uploads/${newFileName}`
+        const writeStream = createWriteStream(filePath)
+
+        await new Promise((resolve, reject) => {
+          writeStream.write(fileStream, err => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve(null)
+            }
+          })
+          writeStream.end()
+        })
+
+        const result = await createDocument({ key, animalId, serviceId })
+
         return reply.status(statusCode.create.status).send({
-          data
+          success: statusCode.create.success,
+          data: result
         })
       } catch (error) {
+        console.error(error)
         return reply.status(statusCode.serverError.status).send({
           error: statusCode.serverError.error,
           description:
