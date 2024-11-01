@@ -14,7 +14,7 @@ import 'package:doce_lar/model/models/doctor_model.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 
 Future<void> showServiceDialog(
-    BuildContext context, String animalId, Function() callback) async {
+    BuildContext context, Animal animal, Function() callback) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController descriptionController = TextEditingController();
 
@@ -61,7 +61,7 @@ Future<void> showServiceDialog(
 
       final newService = Service(
         description: descriptionController.text,
-        animal: Animal(id: animalId),
+        animal: animal,
         doctors: [Doctor(id: doctorId)],
         procedures: [Procedure(id: procedureId)],
       );

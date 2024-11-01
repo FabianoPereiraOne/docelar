@@ -74,7 +74,7 @@ Future<void> showAnimalDetailDialog(
                           Tab(text: 'Serviços'),
                           Tab(
                             text: 'Fotos',
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -281,7 +281,7 @@ Future<void> showAnimalDetailDialog(
                                       ElevatedButton(
                                         onPressed: () async {
                                           await showServiceDialog(context,
-                                              animal.id!, onAnimalUpdated);
+                                              animal, onAnimalUpdated);
                                           Navigator.of(context).pop();
                                         },
                                         child: const Text('Adicionar Serviço'),
