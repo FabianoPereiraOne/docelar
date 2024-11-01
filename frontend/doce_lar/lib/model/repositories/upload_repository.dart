@@ -1,21 +1,26 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart'; // Importando o CustomDio
+import 'package:doce_lar/model/models/document_model.dart'; // Importando o modelo Document
 
 class UploadRepository {
-  final CustomDio dio; // Usando o CustomDio
+  final CustomDio dio;
 
-  // O construtor agora recebe uma instância do CustomDio
   UploadRepository(this.dio);
 
-  // Método para fazer upload de imagem
-  Future<void> uploadImage(File imageFile) async {
+  // Método para fazer upload usando apenas o objeto Document com file e animalId preenchidos
+  Future<void> uploadDocument(Document document) async {
+    if (document.file == null || document.animalId == null) {
+      throw Exception('File e animalId são obrigatórios para o upload');
+    }
+
     try {
-      String endpoint = '/upload';
-      String fileName = imageFile.path.split('/').last;
+      String endpoint = '/documents';
+      String fileName = document.file!.path.split('/').last;
+
       FormData formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(imageFile.path, filename: fileName),
+        "file": await MultipartFile.fromFile(document.file!.path, filename: fileName),
+        "animalId": MultipartFile.fromString(document.animalId.toString()),
       });
 
       Response response = await dio.post(endpoint, data: formData);
@@ -27,6 +32,26 @@ class UploadRepository {
       }
     } on DioException catch (e) {
       log('Erro no upload: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+    Future<List<Document>> fetchDocuments() async {
+    try {
+      String endpoint = '/documents';
+      Response response = await dio.get(endpoint);
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data['data'];
+        return data.map((doc) => Document.fromMap(doc)).toList();
+      } else {
+        throw Exception('Falha ao buscar documentos: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      log('Erro ao buscar documentos: ${e.response?.statusCode} - ${e.response?.statusMessage}');
       rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);

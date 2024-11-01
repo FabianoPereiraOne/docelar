@@ -5,18 +5,21 @@ import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/models/animal_type_model.dart';
+import 'package:doce_lar/model/models/document_model.dart';
 import 'package:doce_lar/model/models/homes_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
+import 'package:doce_lar/model/repositories/upload_repository.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/service_dialog.dart';
 import 'package:doce_lar/view/widgets/detail_row.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
 Future<void> showAnimalDetailDialog(
@@ -53,7 +56,7 @@ Future<void> showAnimalDetailDialog(
     builder: (context) {
       return Dialog(
         child: DefaultTabController(
-          length: 2,
+          length: 3,
           child: LayoutBuilder(
             builder: (context, constraints) {
               return ConstrainedBox(
@@ -69,6 +72,9 @@ Future<void> showAnimalDetailDialog(
                         tabs: [
                           Tab(text: 'Detalhes'),
                           Tab(text: 'Serviços'),
+                          Tab(
+                            text: 'Fotos',
+                          )
                         ],
                       ),
                     ),
@@ -286,6 +292,93 @@ Future<void> showAnimalDetailDialog(
                               );
                             },
                           ),
+                          FutureBuilder<List<Document>>(
+                            future: _fetchUploadedDocuments(context),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+
+                              if (snapshot.hasError) {
+                                return const Center(
+                                    child: Text('Erro ao carregar fotos'));
+                              }
+
+                              final documents = snapshot.data;
+
+                              if (documents == null || documents.isEmpty) {
+                                return const Center(
+                                    child: Text('Nenhuma foto encontrada.'));
+                              }
+
+                              return GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3, // Número de colunas
+                                  childAspectRatio: 1.0, // Relação de aspecto
+                                  crossAxisSpacing:
+                                      4.0, // Espaçamento entre as colunas
+                                  mainAxisSpacing:
+                                      4.0, // Espaçamento entre as linhas
+                                ),
+                                itemCount: documents.length,
+                                itemBuilder: (context, index) {
+                                  final document = documents[index];
+                                  final imageUrl =
+                                      'http://patrick.vps-kinghost.net:7001${document.key}'; // Ajuste a URL conforme necessário
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: true,
+                                        builder: (_) => Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          child: Stack(
+                                            children: [
+                                              PhotoView(
+                                                imageProvider:
+                                                    NetworkImage(imageUrl),
+                                                minScale: PhotoViewComputedScale
+                                                    .contained,
+                                                maxScale: PhotoViewComputedScale
+                                                        .covered *
+                                                    2,
+                                                heroAttributes:
+                                                    PhotoViewHeroAttributes(
+                                                        tag: imageUrl),
+                                              ),
+                                              Positioned(
+                                                top: 40,
+                                                right: 20,
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                    size: 30,
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // Fecha o diálogo
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -312,6 +405,14 @@ Future<void> showAnimalDetailDialog(
       );
     },
   );
+}
+
+Future<List<Document>> _fetchUploadedDocuments(BuildContext context) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+
+  return await uploadRepository.fetchDocuments();
 }
 
 Future<List<Service>> _fetchServicesWithProcedures(

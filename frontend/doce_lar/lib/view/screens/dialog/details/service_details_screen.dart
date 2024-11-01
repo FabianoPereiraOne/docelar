@@ -4,16 +4,19 @@ import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/doctor_model.dart';
+import 'package:doce_lar/model/models/document_model.dart';
 import 'package:doce_lar/model/models/procedure_model.dart';
 import 'package:doce_lar/model/models/service_model.dart';
 import 'package:doce_lar/model/repositories/doctor_repository.dart';
 import 'package:doce_lar/model/repositories/procedure_repository.dart';
 import 'package:doce_lar/model/repositories/service_repository.dart';
+import 'package:doce_lar/model/repositories/upload_repository.dart';
 import 'package:doce_lar/view/widgets/confirm_delete.dart';
 import 'package:doce_lar/view/widgets/detail_row.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
 Future<void> showServiceDetailsDialog(
@@ -37,8 +40,7 @@ Future<void> showServiceDetailsDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Erro'),
-        content:
-            const Text('Não foi possível carregar os detalhes do serviço.'),
+        content: const Text('Não foi possível carregar os detalhes do serviço.'),
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -78,9 +80,8 @@ Future<void> showServiceDetailsDialog(
                 ),
                 Text(
                   service!.animal!.name!,
-                  maxLines: null, // Permite múltiplas linhas
-                  overflow: TextOverflow
-                      .visible, // Exibe o texto além da largura disponível
+                  maxLines: null,
+                  overflow: TextOverflow.visible,
                 ),
               ],
             ),
@@ -128,6 +129,78 @@ Future<void> showServiceDetailsDialog(
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20), // Espaçamento
+                  const Text(
+                    'Fotos',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  // Aqui você adiciona a exibição de fotos
+                  FutureBuilder<List<Document>>(
+                    future: _fetchUploadedDocuments(context), // Método para buscar fotos
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Erro ao carregar fotos'));
+                      }
+
+                      final photos = snapshot.data;
+
+                      if (photos == null || photos.isEmpty) {
+                        return const Center(child: Text('Nenhuma foto encontrada.'));
+                      }
+
+                      return Column(
+                        children: photos.map((photo) {
+                          final imageUrl = 'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
+                          return GestureDetector(
+                            onTap: () {
+                              // Exibir imagem em tela cheia
+                              showDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                builder: (_) => Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Stack(
+                                    children: [
+                                      PhotoView(
+                                        imageProvider: NetworkImage(imageUrl),
+                                        minScale: PhotoViewComputedScale.contained,
+                                        maxScale: PhotoViewComputedScale.covered * 2,
+                                        heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
+                                      ),
+                                      Positioned(
+                                        top: 40,
+                                        right: 20,
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 30,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(); // Fecha o diálogo
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Image.network(
+                              imageUrl,
+                              height: 100, // Altura da imagem na lista
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -156,6 +229,15 @@ Future<void> showServiceDetailsDialog(
       );
     },
   );
+}
+
+
+Future<List<Document>> _fetchUploadedDocuments(BuildContext context) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+
+  return await uploadRepository.fetchDocuments();
 }
 
 Future<void> showDeleteDialog(
