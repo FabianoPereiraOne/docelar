@@ -20,15 +20,15 @@ class UploadRepository {
 
       FormData formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(document.file!.path, filename: fileName),
-        "animalId": MultipartFile.fromString(document.animalId.toString()),
+        "animalId": document.animalId,
       });
 
       Response response = await dio.post(endpoint, data: formData);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         log('Upload realizado com sucesso!');
       } else {
-        throw Exception('Falha no upload: ${response.statusCode}');
+        log('Falha no upload: ${response.statusCode}');
       }
     } on DioException catch (e) {
       log('Erro no upload: ${e.response?.statusCode} - ${e.response?.statusMessage}');

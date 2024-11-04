@@ -137,7 +137,7 @@ Future<void> showServiceDetailsDialog(
                   const SizedBox(height: 10),
                   // Aqui você adiciona a exibição de fotos
                   FutureBuilder<List<Document>>(
-                    future: _fetchUploadedDocuments(context), // Método para buscar fotos
+                    future: _fetchUploadedDocuments(context, serviceId), // Método para buscar fotos
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -193,7 +193,7 @@ Future<void> showServiceDetailsDialog(
                             },
                             child: Image.network(
                               imageUrl,
-                              height: 100, // Altura da imagem na lista
+                              height: 100,
                               fit: BoxFit.cover,
                             ),
                           );
@@ -232,12 +232,16 @@ Future<void> showServiceDetailsDialog(
 }
 
 
-Future<List<Document>> _fetchUploadedDocuments(BuildContext context) async {
+Future<List<Document>> _fetchUploadedDocuments(BuildContext context, String serviceId) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final uploadRepository = UploadRepository(customDio);
 
-  return await uploadRepository.fetchDocuments();
+    // Obtém todos os documentos
+  final allDocuments = await uploadRepository.fetchDocuments();
+
+  // Filtra os documentos pelo animalId
+  return allDocuments.where((document) => document.serviceId == serviceId).toList();
 }
 
 Future<void> showDeleteDialog(

@@ -280,8 +280,8 @@ Future<void> showAnimalDetailDialog(
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          await showServiceDialog(context,
-                                              animal, onAnimalUpdated);
+                                          await showServiceDialog(
+                                              context, animal, onAnimalUpdated);
                                           Navigator.of(context).pop();
                                         },
                                         child: const Text('Adicionar Serviço'),
@@ -293,7 +293,7 @@ Future<void> showAnimalDetailDialog(
                             },
                           ),
                           FutureBuilder<List<Document>>(
-                            future: _fetchUploadedDocuments(context),
+                            future: _fetchUploadedDocuments(context, animal),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -313,69 +313,93 @@ Future<void> showAnimalDetailDialog(
                                     child: Text('Nenhuma foto encontrada.'));
                               }
 
-                              return GridView.builder(
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3, // Número de colunas
-                                  childAspectRatio: 1.0, // Relação de aspecto
-                                  crossAxisSpacing:
-                                      4.0, // Espaçamento entre as colunas
-                                  mainAxisSpacing:
-                                      4.0, // Espaçamento entre as linhas
-                                ),
-                                itemCount: documents.length,
-                                itemBuilder: (context, index) {
-                                  final document = documents[index];
-                                  final imageUrl =
-                                      'http://patrick.vps-kinghost.net:7001${document.key}'; // Ajuste a URL conforme necessário
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: true,
-                                        builder: (_) => Dialog(
-                                          backgroundColor: Colors.transparent,
-                                          child: Stack(
-                                            children: [
-                                              PhotoView(
-                                                imageProvider:
-                                                    NetworkImage(imageUrl),
-                                                minScale: PhotoViewComputedScale
-                                                    .contained,
-                                                maxScale: PhotoViewComputedScale
-                                                        .covered *
-                                                    2,
-                                                heroAttributes:
-                                                    PhotoViewHeroAttributes(
-                                                        tag: imageUrl),
-                                              ),
-                                              Positioned(
-                                                top: 40,
-                                                right: 20,
-                                                child: IconButton(
-                                                  icon: const Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 30,
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .pop(); // Fecha o diálogo
-                                                  },
+                              return Column(
+                                children: [
+                                  Expanded(
+                                    child: GridView.builder(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3, // Número de colunas
+                                        childAspectRatio:
+                                            1.0, // Relação de aspecto
+                                        crossAxisSpacing:
+                                            4.0, // Espaçamento entre as colunas
+                                        mainAxisSpacing:
+                                            4.0, // Espaçamento entre as linhas
+                                      ),
+                                      itemCount: documents.length,
+                                      itemBuilder: (context, index) {
+                                        final document = documents[index];
+                                        final imageUrl =
+                                            'http://patrick.vps-kinghost.net:7001${document.key}'; // Ajuste a URL conforme necessário
+                                    
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: true,
+                                              builder: (_) => Dialog(
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                child: Stack(
+                                                  children: [
+                                                    PhotoView(
+                                                      imageProvider:
+                                                          NetworkImage(imageUrl),
+                                                      minScale:
+                                                          PhotoViewComputedScale
+                                                              .contained,
+                                                      maxScale:
+                                                          PhotoViewComputedScale
+                                                                  .covered *
+                                                              2,
+                                                      heroAttributes:
+                                                          PhotoViewHeroAttributes(
+                                                              tag: imageUrl),
+                                                    ),
+                                                    Positioned(
+                                                      top: 40,
+                                                      right: 20,
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                          Icons.close,
+                                                          color: Colors.white,
+                                                          size: 30,
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Fecha o diálogo
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ],
+                                            );
+                                          },
+                                          child: Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    child: Image.network(
-                                      imageUrl,
-                                      fit: BoxFit.cover,
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          await showServiceDialog(
+                                              context, animal, onAnimalUpdated);
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Adicionar Foto'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               );
                             },
                           ),
@@ -407,12 +431,21 @@ Future<void> showAnimalDetailDialog(
   );
 }
 
-Future<List<Document>> _fetchUploadedDocuments(BuildContext context) async {
+
+
+Future<List<Document>> _fetchUploadedDocuments(
+    BuildContext context, Animal animal) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final uploadRepository = UploadRepository(customDio);
 
-  return await uploadRepository.fetchDocuments();
+  // Obtém todos os documentos
+  final allDocuments = await uploadRepository.fetchDocuments();
+
+  // Filtra os documentos pelo animalId
+  return allDocuments
+      .where((document) => document.animalId == animal.id)
+      .toList();
 }
 
 Future<List<Service>> _fetchServicesWithProcedures(

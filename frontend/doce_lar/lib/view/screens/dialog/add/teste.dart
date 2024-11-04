@@ -28,18 +28,57 @@ class _UploadScreenState extends State<UploadScreen> {
     _uploadRepository = UploadRepository(customDio); // Inicializando o UploadRepository com o CustomDio
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+Future<void> _pickImage() async {
+  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    setState(() {
+      _image = File(pickedFile.path);
+    });
+    
+    // Mostra o diálogo de confirmação com a miniatura da imagem selecionada
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: Image.file(_image!, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 10),
+
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo sem fazer upload
+              },
+              child: const Text("Cancelar"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Fecha o diálogo
+                await _uploadImage(); // Faz o upload da imagem
+              },
+              child: const Text("Confirmar"),
+            ),
+          ],
+        );
+      },
+    );
+  } else {
+    log('Nenhuma imagem selecionada');
   }
+}
 
   Future<void> _uploadImage() async {
     if (_image != null) {
-      String animalId = '80121b44-08ac-4b85-8060-0ded3fd2ace0';
+      String animalId = 'c9ebaa72-cd70-4dc2-ad60-3025f7caee9d';
 
       Document document = Document(
         file: _image!,
