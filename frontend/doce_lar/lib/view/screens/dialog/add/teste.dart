@@ -28,19 +28,25 @@ class _UploadScreenState extends State<UploadScreen> {
     _uploadRepository = UploadRepository(customDio); // Inicializando o UploadRepository com o CustomDio
   }
 
-Future<void> _pickImage() async {
-  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) {
-    setState(() {
-      _image = File(pickedFile.path);
-    });
-    
-    // Mostra o diálogo de confirmação com a miniatura da imagem selecionada
+  Future<void> _selectAndConfirmImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      
+      _showConfirmationDialog();
+    } else {
+      log('Nenhuma imagem selecionada');
+    }
+  }
+
+  void _showConfirmationDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          
+          title: const Text("Adicionar imagem:"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -50,7 +56,6 @@ Future<void> _pickImage() async {
                 child: Image.file(_image!, fit: BoxFit.cover),
               ),
               const SizedBox(height: 10),
-
             ],
           ),
           actions: [
@@ -71,10 +76,7 @@ Future<void> _pickImage() async {
         );
       },
     );
-  } else {
-    log('Nenhuma imagem selecionada');
   }
-}
 
   Future<void> _uploadImage() async {
     if (_image != null) {
@@ -116,77 +118,71 @@ Future<void> _pickImage() async {
           children: [
             _image == null
                 ? Text('Nenhuma imagem selecionada.')
-                : SizedBox( width:200, height: 200,child:  Image.file(_image!)),
-            SizedBox(height: 20),
+                : SizedBox(width: 200, height: 200, child: Image.file(_image!)),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Selecionar Imagem'),
+              onPressed: _selectAndConfirmImage,
+              child: Text('Selecionar e Adicionar Imagem'),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _uploadImage,
-              child: Text('Fazer Upload'),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _fetchDocuments,
               child: Text('Exibir Imagens Enviadas'),
             ),
             Expanded(
-  child: ListView.builder(
-    itemCount: _documents.length,
-    itemBuilder: (context, index) {
-      final document = _documents[index];
-      final imageUrl = 'http://patrick.vps-kinghost.net:7001${document.key}';
-      return Column(
-        children: [
-          
-          SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (_) => Dialog(
-                  child: Stack(
+              child: ListView.builder(
+                itemCount: _documents.length,
+                itemBuilder: (context, index) {
+                  final document = _documents[index];
+                  final imageUrl = 'http://patrick.vps-kinghost.net:7001${document.key}';
+                  return Column(
                     children: [
-                      PhotoView(
-                        imageProvider: NetworkImage(imageUrl),
-                        minScale: PhotoViewComputedScale.contained,
-                        maxScale: PhotoViewComputedScale.covered * 2,
-                        heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
-                      ),
-                      Positioned(
-                        top: 40,
-                        right: 20,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Fecha o diálogo
-                          },
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (_) => Dialog(
+                              child: Stack(
+                                children: [
+                                  PhotoView(
+                                    imageProvider: NetworkImage(imageUrl),
+                                    minScale: PhotoViewComputedScale.contained,
+                                    maxScale: PhotoViewComputedScale.covered * 2,
+                                    heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
+                                  ),
+                                  Positioned(
+                                    top: 40,
+                                    right: 20,
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop(); // Fecha o diálogo
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.network(
+                          imageUrl,
+                          height: 150, // Tamanho da imagem na lista
+                          fit: BoxFit.cover,
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
-                  ),
-                ),
-              );
-            },
-            child: Image.network(
-              imageUrl,
-              height: 150, // Tamanho da imagem na lista
-              fit: BoxFit.cover,
+                  );
+                },
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-        ],
-      );
-    },
-  ),
-),
           ],
         ),
       ),
