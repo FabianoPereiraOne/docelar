@@ -101,7 +101,7 @@ Future<void> showDoctorDetailDialog(
                                   onPressed: () async {
                                     await _showEditDoctorDialog(
                                         context, doctor, onDoctorUpdated);
-                                    Navigator.of(context).pop();
+                                    
                                   },
                                   child: const Text('Editar'),
                                 ),
@@ -414,6 +414,7 @@ Future<void> _showEditDoctorDialog(
                       );
                     }
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
+                    Navigator.of(context).pop();
                     onDoctorUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     if (e is DioException && e.response!.statusCode != 498) {

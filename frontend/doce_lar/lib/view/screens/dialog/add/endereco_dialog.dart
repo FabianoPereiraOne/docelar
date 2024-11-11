@@ -229,6 +229,7 @@ Future<void> showEnderecoDialog(
                           );
                           callback();
                           Navigator.of(context).pop();
+                          Navigator.of(context).pop();
                         } else {
                           log('Erro ao adicionar endereço');
                         }

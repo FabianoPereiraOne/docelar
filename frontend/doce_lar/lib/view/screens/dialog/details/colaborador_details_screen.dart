@@ -70,7 +70,6 @@ Future<void> showColaboradorDetailDialog(BuildContext context, Usuario colaborad
                                   onPressed: () async {
                                     await _showEditColaboradorDialog(context,
                                         colaborador, onColaboradorUpdated);
-                                    Navigator.of(context).pop();
                                   },
                                   child: const Text('Editar'),
                                 ),
@@ -122,7 +121,7 @@ Future<void> showColaboradorDetailDialog(BuildContext context, Usuario colaborad
                               onPressed: () async {
                                 await showEnderecoDialog(context, colaborador.id!,
                                     onColaboradorUpdated);
-                                Navigator.of(context).pop();
+                                
                               },
                               child: const Text('Adicionar Novo Lar'),
                             ),
@@ -324,7 +323,8 @@ Future<void> _showEditColaboradorDialog(BuildContext context,
                       );
                     }
 
-                    Navigator.of(context).pop(); // Fechar o diálogo de edição
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                     onColaboradorUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     if (e is DioException && e.response!.statusCode != 498) {

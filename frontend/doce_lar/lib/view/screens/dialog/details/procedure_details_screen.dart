@@ -58,7 +58,7 @@ Future<void> showProcedureDetailDialog(BuildContext context,
                 onPressed: () async {
                   await _showEditProcedureDialog(
                       context, procedure, onProcedureUpdated);
-                  Navigator.of(context).pop();
+                  
                 },
                 child: const Text('Editar'),
               ),
@@ -154,6 +154,7 @@ Future<void> _showEditProcedureDialog(BuildContext context, Procedure procedure,
                       true,
                     );
                     Navigator.of(context).pop(); // Fechar o diálogo de edição
+                    Navigator.of(context).pop();
                     onProcedureUpdated(); // Atualizar a tela principal
                   } catch (e) {
                     if (e is DioException && e.response!.statusCode != 498) {

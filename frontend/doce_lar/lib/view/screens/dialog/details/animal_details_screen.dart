@@ -196,7 +196,7 @@ Future<void> showAnimalDetailDialog(
                                               animalTypes,
                                               colaboradores,
                                               onAnimalUpdated);
-                                          Navigator.of(context).pop();
+                                          
                                         },
                                         child: const Text('Editar'),
                                       ),
@@ -282,7 +282,6 @@ Future<void> showAnimalDetailDialog(
                                         onPressed: () async {
                                           await showServiceDialog(
                                               context, animal, onAnimalUpdated);
-                                          Navigator.of(context).pop();
                                         },
                                         child: const Text('Adicionar Serviço'),
                                       ),
@@ -331,7 +330,7 @@ Future<void> showAnimalDetailDialog(
                                       itemBuilder: (context, index) {
                                         final document = documents[index];
                                         final imageUrl =
-                                            'http://patrick.vps-kinghost.net:7001${document.key}'; // Ajuste a URL conforme necessário
+                                            'http://patrick.vps-kinghost.net:7001${document.key}';
                                     
                                         return GestureDetector(
                                           onTap: () {
@@ -393,7 +392,7 @@ Future<void> showAnimalDetailDialog(
                                         onPressed: () async {
                                           await showServiceDialog(
                                               context, animal, onAnimalUpdated);
-                                          Navigator.of(context).pop();
+                                          
                                         },
                                         child: const Text('Adicionar Foto'),
                                       ),
@@ -720,6 +719,7 @@ Future<void> _showEditAnimalDialog(
                       );
                     }
 
+                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                     onAnimalUpdated();
                   } catch (e) {
