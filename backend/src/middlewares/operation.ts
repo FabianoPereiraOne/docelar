@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify"
 import { useVerifyToken } from "../hooks/useVerifyToken"
+import { allowMethods, allowRouters } from "../schemas/config"
 import { statusCode } from "../utils/statusCode"
 
 export const OperationMiddleware = async (
@@ -9,6 +10,7 @@ export const OperationMiddleware = async (
   const token = request.headers.authorization
   const hasToken = !!token
   const method = request.method
+  const pathname = request.routerPath
 
   if (!hasToken) {
     return reply.status(statusCode.forbidden.status).send({
@@ -19,6 +21,8 @@ export const OperationMiddleware = async (
 
   try {
     const collaborator = await useVerifyToken(token!, reply)
+    const accountActive = collaborator?.statusAccount === true
+    const isAdmin = collaborator?.type === "ADMIN"
     const isValidToken = !!collaborator
 
     if (!isValidToken) {
@@ -28,10 +32,17 @@ export const OperationMiddleware = async (
       })
     }
 
-    if (
-      (method != "GET" && collaborator!.type != "ADMIN") ||
-      collaborator!.statusAccount != true
-    ) {
+    if (!accountActive)
+      return reply.status(statusCode.unAuthorized.status).send({
+        error: statusCode.unAuthorized.error,
+        description: "Collaborator not authorized for this operation"
+      })
+
+    if (method === "GET" || isAdmin) return
+
+    if (allowMethods.includes(method) && allowRouters.includes(pathname)) {
+      return
+    } else {
       return reply.status(statusCode.unAuthorized.status).send({
         error: statusCode.unAuthorized.error,
         description: "Collaborator not authorized for this operation"
