@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:doce_lar/controller/interceptor_dio.dart';
@@ -16,6 +17,7 @@ import 'package:doce_lar/view/widgets/detail_row.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +42,8 @@ Future<void> showServiceDetailsDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Erro'),
-        content: const Text('Não foi possível carregar os detalhes do serviço.'),
+        content:
+            const Text('Não foi possível carregar os detalhes do serviço.'),
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -137,25 +140,29 @@ Future<void> showServiceDetailsDialog(
                   const SizedBox(height: 10),
                   // Aqui você adiciona a exibição de fotos
                   FutureBuilder<List<Document>>(
-                    future: _fetchUploadedDocuments(context, serviceId), // Método para buscar fotos
+                    future: _fetchUploadedDocuments(
+                        context, serviceId), // Método para buscar fotos
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
 
                       if (snapshot.hasError) {
-                        return const Center(child: Text('Erro ao carregar fotos'));
+                        return const Center(
+                            child: Text('Erro ao carregar fotos'));
                       }
 
                       final photos = snapshot.data;
 
                       if (photos == null || photos.isEmpty) {
-                        return const Center(child: Text('Nenhuma foto encontrada.'));
+                        return const Center(
+                            child: Text('Nenhuma foto encontrada.'));
                       }
 
                       return Column(
                         children: photos.map((photo) {
-                          final imageUrl = 'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
+                          final imageUrl =
+                              'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
                           return GestureDetector(
                             onTap: () {
                               // Exibir imagem em tela cheia
@@ -168,9 +175,12 @@ Future<void> showServiceDetailsDialog(
                                     children: [
                                       PhotoView(
                                         imageProvider: NetworkImage(imageUrl),
-                                        minScale: PhotoViewComputedScale.contained,
-                                        maxScale: PhotoViewComputedScale.covered * 2,
-                                        heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
+                                        minScale:
+                                            PhotoViewComputedScale.contained,
+                                        maxScale:
+                                            PhotoViewComputedScale.covered * 2,
+                                        heroAttributes: PhotoViewHeroAttributes(
+                                            tag: imageUrl),
                                       ),
                                       Positioned(
                                         top: 40,
@@ -182,7 +192,8 @@ Future<void> showServiceDetailsDialog(
                                             size: 30,
                                           ),
                                           onPressed: () {
-                                            Navigator.of(context).pop(); // Fecha o diálogo
+                                            Navigator.of(context)
+                                                .pop(); // Fecha o diálogo
                                           },
                                         ),
                                       ),
@@ -193,7 +204,7 @@ Future<void> showServiceDetailsDialog(
                             },
                             child: Image.network(
                               imageUrl,
-                              height: 100,
+                              height: 200,
                               fit: BoxFit.cover,
                             ),
                           );
@@ -207,10 +218,20 @@ Future<void> showServiceDetailsDialog(
             actions: [
               ElevatedButton(
                 onPressed: () async {
-                  await showDeleteDialog(context, serviceId, 'services',
-                      'Serviço', onServiceUpdated);
+                  // Deleta os documentos associados ao serviceId
+                  await _deleteDocumentsByServiceId(context, serviceId);
 
-                  Navigator.of(context).pop();
+                  // Agora, exclui o serviço
+                  await showDeleteDialog(
+                    context,
+                    serviceId,
+                    'services',
+                    'Serviço',
+                    onServiceUpdated,
+                  );
+
+                  Navigator.of(context)
+                      .pop(); // Fecha o diálogo após a exclusão
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 child: const Text('Deletar'),
@@ -219,6 +240,7 @@ Future<void> showServiceDetailsDialog(
                 onPressed: () async {
                   await _showEditServiceDialog(
                       context, service!, onServiceUpdated);
+
                   Navigator.of(context).pop();
                 },
                 child: const Text('Editar'),
@@ -231,17 +253,41 @@ Future<void> showServiceDetailsDialog(
   );
 }
 
-
-Future<List<Document>> _fetchUploadedDocuments(BuildContext context, String serviceId) async {
+Future<void> _deleteDocumentsByServiceId(
+    BuildContext context, String serviceId) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final uploadRepository = UploadRepository(customDio);
 
-    // Obtém todos os documentos
+  try {
+    // Busca todos os documentos associados ao serviço
+    final documents = await _fetchUploadedDocuments(context, serviceId);
+
+    // Deleta todos os documentos encontrados
+    for (var document in documents) {
+      await uploadRepository.deleteDocument(
+          document.id!); // Assumindo que o método deleteDocument existe
+      log('Documento ${document.id} deletado com sucesso.');
+    }
+  } catch (e) {
+    log('Erro ao deletar documentos: $e');
+    throw Exception('Falha ao deletar documentos');
+  }
+}
+
+Future<List<Document>> _fetchUploadedDocuments(
+    BuildContext context, String serviceId) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+
+  // Obtém todos os documentos
   final allDocuments = await uploadRepository.fetchDocuments();
 
   // Filtra os documentos pelo animalId
-  return allDocuments.where((document) => document.serviceId == serviceId).toList();
+  return allDocuments
+      .where((document) => document.serviceId == serviceId)
+      .toList();
 }
 
 Future<void> showDeleteDialog(
@@ -272,11 +318,15 @@ Future<void> _showEditServiceDialog(
   List<Procedure> procedures = [];
   Doctor? selectedDoctor;
   Procedure? selectedProcedure;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final doctorRepository = DoctorRepository(customDio);
   final procedureRepository = ProcedureRepository(customDio);
   final serviceRepository = ServiceRepository(customDio);
+  final uploadRepository = UploadRepository(customDio);
 
   Future<void> loadOptions() async {
     doctors = await doctorRepository.fetchDoctors();
@@ -289,12 +339,25 @@ Future<void> _showEditServiceDialog(
         orElse: () => procedures.first);
   }
 
+  Future<void> _selectImage(Function(void Function()) setState) async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    } else {
+      log('Nenhuma imagem selecionada');
+    }
+  }
+
   Future<void> saveService(BuildContext dialogContext) async {
     if (selectedDoctor == null || selectedProcedure == null) {
       log('Erro: Médico ou Procedimento não selecionado corretamente');
       return;
     }
+
     try {
+      // Atualizar o serviço
       final updatedService = Service(
         id: service.id,
         description: descriptionController.text,
@@ -303,6 +366,17 @@ Future<void> _showEditServiceDialog(
       );
 
       await serviceRepository.updateService(updatedService);
+
+      // Fazer upload da imagem se houver uma selecionada
+      if (_selectedImage != null) {
+        Document document = Document(
+          file: _selectedImage!,
+          serviceId: service.id!,
+        );
+        await uploadRepository.uploadDocument(document);
+        log('Imagem enviada com sucesso');
+      }
+
       TopSnackBar.show(
         dialogContext,
         'Serviço atualizado com sucesso',
@@ -311,7 +385,7 @@ Future<void> _showEditServiceDialog(
       Navigator.of(dialogContext).pop();
       onServiceUpdated();
     } catch (e) {
-      if (e is DioException && e.response!.statusCode != 498) {
+      if (e is DioException && e.response?.statusCode != 498) {
         log(e.toString());
         TopSnackBar.show(dialogContext, 'Erro ao atualizar serviço', false);
       } else {
@@ -341,6 +415,7 @@ Future<void> _showEditServiceDialog(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Campos de seleção de médico e procedimento
                       DropdownButtonFormField<Doctor>(
                         value: selectedDoctor,
                         decoration: InputDecoration(
@@ -398,11 +473,132 @@ Future<void> _showEditServiceDialog(
                       const SizedBox(height: 10),
                       TextField(
                         controller: descriptionController,
-                        decoration:
-                            const InputDecoration(labelText: 'Descrição'),
+                        decoration: InputDecoration(
+                          labelText: 'Descrição',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            borderSide: const BorderSide(
+                                color: Colors.grey, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            borderSide: const BorderSide(
+                                color: Colors.blue, width: 1.5),
+                          ),
+                        ),
                         maxLines: 5,
                         minLines: 3,
                         keyboardType: TextInputType.multiline,
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1.0),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Column(
+                          children: [
+                            // Seção de imagem
+                            ElevatedButton(
+                              onPressed: () => _selectImage(setState),
+                              child: const Text('Nova Imagem'),
+                            ),
+                            const SizedBox(height: 10),
+                            _selectedImage != null
+                                ? Image.file(_selectedImage!,
+                                    width: 200, height: 200, fit: BoxFit.cover)
+                                : const Text('Nenhuma imagem selecionada.'),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Fotos',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      FutureBuilder<List<Document>>(
+                        future: _fetchUploadedDocuments(
+                            context, service.id!), // Método para buscar fotos
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+
+                          if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Erro ao carregar fotos'));
+                          }
+
+                          final photos = snapshot.data;
+
+                          if (photos == null || photos.isEmpty) {
+                            return const Center(
+                                child: Text('Nenhuma foto encontrada.'));
+                          }
+
+                          return Column(
+                            children: photos.map((photo) {
+                              final imageUrl =
+                                  'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
+                              return GestureDetector(
+                                onTap: () {
+                                  // Exibir imagem em tela cheia
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: true,
+                                    builder: (_) => Dialog(
+                                      backgroundColor: Colors.transparent,
+                                      child: Stack(
+                                        children: [
+                                          PhotoView(
+                                            imageProvider:
+                                                NetworkImage(imageUrl),
+                                            minScale: PhotoViewComputedScale
+                                                .contained,
+                                            maxScale:
+                                                PhotoViewComputedScale.covered *
+                                                    2,
+                                            heroAttributes:
+                                                PhotoViewHeroAttributes(
+                                                    tag: imageUrl),
+                                          ),
+                                          Positioned(
+                                            top: 40,
+                                            right: 20,
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 30,
+                                              ),
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop(); // Fecha o diálogo
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Image.network(
+                                  imageUrl,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
                       ),
                     ],
                   ),

@@ -272,11 +272,11 @@ Future<void> showAnimalDetailDialog(
                                           ),
                                         )
                                       : const Expanded(
-                                        child: Center(
+                                          child: Center(
                                             child: Text(
                                                 'Nenhum serviço encontrado para este animal.'),
-                                                ),
-                                      ),
+                                          ),
+                                        ),
                                   const SizedBox(height: 20),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -295,116 +295,149 @@ Future<void> showAnimalDetailDialog(
                             },
                           ),
                           FutureBuilder<List<Document>>(
-  future: _fetchUploadedDocuments(context, animal),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
+                            future: _fetchUploadedDocuments(context, animal),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-    if (snapshot.hasError) {
-      return const Center(child: Text('Erro ao carregar fotos'));
-    }
+                              if (snapshot.hasError) {
+                                return const Center(
+                                    child: Text('Erro ao carregar fotos'));
+                              }
 
-    final documents = snapshot.data;
+                              final documents = snapshot.data;
 
-    return Column(
-      children: [
-        Expanded(
-          child: documents == null || documents.isEmpty
-              ? const Center(child: Text('Nenhuma foto encontrada.'))
-              : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Número de colunas
-                    childAspectRatio: 1.0, // Relação de aspecto
-                    crossAxisSpacing: 4.0, // Espaçamento entre as colunas
-                    mainAxisSpacing: 4.0, // Espaçamento entre as linhas
-                  ),
-                  itemCount: documents.length,
-                  itemBuilder: (context, index) {
-                    final document = documents[index];
-                    final imageUrl =
-                        'http://patrick.vps-kinghost.net:7001${document.key}';
+                              return Column(
+                                children: [
+                                  Expanded(
+                                    child: documents == null ||
+                                            documents.isEmpty
+                                        ? const Center(
+                                            child: Text(
+                                                'Nenhuma foto encontrada.'))
+                                        : GridView.builder(
+                                            gridDelegate:
+                                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount:
+                                                  3, // Número de colunas
+                                              childAspectRatio:
+                                                  1.0, // Relação de aspecto
+                                              crossAxisSpacing:
+                                                  4.0, // Espaçamento entre as colunas
+                                              mainAxisSpacing:
+                                                  4.0, // Espaçamento entre as linhas
+                                            ),
+                                            itemCount: documents.length,
+                                            itemBuilder: (context, index) {
+                                              final document = documents[index];
+                                              final imageUrl =
+                                                  'http://patrick.vps-kinghost.net:7001${document.key}';
 
-                    return GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (_) => Dialog(
-                            backgroundColor: Colors.transparent,
-                            child: Stack(
-                              children: [
-                                PhotoView(
-                                  imageProvider: NetworkImage(imageUrl),
-                                  minScale: PhotoViewComputedScale.contained,
-                                  maxScale: PhotoViewComputedScale.covered * 2,
-                                  heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
-                                ),
-                                Positioned(
-                                  top: 40,
-                                  right: 20,
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 30,
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(); // Fecha o diálogo
-                                    },
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    barrierDismissible: true,
+                                                    builder: (_) => Dialog(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      child: Stack(
+                                                        children: [
+                                                          
+                                                          PhotoView(
+                                                            imageProvider:
+                                                                NetworkImage(
+                                                                    imageUrl),
+                                                            minScale:
+                                                                PhotoViewComputedScale
+                                                                    .contained,
+                                                            maxScale:
+                                                                PhotoViewComputedScale
+                                                                        .covered *
+                                                                    2,
+                                                            heroAttributes:
+                                                                PhotoViewHeroAttributes(
+                                                                    tag:
+                                                                        imageUrl),
+                                                          ),
+                                                          Positioned(
+                                                            top: 40,
+                                                            right: 20,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                Icons.close,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 30,
+                                                              ),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(); // Fecha o diálogo
+                                                              },
+                                                            ),
+                                                          ),
+                                                          // Botão de deletar
+                                                          Positioned(
+                                                            bottom: 40,
+                                                            left: 20,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                Icons.delete,
+                                                                color:
+                                                                    Colors.red,
+                                                                size: 30,
+                                                              ),
+                                                              onPressed:
+                                                                  () async {
+                                                                // Função para excluir a imagem
+                                                                await _deleteDocument(
+                                                                    context,
+                                                                    document);
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(); // Fecha o diálogo
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Image.network(
+                                                  imageUrl,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              );
+                                            },
+                                          ),
                                   ),
-                                ),
-                                // Botão de deletar
-                                Positioned(
-                                  bottom: 40,
-                                  left: 20,
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                      size: 30,
-                                    ),
-                                    onPressed: () async {
-                                      // // Função para excluir a imagem
-                                      // await _deleteDocument(context, document);
-                                      // Navigator.of(context).pop(); // Fecha o diálogo
-                                    },
+                                  const SizedBox(height: 20),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          // Chama a função para selecionar e adicionar uma nova foto
+                                          ImageUploadHelper(
+                                            context: context,
+                                            uploadRepository:
+                                                UploadRepository(customDio),
+                                            animalId: animal.id,
+                                          ).selectAndConfirmImage();
+                                        },
+                                        child: const Text('Adicionar Foto'),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              );
+                            },
                           ),
-                        );
-                      },
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                // Chama a função para selecionar e adicionar uma nova foto
-                ImageUploadHelper(
-                  context: context,
-                  uploadRepository: UploadRepository(customDio),
-                  animalId: animal.id,
-                ).selectAndConfirmImage();
-              },
-              child: const Text('Adicionar Foto'),
-            ),
-          ],
-        ),
-      ],
-    );
-  },
-),
                         ],
                       ),
                     ),
@@ -433,7 +466,18 @@ Future<void> showAnimalDetailDialog(
   );
 }
 
-
+//delete document
+Future<void> _deleteDocument(BuildContext context, Document document) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+  try {
+    await uploadRepository.deleteDocument(
+        document.id!); // Chama a função para deletar o documento do repositório
+  } catch (e) {
+    print('Erro ao excluir o documento: $e');
+  }
+}
 
 Future<List<Document>> _fetchUploadedDocuments(
     BuildContext context, Animal animal) async {

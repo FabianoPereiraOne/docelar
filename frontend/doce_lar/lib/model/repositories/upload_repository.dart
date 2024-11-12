@@ -10,8 +10,8 @@ class UploadRepository {
 
   // Método para fazer upload usando apenas o objeto Document com file e animalId preenchidos
   Future<void> uploadDocument(Document document) async {
-    if (document.file == null || document.animalId == null) {
-      throw Exception('File e animalId são obrigatórios para o upload');
+    if (document.file == null) {
+      throw Exception('File obrigatório para o upload');
     }
 
     try {
@@ -21,6 +21,7 @@ class UploadRepository {
       FormData formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(document.file!.path, filename: fileName),
         "animalId": document.animalId,
+        "serviceId": document.serviceId,
       });
 
       Response response = await dio.post(endpoint, data: formData);
@@ -52,6 +53,25 @@ class UploadRepository {
       }
     } on DioException catch (e) {
       log('Erro ao buscar documentos: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      rethrow;
+    } catch (e, s) {
+      log(e.toString(), error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> deleteDocument(int documentId) async {
+    try {
+      String endpoint = '/documents/$documentId';
+      Response response = await dio.delete(endpoint);
+
+      if (response.statusCode == 204) {
+        log('Documento deletado com sucesso!');
+      } else {
+        log('Falha ao deletar documento: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      log('Erro ao deletar documento: ${e.response?.statusCode} - ${e.response?.statusMessage}');
       rethrow;
     } catch (e, s) {
       log(e.toString(), error: e, stackTrace: s);
