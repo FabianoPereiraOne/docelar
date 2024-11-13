@@ -253,6 +253,20 @@ Future<void> showServiceDetailsDialog(
   );
 }
 
+//delete document
+Future<void> _deleteDocument(BuildContext context, Document document) async {
+  log('Deletando documento: ${document.id}');
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+  try {
+    await uploadRepository.deleteDocument(
+        document.id!); // Chama a função para deletar o documento do repositório
+  } catch (e) {
+    print('Erro ao excluir o documento: $e');
+  }
+}
+
 Future<void> _deleteDocumentsByServiceId(
     BuildContext context, String serviceId) async {
   final loginProvider = Provider.of<LoginController>(context, listen: false);
@@ -523,8 +537,7 @@ Future<void> _showEditServiceDialog(
                         ],
                       ),
                       FutureBuilder<List<Document>>(
-                        future: _fetchUploadedDocuments(
-                            context, service.id!), // Método para buscar fotos
+                        future: _fetchUploadedDocuments(context, service.id!),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -548,9 +561,10 @@ Future<void> _showEditServiceDialog(
                             children: photos.map((photo) {
                               final imageUrl =
                                   'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
+
                               return GestureDetector(
                                 onTap: () {
-                                  // Exibir imagem em tela cheia
+                                  // Exibir imagem em tela cheia com o botão de deletar
                                   showDialog(
                                     context: context,
                                     barrierDismissible: true,
@@ -582,6 +596,25 @@ Future<void> _showEditServiceDialog(
                                               onPressed: () {
                                                 Navigator.of(context)
                                                     .pop(); // Fecha o diálogo
+                                              },
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 40,
+                                            left: 20,
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                                size: 30,
+                                              ),
+                                              onPressed: () async {
+                                                // Função para excluir a imagem
+                                                await _deleteDocument(
+                                                    context, photo);
+                                                Navigator.of(context)
+                                                    .pop(); // Fecha o diálogo
+                                                // Você pode também atualizar o estado para refletir a remoção
                                               },
                                             ),
                                           ),

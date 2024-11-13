@@ -346,7 +346,6 @@ Future<void> showAnimalDetailDialog(
                                                           Colors.transparent,
                                                       child: Stack(
                                                         children: [
-                                                          
                                                           PhotoView(
                                                             imageProvider:
                                                                 NetworkImage(
@@ -400,6 +399,9 @@ Future<void> showAnimalDetailDialog(
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop(); // Fecha o diálogo
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
                                                               },
                                                             ),
                                                           ),
@@ -468,6 +470,7 @@ Future<void> showAnimalDetailDialog(
 
 //delete document
 Future<void> _deleteDocument(BuildContext context, Document document) async {
+  log('Deletando documento: ${document.id}');
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
   final uploadRepository = UploadRepository(customDio);
@@ -556,7 +559,6 @@ Future<void> _showEditAnimalDialog(
   String? selectedHomeId = animal.home?.id;
 
   List<Home> homes = [];
-  List<DropdownMenuItem<String>> homeItems = [];
 
   if (selectedCollaboratorId != null) {
     final selectedCollaborator = colaboradores.firstWhere(
@@ -567,13 +569,6 @@ Future<void> _showEditAnimalDialog(
             .where((home) => home.status == true)
             .toList() ??
         [];
-
-    homeItems = homes.map((home) {
-      return DropdownMenuItem<String>(
-        value: home.id,
-        child: Text('${home.address}, ${home.number}'),
-      );
-    }).toList();
   }
 
   bool initialStatus = status; // Armazena o status inicial
@@ -602,12 +597,14 @@ Future<void> _showEditAnimalDialog(
         builder: (context, setState) {
           void updateHomes(Usuario? colaborador) {
             if (colaborador != null) {
+              // Filtra e atualiza os lares com status 'true'
               homes = colaborador.homes
                       ?.map((homeJson) => Home.fromMap(homeJson))
                       .where((home) => home.status == true)
                       .toList() ??
                   [];
 
+              // Se não houver lares para o colaborador, limpa o selectedHomeId
               if (homes.isEmpty) {
                 selectedHomeId = null;
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -618,7 +615,8 @@ Future<void> _showEditAnimalDialog(
                   );
                 });
               } else {
-                selectedHomeId = null;
+                // Caso haja lares, defina o selectedHomeId como o primeiro lar, ou deixe como null para permitir a seleção
+                selectedHomeId = homes.isNotEmpty ? homes.first.id : null;
               }
             } else {
               homes = [];
@@ -680,24 +678,32 @@ Future<void> _showEditAnimalDialog(
                       onChanged: (value) {
                         setState(() {
                           selectedCollaboratorId = value;
-                          updateHomes(colaboradores.firstWhere(
-                              (collaborator) => collaborator.id == value,
-                              orElse: () => Usuario()));
+                          // Atualiza os lares para o colaborador selecionado
+                          final colaboradorSelecionado =
+                              colaboradores.firstWhere(
+                            (collaborator) => collaborator.id == value,
+                            orElse: () => Usuario(),
+                          );
+                          updateHomes(
+                              colaboradorSelecionado); // Atualiza a lista de lares
                         });
                       },
                     ),
-                    if (selectedCollaboratorId != null)
-                      DropdownButtonFormField<String>(
-                        value: selectedHomeId,
-                        decoration:
-                            const InputDecoration(labelText: 'Endereço'),
-                        items: homeItems,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedHomeId = value;
-                          });
-                        },
-                      ),
+                    DropdownButtonFormField<String>(
+                      value: selectedHomeId,
+                      decoration: const InputDecoration(labelText: 'Endereço'),
+                      items: homes.map((home) {
+                        return DropdownMenuItem<String>(
+                          value: home.id,
+                          child: Text('${home.address}, ${home.number}'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedHomeId = value;
+                        });
+                      },
+                    ),
                     SwitchListTile(
                       title: const Text('Castrado'),
                       value: castrated,

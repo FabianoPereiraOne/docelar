@@ -16,6 +16,7 @@ class LoginController extends ChangeNotifier {
   Usuario usuario = Usuario();
   String token = '';
 
+
   LoginController({
     required this.repository,
   });
@@ -35,19 +36,22 @@ class LoginController extends ChangeNotifier {
  
 
 
-  Future<void> autenticaUsuario(String login, String senha) async {
-    log('chegou no autenticaUsuario');
-    try {
-      final response = await repository.autenticar(login, senha);
-      log('voltou para controller');
-      usuario = response;
-      token = response.authorization!;
-      log('$token');
-      updateState(hasData: true);
-    } catch (e) {
-      updateState(hasError: true, errorMessage: e.toString(), hasData: false);
-      //  throw '$e.toString()';
-      // log(e.toString());
-    }
+Future<void> autenticaUsuario(String login, String senha) async {
+  log('chegou no autenticaUsuario');
+  try {
+    final response = await repository.autenticar(login, senha);
+    log('voltou para controller');
+    
+    // Garantindo que o retorno da autenticação seja um objeto Usuario
+    usuario = response;
+    token = response.authorization!; // Agora o token é extraído do objeto Usuario
+
+
+
+    updateState(hasData: true);
+  } catch (e) {
+    updateState(hasError: true, errorMessage: e.toString(), hasData: false);
+    log(e.toString()); // Log para capturar o erro
   }
+}
 }

@@ -8,38 +8,34 @@ class UsuarioRepository {
 
   final dio = Dio();
 
+Future<Usuario> autenticar(String login, String senha) async {
+  log('chegou no repository');
+  try {
+    String endpoint = '$url/sign';
+    Map<String, dynamic> body = {'email': login};
+    Options options = Options(headers: {'password': senha});
 
+    Response response = await dio.post(
+      endpoint,
+      data: jsonEncode(body),
+      options: options,
+    );
 
-  Future<Usuario> autenticar(String login, String senha) async {
-    log('chegou no repository');
-    try {
-      // Endpoint para autenticação
-      String endpoint = '$url/sign';
+    // Acessando diretamente 'data' e 'authorization' da resposta
+    var userData = response.data['data']; // Acessa os dados do usuário dentro de 'data'
+    String authorization = response.data['authorization']; // Acessa o token de autorização diretamente
 
-      // Corpo da requisição (email como JSON no corpo)
-      Map<String, dynamic> body = {
-        'email': login,
-      };
+    // Mapeando os dados do usuário e atribuindo o token
+    Usuario usuario = Usuario.fromMap(userData);
+    usuario.authorization = authorization; // Atribuindo o token ao usuário
 
-      // Cabeçalho da requisição (senha como header)
-      Options options = Options(headers: {
-        'password': senha,
-      });
-
-      // Envia a requisição POST
-      Response response = await dio.post(
-        endpoint,
-        data: jsonEncode(body), // Codifica o corpo como JSON
-        options: options, // Adiciona o cabeçalho com a senha
-      );
-
-      return Usuario.fromMap(response.data);
-      // Supondo que o token esteja na resposta como um campo 'token'
-    } on DioException catch (e, s) {
-      log(e.toString(), error: e, stackTrace: s);
-      rethrow;
-    }
+    return usuario;
+  } on DioException catch (e, s) {
+    log(e.toString(), error: e, stackTrace: s);
+    rethrow;
   }
+}
+
 }
   //   try {
   //     final response = await dio.get(url + endPoint,

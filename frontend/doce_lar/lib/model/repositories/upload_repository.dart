@@ -61,11 +61,12 @@ class UploadRepository {
   }
 
   Future<void> deleteDocument(int documentId) async {
+    log('Repository documento $documentId');
     try {
-      String endpoint = '/documents/$documentId';
+      String endpoint = '/documents?id=$documentId';
       Response response = await dio.delete(endpoint);
 
-      if (response.statusCode == 204) {
+      if (response.statusCode == 200) {
         log('Documento deletado com sucesso!');
       } else {
         log('Falha ao deletar documento: ${response.statusCode}');

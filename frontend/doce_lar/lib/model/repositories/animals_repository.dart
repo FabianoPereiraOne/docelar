@@ -85,6 +85,7 @@ class AnimalRepository {
 
   // Método para atualizar um animal
   Future<void> updateAnimal(Animal animal) async {
+    log('home que chegou: ${animal.home!.id}');
     try {
       String endpoint = '/animals'; // Endpoint relativo
       Map<String, dynamic> animalData = {
@@ -97,7 +98,7 @@ class AnimalRepository {
         'linkPhoto': animal.linkPhoto,
         'typeAnimalId': animal.typeAnimalId,
         'status': animal.status,
-        'home': animal.home,
+        'homeId': animal.home!.id,
         'dateExit': animal.dateExit,
       };
 

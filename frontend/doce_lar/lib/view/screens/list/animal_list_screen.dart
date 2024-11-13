@@ -32,6 +32,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   bool _showActive = true;
   TabController? _tabController;
   List<Usuario> _colaboradores = [];
+  List<String>? _homeIds; // Alterado para uma lista de IDs de endereços
 
   Future<void> _fetchData() async {
     setState(() {
@@ -46,20 +47,37 @@ class _AnimalListScreenState extends State<AnimalListScreen>
 
     try {
       final animaisFuture = animalRepository.fetchAnimais();
-      final typesFuture =
-          animalTypeRepository.fetchAnimalTypes();
-      final colaboradoresFuture =
-          colaboradorRepository.fetchColaboradores();
+      final typesFuture = animalTypeRepository.fetchAnimalTypes();
+      final colaboradoresFuture = colaboradorRepository.fetchColaboradores();
 
       final animais = await animaisFuture;
       final types = await typesFuture;
       final colaboradores = await colaboradoresFuture;
 
+      // Obter os IDs de todos os endereços do usuário logado (para usuários do tipo USER)
+      _homeIds = loginProvider.usuario.type == 'USER'
+          ? (loginProvider.usuario.homes as List<dynamic>?)
+              ?.whereType<
+                  Map<String,
+                      dynamic>>() // Filtra apenas os itens que são Map<String, dynamic>
+              .map((home) => home['id'] as String)
+              .toList()
+          : null;
       setState(() {
-        _activeAnimais =
-            animais.where((animal) => animal.status ?? false).toList();
-        _inactiveAnimais =
-            animais.where((animal) => !(animal.status ?? false)).toList();
+        _activeAnimais = animais
+            .where((animal) =>
+                (animal.status ?? false) &&
+                (_homeIds == null ||
+                    _homeIds!.contains(animal.home!
+                        .id))) // Verificando se o ID do animal corresponde a qualquer um dos homes do usuário
+            .toList();
+        _inactiveAnimais = animais
+            .where((animal) =>
+                !(animal.status ?? false) &&
+                (_homeIds == null ||
+                    _homeIds!.contains(
+                        animal.home!.id))) // Verificando para inativos
+            .toList();
         _animalTypes = types;
         _colaboradores = colaboradores
             .where((colaborador) => colaborador.statusAccount == true)

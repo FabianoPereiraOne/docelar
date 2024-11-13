@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:doce_lar/view/widgets/custom_buttom.dart';
+import 'package:provider/provider.dart';
+import 'package:doce_lar/controller/login_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final loginProvider = Provider.of<LoginController>(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
@@ -24,32 +28,47 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.40,
                 ),
-                CustomButtom(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/colaboradores');
-                    },
-                    text: "COLABORADORES"),
-                CustomButtom(
+                // Botão "Animais" visível apenas para usuários do tipo USER
+                if (loginProvider.usuario.type == "USER")
+                  CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/animais');
                     },
-                    text: "ANIMAIS"),
-                CustomButtom(
+                    text: "ANIMAIS",
+                  ),
+                // Outros botões visíveis apenas para outros tipos de usuários
+                if (loginProvider.usuario.type != "USER") ...[
+                  CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/colaboradores');
+                    },
+                    text: "COLABORADORES",
+                  ),
+                  CustomButtom(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/animais');
+                    },
+                    text: "ANIMAIS",
+                  ),
+                  CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/procedures');
                     },
-                    text: "PROCEDIMENTOS"),
-                CustomButtom(
+                    text: "PROCEDIMENTOS",
+                  ),
+                  CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/doctors');
                     },
-                    text: "MÉDICOS"),
-                CustomButtom(
+                    text: "MÉDICOS",
+                  ),
+                  CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/teste');
                     },
-                    text: "UPLOAD"),
-                    
+                    text: "UPLOAD",
+                  ),
+                ],
               ],
             ),
           ),
