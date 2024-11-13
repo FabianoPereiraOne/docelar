@@ -342,6 +342,9 @@ Future<void> _showEditServiceDialog(
   final serviceRepository = ServiceRepository(customDio);
   final uploadRepository = UploadRepository(customDio);
 
+  List<int> documentsToDelete = []; // Lista temporária de exclusão
+  List<Document> photos = []; // Lista mutável de fotos carregadas
+
   Future<void> loadOptions() async {
     doctors = await doctorRepository.fetchDoctors();
     procedures = await procedureRepository.fetchProcedures();
@@ -351,6 +354,9 @@ Future<void> _showEditServiceDialog(
     selectedProcedure = procedures.firstWhere(
         (proc) => proc.id == service.procedures!.first.id,
         orElse: () => procedures.first);
+
+    // Carregar fotos do serviço e atualizar lista
+    photos = await _fetchUploadedDocuments(context, service.id!);
   }
 
   Future<void> _selectImage(Function(void Function()) setState) async {
@@ -380,6 +386,12 @@ Future<void> _showEditServiceDialog(
       );
 
       await serviceRepository.updateService(updatedService);
+
+      // Excluir documentos confirmados
+      for (var documentId in documentsToDelete) {
+        await uploadRepository.deleteDocument(documentId);
+        log('Documento $documentId deletado com sucesso.');
+      }
 
       // Fazer upload da imagem se houver uma selecionada
       if (_selectedImage != null) {
@@ -449,12 +461,6 @@ Future<void> _showEditServiceDialog(
                             selectedDoctor = value;
                           });
                         },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Por favor, selecione um médico';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<Procedure>(
@@ -477,12 +483,6 @@ Future<void> _showEditServiceDialog(
                             selectedProcedure = value;
                           });
                         },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Por favor, selecione um procedimento';
-                          }
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -491,13 +491,6 @@ Future<void> _showEditServiceDialog(
                           labelText: 'Descrição',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(5.0),
-                            borderSide: const BorderSide(
-                                color: Colors.grey, width: 1.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            borderSide: const BorderSide(
-                                color: Colors.blue, width: 1.5),
                           ),
                         ),
                         maxLines: 5,
@@ -512,7 +505,6 @@ Future<void> _showEditServiceDialog(
                         ),
                         child: Column(
                           children: [
-                            // Seção de imagem
                             ElevatedButton(
                               onPressed: () => _selectImage(setState),
                               child: const Text('Nova Imagem'),
@@ -525,7 +517,6 @@ Future<void> _showEditServiceDialog(
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 20),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -536,102 +527,35 @@ Future<void> _showEditServiceDialog(
                           ),
                         ],
                       ),
-                      FutureBuilder<List<Document>>(
-                        future: _fetchUploadedDocuments(context, service.id!),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
+                      Column(
+                        children: photos.map((photo) {
+                          final imageUrl =
+                              'http://patrick.vps-kinghost.net:7001${photo.key}';
 
-                          if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Erro ao carregar fotos'));
-                          }
-
-                          final photos = snapshot.data;
-
-                          if (photos == null || photos.isEmpty) {
-                            return const Center(
-                                child: Text('Nenhuma foto encontrada.'));
-                          }
-
-                          return Column(
-                            children: photos.map((photo) {
-                              final imageUrl =
-                                  'http://patrick.vps-kinghost.net:7001${photo.key}'; // Ajuste a URL conforme necessário
-
-                              return GestureDetector(
-                                onTap: () {
-                                  // Exibir imagem em tela cheia com o botão de deletar
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: true,
-                                    builder: (_) => Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      child: Stack(
-                                        children: [
-                                          PhotoView(
-                                            imageProvider:
-                                                NetworkImage(imageUrl),
-                                            minScale: PhotoViewComputedScale
-                                                .contained,
-                                            maxScale:
-                                                PhotoViewComputedScale.covered *
-                                                    2,
-                                            heroAttributes:
-                                                PhotoViewHeroAttributes(
-                                                    tag: imageUrl),
-                                          ),
-                                          Positioned(
-                                            top: 40,
-                                            right: 20,
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                Icons.close,
-                                                color: Colors.white,
-                                                size: 30,
-                                              ),
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pop(); // Fecha o diálogo
-                                              },
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 40,
-                                            left: 20,
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                                size: 30,
-                                              ),
-                                              onPressed: () async {
-                                                // Função para excluir a imagem
-                                                await _deleteDocument(
-                                                    context, photo);
-                                                Navigator.of(context)
-                                                    .pop(); // Fecha o diálogo
-                                                // Você pode também atualizar o estado para refletir a remoção
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
+                          return Row(
+                            children: [
+                              Expanded(
                                 child: Image.network(
                                   imageUrl,
                                   height: 200,
                                   fit: BoxFit.cover,
                                 ),
-                              );
-                            }).toList(),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    documentsToDelete.add(photo.id!);
+                                    photos.remove(photo); // Remover da lista exibida
+                                  });
+                                },
+                              ),
+                            ],
                           );
-                        },
+                        }).toList(),
                       ),
                     ],
                   ),
