@@ -75,6 +75,13 @@ flutter:
   - images/home.png
   - images/login.png
   - images/login_campos.png
+  - images/patinhas.png
+  - images/willian.jpeg
+  - images/eshilley.jpeg
+  - images/vinicius.webp
+  - images/fabiano.jpeg
+  - images/gabriel.jpeg
+  - images/maira.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

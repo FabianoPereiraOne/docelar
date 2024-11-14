@@ -11,8 +11,17 @@ class HomeScreen extends StatelessWidget {
     final loginProvider = Provider.of<LoginController>(context);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('images/home.png'), // caminho da imagem
+            fit: BoxFit.cover, // ajusta a imagem para cobrir o fundo
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
           child: Container(
             constraints: BoxConstraints(
               minHeight: MediaQuery.of(context).size.height,
@@ -34,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushNamed('/animais');
                     },
-                    text: "ANIMAIS",
+                    text: "Animais",
                   ),
                 // Outros botões visíveis apenas para outros tipos de usuários
                 if (loginProvider.usuario.type != "USER") ...[
@@ -42,36 +51,43 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pushNamed('/colaboradores');
                     },
-                    text: "COLABORADORES",
+                    text: "Colaboradores",
                   ),
                   CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/animais');
                     },
-                    text: "ANIMAIS",
+                    text: "Animais",
                   ),
                   CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/procedures');
                     },
-                    text: "PROCEDIMENTOS",
+                    text: "Procedimentos",
                   ),
                   CustomButtom(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/doctors');
                     },
-                    text: "MÉDICOS",
-                  ),
-                  CustomButtom(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/teste');
-                    },
-                    text: "UPLOAD",
+                    text: "Médicos",
                   ),
                 ],
               ],
             ),
           ),
+        ),
+            ),
+            // Botão "Sobre Nós" fixado na parte inferior da tela
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: CustomButtom(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/about');
+                },
+                text: "Sobre Nós",
+              ),
+            ),
+          ],
         ),
       ),
     );
