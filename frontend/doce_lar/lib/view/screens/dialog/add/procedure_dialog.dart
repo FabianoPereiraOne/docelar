@@ -59,16 +59,16 @@ void showAddProcedureDialog(BuildContext context, Function() callback) {
                       },
                     ),
                     TextFormField(
-                      decoration: const InputDecoration(labelText: 'Dosagem'),
+                      decoration: const InputDecoration(labelText: 'Dosagem / Quantidade'),
                       onChanged: (value) {
                         dosage = value;
                       },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Dosagem é obrigatória';
-                        }
-                        return null;
-                      },
+                      // validator: (value) {
+                      //   if (value == null || value.isEmpty) {
+                      //     return 'Dosagem é obrigatória';
+                      //   }
+                      //   return null;
+                      // },
                     ),
                   ],
                 ),

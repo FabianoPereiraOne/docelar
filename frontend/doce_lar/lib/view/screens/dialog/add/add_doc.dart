@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,24 +8,27 @@ import 'package:doce_lar/model/repositories/upload_repository.dart';
 class ImageUploadHelper {
   final BuildContext context;
   final UploadRepository uploadRepository;
-  final String? animalId;  // animalId opcional
+  final String? animalId; // animalId opcional
   final String? serviceId; // serviceId opcional
+  final Function()? onAdd;
 
-  ImageUploadHelper({
+  ImageUploadHelper(
+    {
     required this.context,
     required this.uploadRepository,
     this.animalId, // Pode ser nulo
     this.serviceId, // Pode ser nulo
+     this.onAdd,
   });
 
   Future<void> selectAndConfirmImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       File image = File(pickedFile.path);
       _showConfirmationDialog(image);
     } else {
-      print('Nenhuma imagem selecionada');
+      log('Nenhuma imagem selecionada');
     }
   }
 
@@ -57,6 +61,7 @@ class ImageUploadHelper {
                 Navigator.of(context).pop(); // Fecha o diálogo
                 Navigator.of(context).pop();
                 await _uploadImage(image); // Faz o upload da imagem
+                onAdd!(); // Atualiza a tela
               },
               child: const Text("Confirmar"),
             ),
@@ -68,7 +73,7 @@ class ImageUploadHelper {
 
   Future<void> _uploadImage(File image) async {
     if (animalId == null && serviceId == null) {
-      print('Nenhum ID de animal ou serviço fornecido');
+      log('Nenhum ID de animal ou serviço fornecido');
       return;
     }
 
@@ -79,6 +84,6 @@ class ImageUploadHelper {
     );
 
     await uploadRepository.uploadDocument(document);
-    print('Upload realizado com sucesso');
+    log('Upload realizado com sucesso');
   }
 }

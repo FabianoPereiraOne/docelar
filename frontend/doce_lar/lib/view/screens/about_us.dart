@@ -107,11 +107,11 @@ class ParticipantItem extends StatelessWidget {
   final String role;
 
   const ParticipantItem({
-    Key? key,
+    super.key,
     required this.imagePath,
     required this.name,
     required this.role,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

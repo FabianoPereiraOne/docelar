@@ -16,6 +16,7 @@ import 'package:doce_lar/model/repositories/upload_repository.dart';
 import 'package:doce_lar/view/screens/dialog/add/add_doc.dart';
 import 'package:doce_lar/view/screens/dialog/details/service_details_screen.dart';
 import 'package:doce_lar/view/screens/dialog/add/service_dialog.dart';
+import 'package:doce_lar/view/widgets/confirm_delete.dart';
 import 'package:doce_lar/view/widgets/detail_row.dart';
 import 'package:doce_lar/view/widgets/feedback_snackbar.dart';
 import 'package:doce_lar/view/widgets/format_date.dart';
@@ -393,9 +394,16 @@ Future<void> showAnimalDetailDialog(
                                                               onPressed:
                                                                   () async {
                                                                 // Função para excluir a imagem
-                                                                await _deleteDocument(
-                                                                    context,
-                                                                    document);
+
+                                                                await showDeleteDialog(
+                                                                  context,
+                                                                  document.id!,
+                                                                  '/documents',
+                                                                  'Documento',
+                                                                  () {
+                                                                    onAnimalUpdated();
+                                                                  },
+                                                                );
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop(); // Fecha o diálogo
@@ -424,13 +432,17 @@ Future<void> showAnimalDetailDialog(
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-                                          // Chama a função para selecionar e adicionar uma nova foto
+
                                           ImageUploadHelper(
+                                            onAdd: onAnimalUpdated,
                                             context: context,
                                             uploadRepository:
                                                 UploadRepository(customDio),
                                             animalId: animal.id,
-                                          ).selectAndConfirmImage();
+                                          ).selectAndConfirmImage(
+                                          );
+
+                                          
                                         },
                                         child: const Text('Adicionar Foto'),
                                       ),
@@ -463,6 +475,26 @@ Future<void> showAnimalDetailDialog(
             },
           ),
         ),
+      );
+    },
+  );
+}
+
+Future<void> showDeleteDialog(
+  BuildContext context,
+  int itemId,
+  String route,
+  String entityType,
+  Function() onDeleted,
+) async {
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return DeleteConfirmationDialog(
+        itemId: itemId,
+        route: route,
+        entityType: entityType,
+        onDeleted: onDeleted,
       );
     },
   );

@@ -36,6 +36,24 @@ Future<void> showServiceDialog(
     doctors = await doctorRepository.fetchDoctors();
     doctors = doctors.where((doctor) => doctor.status == true).toList();
 
+      // Adiciona o "Doctor" fictício com informações padrão
+  doctors.insert(0, Doctor(
+    id: 'sem_medico',
+    name: 'Sem Médico',
+    crmv: 'sem medico',
+    expertise: 'sem medico',
+    phone: '33999999999',
+    socialReason: 'sem medico',
+    cep: 'sem medico',
+    state: 'sem medico',
+    city: 'sem medico',
+    district: 'sem medico',
+    address: 'sem medico',
+    number: 'sem medico',
+    openHours: 'sem medico',
+    status: true,
+  ));
+
     procedures = await procedureRepository.fetchProcedures();
     log(procedures.toString());
   }

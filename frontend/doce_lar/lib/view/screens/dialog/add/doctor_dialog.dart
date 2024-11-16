@@ -79,8 +79,8 @@ Future<void> showAddDoctorDialog(BuildContext context, Function() callback) asyn
                     TextFormField(
                       controller: crmvController,
                       decoration: const InputDecoration(labelText: 'CRMV'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: expertiseController,
@@ -97,17 +97,23 @@ Future<void> showAddDoctorDialog(BuildContext context, Function() callback) asyn
                       validator: (value) =>
                           value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
+                    // TextFormField(
+                    //   controller: phoneController,
+                    //   decoration: const InputDecoration(labelText: 'Telefone'),
+                    //   validator: (value) =>
+                    //       value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                    // ),
                     TextFormField(
                       controller: socialReasonController,
                       decoration: const InputDecoration(labelText: 'Razão Social'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: cepController,
                       decoration: const InputDecoration(labelText: 'CEP'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                       onChanged: (value) {
                         buscarCep(value, setState);
                       },
@@ -115,38 +121,38 @@ Future<void> showAddDoctorDialog(BuildContext context, Function() callback) asyn
                     TextFormField(
                       controller: stateController,
                       decoration: const InputDecoration(labelText: 'Estado'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: cityController,
                       decoration: const InputDecoration(labelText: 'Cidade'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: districtController,
                       decoration: const InputDecoration(labelText: 'Bairro'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: addressController,
                       decoration: const InputDecoration(labelText: 'Endereço'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: numberController,
                       decoration: const InputDecoration(labelText: 'Número'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                     TextFormField(
                       controller: openHoursController,
                       decoration: const InputDecoration(labelText: 'Horário de Funcionamento'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                      // validator: (value) =>
+                      //     value == null || value.isEmpty ? 'Campo obrigatório' : null,
                     ),
                   ],
                 ),

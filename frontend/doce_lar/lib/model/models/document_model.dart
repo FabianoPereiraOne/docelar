@@ -7,6 +7,7 @@ class Document {
   File? file;
   String? animalId;
   String? serviceId;
+  String? createdAt;
 
   Document({
     this.id,
@@ -14,6 +15,7 @@ class Document {
     this.file,
     this.animalId,
     this.serviceId,
+    this.createdAt,
   });
 
   factory Document.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,7 @@ class Document {
       file: map['file'],
       animalId: map['animalId'],
       serviceId: map['serviceId'],
+      createdAt: map['createdAt'],
     );
   }
 
@@ -33,6 +36,7 @@ class Document {
       'file': file,
       'animalId': animalId,
       'serviceId': serviceId,
+      'createdAt': createdAt,
     };
   }
 

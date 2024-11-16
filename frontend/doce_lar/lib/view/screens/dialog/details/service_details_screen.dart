@@ -254,18 +254,18 @@ Future<void> showServiceDetailsDialog(
 }
 
 //delete document
-Future<void> _deleteDocument(BuildContext context, Document document) async {
-  log('Deletando documento: ${document.id}');
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final customDio = CustomDio(loginProvider, context);
-  final uploadRepository = UploadRepository(customDio);
-  try {
-    await uploadRepository.deleteDocument(
-        document.id!); // Chama a função para deletar o documento do repositório
-  } catch (e) {
-    print('Erro ao excluir o documento: $e');
-  }
-}
+// Future<void> _deleteDocument(BuildContext context, Document document) async {
+//   log('Deletando documento: ${document.id}');
+//   final loginProvider = Provider.of<LoginController>(context, listen: false);
+//   final customDio = CustomDio(loginProvider, context);
+//   final uploadRepository = UploadRepository(customDio);
+//   try {
+//     await uploadRepository.deleteDocument(
+//         document.id!); // Chama a função para deletar o documento do repositório
+//   } catch (e) {
+//     print('Erro ao excluir o documento: $e');
+//   }
+// }
 
 Future<void> _deleteDocumentsByServiceId(
     BuildContext context, String serviceId) async {
@@ -332,8 +332,8 @@ Future<void> _showEditServiceDialog(
   List<Procedure> procedures = [];
   Doctor? selectedDoctor;
   Procedure? selectedProcedure;
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
+  File? selectedImage;
+  final ImagePicker picker = ImagePicker();
 
   final loginProvider = Provider.of<LoginController>(context, listen: false);
   final customDio = CustomDio(loginProvider, context);
@@ -359,11 +359,11 @@ Future<void> _showEditServiceDialog(
     photos = await _fetchUploadedDocuments(context, service.id!);
   }
 
-  Future<void> _selectImage(Function(void Function()) setState) async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> selectImage(Function(void Function()) setState) async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _selectedImage = File(pickedFile.path);
+        selectedImage = File(pickedFile.path);
       });
     } else {
       log('Nenhuma imagem selecionada');
@@ -394,9 +394,9 @@ Future<void> _showEditServiceDialog(
       }
 
       // Fazer upload da imagem se houver uma selecionada
-      if (_selectedImage != null) {
+      if (selectedImage != null) {
         Document document = Document(
-          file: _selectedImage!,
+          file: selectedImage!,
           serviceId: service.id!,
         );
         await uploadRepository.uploadDocument(document);
@@ -506,12 +506,12 @@ Future<void> _showEditServiceDialog(
                         child: Column(
                           children: [
                             ElevatedButton(
-                              onPressed: () => _selectImage(setState),
+                              onPressed: () => selectImage(setState),
                               child: const Text('Nova Imagem'),
                             ),
                             const SizedBox(height: 10),
-                            _selectedImage != null
-                                ? Image.file(_selectedImage!,
+                            selectedImage != null
+                                ? Image.file(selectedImage!,
                                     width: 200, height: 200, fit: BoxFit.cover)
                                 : const Text('Nenhuma imagem selecionada.'),
                           ],

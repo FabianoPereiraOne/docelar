@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 
 class DeleteConfirmationDialog extends StatelessWidget {
-  final String itemId;
+  final dynamic itemId;  // Alterado para dynamic, aceitando int ou String
   final String route;
   final String entityType;
   final Function() onDeleted;
@@ -39,9 +39,12 @@ class DeleteConfirmationDialog extends StatelessWidget {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           onPressed: () async {
             try {
+              // Converte o itemId para String, se for necessário
+              String itemIdStr = itemId.toString();
+              
               await deleteRepository.deleteItem(
                 endpoint: route,
-                itemId: itemId,
+                itemId: itemIdStr,  // Passa o itemId como String
               );
               Navigator.of(context).pop();
               TopSnackBar.show(

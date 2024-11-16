@@ -6,6 +6,7 @@ import 'package:doce_lar/model/models/user_model.dart';
 import 'package:doce_lar/model/repositories/animals_repository.dart';
 import 'package:doce_lar/model/repositories/animals_types_repository.dart';
 import 'package:doce_lar/model/repositories/colaborador_repository.dart';
+import 'package:doce_lar/model/repositories/upload_repository.dart';
 import 'package:doce_lar/view/screens/dialog/add/animal_dialog.dart';
 import 'package:doce_lar/view/screens/dialog/details/animal_details_screen.dart';
 import 'package:doce_lar/view/widgets/custom_card.dart';
@@ -56,7 +57,7 @@ class _AnimalListScreenState extends State<AnimalListScreen>
 
       // Obter os IDs de todos os endereços do usuário logado (para usuários do tipo USER)
       _homeIds = loginProvider.usuario.type == 'USER'
-          ? (loginProvider.usuario.homes as List<dynamic>?)
+          ? (loginProvider.usuario.homes)
               ?.whereType<
                   Map<String,
                       dynamic>>() // Filtra apenas os itens que são Map<String, dynamic>
@@ -133,6 +134,31 @@ class _AnimalListScreenState extends State<AnimalListScreen>
       _fetchData,
     );
   }
+
+
+  Future<String?> _fetchLastUploadedImage(BuildContext context, Animal animal) async {
+  final loginProvider = Provider.of<LoginController>(context, listen: false);
+  final customDio = CustomDio(loginProvider, context);
+  final uploadRepository = UploadRepository(customDio);
+
+  // Obtém todos os documentos do animal
+  final allDocuments = await uploadRepository.fetchDocuments();
+
+  // Filtra os documentos pelo animalId
+  final animalDocuments = allDocuments.where((document) => document.animalId == animal.id).toList();
+
+  // Filtra apenas as imagens (presumindo que as imagens tenham chave não nula)
+  final imageDocuments = animalDocuments.where((document) => document.key != null).toList();
+
+  if (imageDocuments.isNotEmpty) {
+    // Ordena as imagens pela data de criação (decrescente)
+    imageDocuments.sort((a, b) => DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
+    return imageDocuments.first.key;  // Retorna a chave da última imagem
+  }
+
+  return null;  // Caso não tenha imagem
+}
+
 
   @override
   void initState() {
@@ -257,33 +283,47 @@ class _AnimalListScreenState extends State<AnimalListScreen>
             ],
           ),
         ),
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _filteredAnimais.isEmpty
-                  ? const Center(child: Text('Nenhum animal encontrado'))
-                  : ListView.builder(
-                      itemCount: _filteredAnimais.length,
-                      itemBuilder: (context, index) {
-                        if (index >= _filteredAnimais.length) {
-                          return const SizedBox.shrink();
-                        }
-                        final animal = _filteredAnimais[index];
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomCard(
-                            title: animal.name.toString(),
-                            info1: getAnimalTypeName(animal.typeAnimal),
-                            info2: getSexDescription(animal.sex ?? ''),
-                            onTap: () async {
-                              await showAnimalDetailDialog(context, animal,
-                                  _animalTypes, _colaboradores, _fetchData);
-                            },
-                          ),
-                        );
-                      },
-                    ),
-        ),
+         Expanded(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _filteredAnimais.isEmpty
+                ? const Center(child: Text('Nenhum animal encontrado'))
+                : ListView.builder(
+                    itemCount: _filteredAnimais.length,
+                    itemBuilder: (context, index) {
+                      if (index >= _filteredAnimais.length) {
+                        return const SizedBox.shrink();
+                      }
+                      final animal = _filteredAnimais[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: FutureBuilder<String?>(
+                          future: _fetchLastUploadedImage(context, animal),  // Obtendo a última imagem
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Text('Erro ao carregar imagem: ${snapshot.error}');
+                            } else {
+                              String? imageKey = snapshot.data;
+
+                              return CustomCard(
+                                title: animal.name.toString(),
+                                info1: getAnimalTypeName(animal.typeAnimal),
+                                info2: getSexDescription(animal.sex ?? ''),
+                                image: imageKey ?? '',  // Se não houver imagem, deixa vazio
+                                onTap: () async {
+                                  await showAnimalDetailDialog(context, animal,
+                                      _animalTypes, _colaboradores, _fetchData);
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+      ),
       ],
     );
   }
