@@ -120,10 +120,12 @@ class _AnimalListScreenState extends State<AnimalListScreen>
   }
 
   void _toggleAnimalStatus(bool showActive) {
-    setState(() {
-      _showActive = showActive;
-      _updateFilteredAnimais();
-    });
+    if (_showActive != showActive) {
+      setState(() {
+        _showActive = showActive;
+        _updateFilteredAnimais();
+      });
+    }
   }
 
   void _showAddAnimalDialog() async {
@@ -135,37 +137,41 @@ class _AnimalListScreenState extends State<AnimalListScreen>
     );
   }
 
+  Future<String?> _fetchLastUploadedImage(
+      BuildContext context, Animal animal) async {
+    final loginProvider = Provider.of<LoginController>(context, listen: false);
+    final customDio = CustomDio(loginProvider, context);
+    final uploadRepository = UploadRepository(customDio);
 
-  Future<String?> _fetchLastUploadedImage(BuildContext context, Animal animal) async {
-  final loginProvider = Provider.of<LoginController>(context, listen: false);
-  final customDio = CustomDio(loginProvider, context);
-  final uploadRepository = UploadRepository(customDio);
+    // Obtém todos os documentos do animal
+    final allDocuments = await uploadRepository.fetchDocuments();
 
-  // Obtém todos os documentos do animal
-  final allDocuments = await uploadRepository.fetchDocuments();
+    // Filtra os documentos pelo animalId
+    final animalDocuments = allDocuments
+        .where((document) => document.animalId == animal.id)
+        .toList();
 
-  // Filtra os documentos pelo animalId
-  final animalDocuments = allDocuments.where((document) => document.animalId == animal.id).toList();
+    // Filtra apenas as imagens (presumindo que as imagens tenham chave não nula)
+    final imageDocuments =
+        animalDocuments.where((document) => document.key != null).toList();
 
-  // Filtra apenas as imagens (presumindo que as imagens tenham chave não nula)
-  final imageDocuments = animalDocuments.where((document) => document.key != null).toList();
+    if (imageDocuments.isNotEmpty) {
+      // Ordena as imagens pela data de criação (decrescente)
+      imageDocuments.sort((a, b) =>
+          DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
+      return imageDocuments.first.key; // Retorna a chave da última imagem
+    }
 
-  if (imageDocuments.isNotEmpty) {
-    // Ordena as imagens pela data de criação (decrescente)
-    imageDocuments.sort((a, b) => DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
-    return imageDocuments.first.key;  // Retorna a chave da última imagem
+    return null; // Caso não tenha imagem
   }
-
-  return null;  // Caso não tenha imagem
-}
-
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController?.addListener(() {
-      if (_tabController?.indexIsChanging ?? false) {
+      if (!_tabController!.indexIsChanging) {
+        // Detecta mudanças finalizadas
         _toggleAnimalStatus(_tabController?.index == 0);
       }
     });
@@ -283,47 +289,54 @@ class _AnimalListScreenState extends State<AnimalListScreen>
             ],
           ),
         ),
-         Expanded(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _filteredAnimais.isEmpty
-                ? const Center(child: Text('Nenhum animal encontrado'))
-                : ListView.builder(
-                    itemCount: _filteredAnimais.length,
-                    itemBuilder: (context, index) {
-                      if (index >= _filteredAnimais.length) {
-                        return const SizedBox.shrink();
-                      }
-                      final animal = _filteredAnimais[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: FutureBuilder<String?>(
-                          future: _fetchLastUploadedImage(context, animal),  // Obtendo a última imagem
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Text('Erro ao carregar imagem: ${snapshot.error}');
-                            } else {
-                              String? imageKey = snapshot.data;
+        Expanded(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _filteredAnimais.isEmpty
+                  ? const Center(child: Text('Nenhum animal encontrado'))
+                  : ListView.builder(
+                      itemCount: _filteredAnimais.length,
+                      itemBuilder: (context, index) {
+                        if (index >= _filteredAnimais.length) {
+                          return const SizedBox.shrink();
+                        }
+                        final animal = _filteredAnimais[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: FutureBuilder<String?>(
+                            future: _fetchLastUploadedImage(
+                                context, animal), // Obtendo a última imagem
+                            builder: (context, snapshot) {
+                              String? imageKey;
+
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                imageKey = null; // Placeholder enquanto carrega
+                              } else if (snapshot.hasError) {
+                                log('Erro ao carregar imagem: ${snapshot.error}');
+                                imageKey =
+                                    null; // Pode definir um valor padrão aqui, ex: 'path/to/default/image.png'
+                              } else {
+                                imageKey = snapshot.data;
+                              }
 
                               return CustomCard(
                                 title: animal.name.toString(),
                                 info1: getAnimalTypeName(animal.typeAnimal),
                                 info2: getSexDescription(animal.sex ?? ''),
-                                image: imageKey ?? '',  // Se não houver imagem, deixa vazio
+                                image: imageKey ??
+                                    '', // Se não houver imagem, deixa vazio
                                 onTap: () async {
                                   await showAnimalDetailDialog(context, animal,
                                       _animalTypes, _colaboradores, _fetchData);
                                 },
                               );
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-      ),
+                            },
+                          ),
+                        );
+                      },
+                    ),
+        ),
       ],
     );
   }
