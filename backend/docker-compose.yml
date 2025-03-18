@@ -10,12 +10,15 @@ services:
       - NEXT_PUBLIC_SECRET_KEY=${NEXT_PUBLIC_SECRET_KEY}
     ports:
       - 7001:7001
+    volumes:
+      - ./public/uploads:/app/public/uploads 
+      - ./src/database/backups:/app/src/database/backups
     restart: always
     deploy:
       resources:
         limits:
-          cpus: "0.1"
-          memory: 125M
+          cpus: "0.5"
+          memory: 512M
     networks:
       - docelar-api-net
 
