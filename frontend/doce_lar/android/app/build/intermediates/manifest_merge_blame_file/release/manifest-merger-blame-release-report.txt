@@ -1,0 +1,215 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.doce_lar"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+8-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="34" />
+9-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml
+10    <!-- Permissões necessárias para baixar e salvar arquivos -->
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:3:5-66
+11-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:3:22-64
+12    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+12-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:4:5-80
+12-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:4:22-78
+13    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+13-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:5:5-79
+13-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:5:22-77
+14    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+14-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:6:5-82
+14-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:6:22-79
+15
+16    <queries>
+16-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:40:5-45:15
+17        <intent>
+17-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:41:9-44:18
+18            <action android:name="android.intent.action.PROCESS_TEXT" />
+18-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:42:13-72
+18-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:42:21-70
+19
+20            <data android:mimeType="text/plain" />
+20-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:43:13-50
+20-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:43:19-48
+21        </intent>
+22    </queries>
+23
+24    <permission
+24-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+25        android:name="com.example.doce_lar.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+25-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+26        android:protectionLevel="signature" />
+26-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+27
+28    <uses-permission android:name="com.example.doce_lar.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+28-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+28-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+29
+30    <application
+31        android:name="android.app.Application"
+31-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:10:9-42
+32        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+32-->[androidx.core:core:1.13.1] C:\Users\vinit\.gradle\caches\transforms-3\2f6a5506f4dac22f7ab67b13b215ea43\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+33        android:icon="@mipmap/ic_launcher"
+33-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:11:9-43
+34        android:label="Doce Lar"
+34-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:9:9-33
+35        android:requestLegacyExternalStorage="true" > <!-- Necessário para Android 10+ -->
+35-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:12:9-52
+36
+37        <activity
+37-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:14:9-32:20
+38            android:name="com.example.doce_lar.MainActivity"
+38-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:15:13-41
+39            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+39-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:20:13-163
+40            android:exported="true"
+40-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:16:13-36
+41            android:hardwareAccelerated="true"
+41-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:21:13-47
+42            android:launchMode="singleTop"
+42-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:17:13-43
+43            android:taskAffinity=""
+43-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:18:13-36
+44            android:theme="@style/LaunchTheme"
+44-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:19:13-47
+45            android:windowSoftInputMode="adjustResize" >
+45-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:22:13-55
+46            <meta-data
+46-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:24:13-26:56
+47                android:name="io.flutter.embedding.android.NormalTheme"
+47-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:25:17-72
+48                android:resource="@style/NormalTheme" />
+48-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:26:17-54
+49
+50            <intent-filter>
+50-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:28:13-31:29
+51                <action android:name="android.intent.action.MAIN" />
+51-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:29:17-68
+51-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:29:25-66
+52
+53                <category android:name="android.intent.category.LAUNCHER" />
+53-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:30:17-76
+53-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:30:27-74
+54            </intent-filter>
+55        </activity>
+56
+57        <meta-data
+57-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:34:9-36:32
+58            android:name="flutterEmbedding"
+58-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:35:13-44
+59            android:value="2" />
+59-->D:\PROJETOS\UNIVALE\DOCELAR\docelar\frontend\doce_lar\android\app\src\main\AndroidManifest.xml:36:13-30
+60
+61        <provider
+61-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:11:9-19:20
+62            android:name="io.flutter.plugins.imagepicker.ImagePickerFileProvider"
+62-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:12:13-82
+63            android:authorities="com.example.doce_lar.flutter.image_provider"
+63-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:13:13-74
+64            android:exported="false"
+64-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:14:13-37
+65            android:grantUriPermissions="true" >
+65-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:15:13-47
+66            <meta-data
+66-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:16:13-18:75
+67                android:name="android.support.FILE_PROVIDER_PATHS"
+67-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:17:17-67
+68                android:resource="@xml/flutter_image_picker_file_paths" />
+68-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:18:17-72
+69        </provider> <!-- Trigger Google Play services to install the backported photo picker module. -->
+70        <service
+70-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:21:9-33:19
+71            android:name="com.google.android.gms.metadata.ModuleDependencies"
+71-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:22:13-78
+72            android:enabled="false"
+72-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:23:13-36
+73            android:exported="false" >
+73-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:24:13-37
+74            <intent-filter>
+74-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:26:13-28:29
+75                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+75-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:27:17-94
+75-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:27:25-91
+76            </intent-filter>
+77
+78            <meta-data
+78-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:30:13-32:36
+79                android:name="photopicker_activity:0:required"
+79-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:31:17-63
+80                android:value="" />
+80-->[:image_picker_android] C:\Users\vinit\AppData\Local\Pub\Cache\hosted\pub.dev\image_picker_android-0.8.12+12\android\build\intermediates\merged_manifest\release\AndroidManifest.xml:32:17-33
+81        </service>
+82
+83        <uses-library
+83-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:25:9-27:40
+84            android:name="androidx.window.extensions"
+84-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:26:13-54
+85            android:required="false" />
+85-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:27:13-37
+86        <uses-library
+86-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:28:9-30:40
+87            android:name="androidx.window.sidecar"
+87-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:29:13-51
+88            android:required="false" />
+88-->[androidx.window:window:1.0.0-beta04] C:\Users\vinit\.gradle\caches\transforms-3\f302e75fb7efd781bcf1a29281c188da\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:30:13-37
+89
+90        <provider
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+91            android:name="androidx.startup.InitializationProvider"
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:25:13-67
+92            android:authorities="com.example.doce_lar.androidx-startup"
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:26:13-68
+93            android:exported="false" >
+93-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:27:13-37
+94            <meta-data
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+95                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+96                android:value="androidx.startup" />
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+97        </provider>
+98
+99        <receiver
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+100            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+100-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+101            android:directBootAware="false"
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+102            android:enabled="true"
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+103            android:exported="true"
+103-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+104            android:permission="android.permission.DUMP" >
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+105            <intent-filter>
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+106                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+107            </intent-filter>
+108            <intent-filter>
+108-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+109                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+109-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+109-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+110            </intent-filter>
+111            <intent-filter>
+111-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+112                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+112-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+113            </intent-filter>
+114            <intent-filter>
+114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+115                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\vinit\.gradle\caches\transforms-3\e852edee255e4ba7fa4d5b58ba237ddb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+116            </intent-filter>
+117        </receiver>
+118    </application>
+119
+120</manifest>

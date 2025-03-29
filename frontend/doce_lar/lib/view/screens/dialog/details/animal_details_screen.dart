@@ -1,7 +1,11 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:path/path.dart' as path;
 import 'package:doce_lar/controller/interceptor_dio.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:doce_lar/controller/login_controller.dart';
 import 'package:doce_lar/model/models/animal_model.dart';
 import 'package:doce_lar/model/models/animal_type_model.dart';
@@ -322,14 +326,10 @@ Future<void> showAnimalDetailDialog(
                                         : GridView.builder(
                                             gridDelegate:
                                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount:
-                                                  3, // Número de colunas
-                                              childAspectRatio:
-                                                  1.0, // Relação de aspecto
-                                              crossAxisSpacing:
-                                                  4.0, // Espaçamento entre as colunas
-                                              mainAxisSpacing:
-                                                  4.0, // Espaçamento entre as linhas
+                                              crossAxisCount: 3,
+                                              childAspectRatio: 1.0,
+                                              crossAxisSpacing: 4.0,
+                                              mainAxisSpacing: 4.0,
                                             ),
                                             itemCount: documents.length,
                                             itemBuilder: (context, index) {
@@ -363,16 +363,16 @@ Future<void> showAnimalDetailDialog(
                                                                     tag:
                                                                         imageUrl),
                                                           ),
+                                                          // Botão de Fechar
                                                           Positioned(
                                                             top: 40,
                                                             right: 20,
                                                             child: IconButton(
                                                               icon: const Icon(
-                                                                Icons.close,
-                                                                color: Colors
-                                                                    .white,
-                                                                size: 30,
-                                                              ),
+                                                                  Icons.close,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 30),
                                                               onPressed: () {
                                                                 Navigator.of(
                                                                         context)
@@ -380,21 +380,18 @@ Future<void> showAnimalDetailDialog(
                                                               },
                                                             ),
                                                           ),
-                                                          // Botão de deletar
+                                                          // Botão de Deletar
                                                           Positioned(
                                                             bottom: 40,
                                                             left: 20,
                                                             child: IconButton(
                                                               icon: const Icon(
-                                                                Icons.delete,
-                                                                color:
-                                                                    Colors.red,
-                                                                size: 30,
-                                                              ),
+                                                                  Icons.delete,
+                                                                  color: Colors
+                                                                      .red,
+                                                                  size: 30),
                                                               onPressed:
                                                                   () async {
-                                                                // Função para excluir a imagem
-
                                                                 await showDeleteDialog(
                                                                   context,
                                                                   document.id!,
@@ -410,6 +407,25 @@ Future<void> showAnimalDetailDialog(
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop();
+                                                              },
+                                                            ),
+                                                          ),
+                                                          // Botão de Download
+                                                          Positioned(
+                                                            bottom: 40,
+                                                            right: 20,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                  Icons
+                                                                      .download,
+                                                                  color: Colors
+                                                                      .blue,
+                                                                  size: 30),
+                                                              onPressed:
+                                                                  () async {
+                                                                await _downloadImage(
+                                                                    imageUrl,                                                                  
+                                                                    context);
                                                               },
                                                             ),
                                                           ),
@@ -432,17 +448,13 @@ Future<void> showAnimalDetailDialog(
                                     children: [
                                       ElevatedButton(
                                         onPressed: () async {
-
                                           ImageUploadHelper(
                                             onAdd: onAnimalUpdated,
                                             context: context,
                                             uploadRepository:
                                                 UploadRepository(customDio),
                                             animalId: animal.id,
-                                          ).selectAndConfirmImage(
-                                          );
-
-                                          
+                                          ).selectAndConfirmImage();
                                         },
                                         child: const Text('Adicionar Foto'),
                                       ),
@@ -559,6 +571,76 @@ Future<List<Service>> _fetchServicesWithProcedures(
   services.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
 
   return services;
+}
+
+Future<bool> requestStoragePermission() async {
+  if (Platform.isAndroid) {
+    // Tentar conceder permissão para armazenamento em Android
+    if (await Permission.storage.request().isGranted) {
+      return true; // Permissão concedida
+    } else if (await Permission.manageExternalStorage.request().isGranted) {
+      return true; // Permissão concedida para Android 11+
+    } else if (await Permission.storage.isPermanentlyDenied) {
+      // Solicitar ao usuário para abrir as configurações manualmente
+      await openAppSettings(); 
+      return false;
+    }
+    return false;
+  }
+  return true; // No iOS, a permissão não é necessária
+}
+
+Future<void> _downloadImage(
+    String url, BuildContext context) async {
+  try {
+    bool hasPermission = await requestStoragePermission();
+    if (!hasPermission) return;
+
+    // Extraindo o nome do arquivo da URL
+    String fileName = path.basename(url);
+
+    Directory? directory;
+
+    if (Platform.isAndroid) {
+      if (Platform.version.contains("10") || Platform.version.contains("11")) {
+        // Para Android 10 e superior, use o caminho correto para Downloads
+        directory = Directory('/storage/emulated/0/Download');
+      } else {
+        // Para versões mais antigas, obtenha o diretório de armazenamento externo
+        directory = await getExternalStorageDirectory();
+      }
+    } else {
+      // Para iOS ou outras plataformas, usar o diretório de documentos do aplicativo
+      directory = await getApplicationDocumentsDirectory();
+    }
+
+    if (directory == null) {
+      // Verifique se o diretório é nulo antes de continuar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro: diretório de download não encontrado!')),
+      );
+      return;
+    }
+
+    // Caminho completo para salvar o arquivo
+    String savePath = '${directory.path}/$fileName';
+
+    // Garantir que o diretório de destino existe
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    await Dio().download(url, savePath);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Download concluído: $savePath')),
+    );
+  } catch (e) {
+    print('Erro ao baixar a imagem: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Erro ao baixar a imagem!')),
+    );
+  }
 }
 
 Future<void> _showEditAnimalDialog(
