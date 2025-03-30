@@ -10,6 +10,8 @@ import { SwaggerDocConfig } from "./docs/swagger"
 import { SwaggerUIDocConfig } from "./docs/swaggerUI"
 import useCreateBackup from "./hooks/useCreateBackup"
 import RoutesInitController from "./routes"
+const port = process.env.PORT ? parseInt(process.env.PORT) : 7001
+
 const { createBackup } = useCreateBackup()
 
 const server: FastifyInstance = fastify()
@@ -44,9 +46,13 @@ server.register(fastifyStatic, {
 })
 
 server.register(fastifyCors, {
-  origin: "*",
+  origin:
+    process.env.NODE_ENV === "production"
+      ? ["https://api.docelarprojeto.com"]
+      : ["*"],
   methods: ["GET", "POST", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 })
 
 RoutesInitController(server)
@@ -60,7 +66,7 @@ server.register(
   () => SwaggerUIDocConfig() as FastifySwaggerUiOptions
 )
 
-server.listen({ port: 7001, host: "0.0.0.0" }, err => {
+server.listen({ port, host: "0.0.0.0" }, err => {
   server.swagger()
 
   if (err) {

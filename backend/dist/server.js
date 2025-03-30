@@ -15,6 +15,7 @@ const swagger_2 = require("./docs/swagger");
 const swaggerUI_1 = require("./docs/swaggerUI");
 const useCreateBackup_1 = __importDefault(require("./hooks/useCreateBackup"));
 const routes_1 = __importDefault(require("./routes"));
+const port = process.env.PORT ? parseInt(process.env.PORT) : 7001;
 const { createBackup } = (0, useCreateBackup_1.default)();
 const server = (0, fastify_1.default)();
 const serviceBackup = new cron_1.CronJob("0 2 * * *", async () => {
@@ -38,14 +39,17 @@ server.register(static_1.default, {
     prefix: "/uploads/"
 });
 server.register(cors_1.default, {
-    origin: "*",
+    origin: process.env.NODE_ENV === "production"
+        ? ["https://api.docelarprojeto.com"]
+        : ["*"],
     methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 });
 (0, routes_1.default)(server);
 server.register(swagger_1.default, () => (0, swagger_2.SwaggerDocConfig)());
 server.register(swagger_ui_1.default, () => (0, swaggerUI_1.SwaggerUIDocConfig)());
-server.listen({ port: 7001, host: "0.0.0.0" }, err => {
+server.listen({ port, host: "0.0.0.0" }, err => {
     server.swagger();
     if (err) {
         console.error(err);
